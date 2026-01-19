@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { config, files } from "@/services/api";
+import { config, files, execute } from "@/services/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Copy, Upload, Wand2, Play } from "lucide-react";
+import { Copy, Upload, Wand2, Play, Loader2, Settings } from "lucide-react";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { Terminal } from "@/components/Terminal";
 
 export default function App() {
   const [processors, setProcessors] = useState<string[]>([]);
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [sourcePath, setSourcePath] = useState<string | null>(null);
   const [targetPath, setTargetPath] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     config.getProcessors().then((res) => {
@@ -30,8 +35,25 @@ export default function App() {
     config.update({ processors: newActive });
   };
 
+  const startProcessing = async () => {
+    if (!sourcePath || !targetPath) return;
+    setIsProcessing(true);
+    try {
+      const res = await execute.run();
+      if (res.data.status === "completed") {
+        setOutputUrl(res.data.preview_url);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-neutral-950 text-white font-sans">
+      <Terminal />
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       {/* Sidebar */}
       <aside className="w-80 border-r border-neutral-800 p-6 space-y-8">
         <div>
@@ -51,8 +73,8 @@ export default function App() {
                 key={proc}
                 onClick={() => toggleProcessor(proc)}
                 className={`px-3 py-1.5 text-xs rounded-full border transition-all ${activeProcessors.includes(proc)
-                    ? "bg-red-600 border-red-500 text-white"
-                    : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500"
+                  ? "bg-red-600 border-red-500 text-white"
+                  : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500"
                   }`}
               >
                 {proc}
@@ -61,9 +83,28 @@ export default function App() {
           </div>
         </section>
 
-        <section>
-          <button className="w-full py-3 bg-white text-black font-bold rounded-lg hover:bg-neutral-200 transition flex items-center justify-center gap-2">
-            <Play size={18} /> Start Processing
+        <section className="space-y-4">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-full py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition flex items-center justify-center gap-2"
+          >
+            <Settings size={16} /> Advanced Settings
+          </button>
+
+          <button
+            onClick={startProcessing}
+            disabled={isProcessing || !sourcePath || !targetPath}
+            className={`w-full py-3 font-bold rounded-lg transition flex items-center justify-center gap-2 ${isProcessing || !sourcePath || !targetPath
+              ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+              : "bg-white text-black hover:bg-neutral-200"
+              }`}
+          >
+            {isProcessing ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Play size={18} />
+            )}
+            {isProcessing ? "Processing..." : "Start Processing"}
           </button>
         </section>
       </aside>
@@ -133,8 +174,24 @@ export default function App() {
 
         {/* Preview */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
-          <p className="text-neutral-600 font-medium z-10">Output Preview</p>
+          {outputUrl ? (
+            <video
+              src={`http://localhost:8000${outputUrl}`}
+              controls
+              className="w-full h-full object-contain"
+              autoPlay
+            />
+          ) : isProcessing ? (
+            <div className="flex flex-col items-center gap-4 text-neutral-400">
+              <Loader2 size={48} className="animate-spin text-red-500" />
+              <p>Generating Deepfake...</p>
+            </div>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
+              <p className="text-neutral-600 font-medium z-10">Output Preview</p>
+            </>
+          )}
         </div>
       </main>
     </div>

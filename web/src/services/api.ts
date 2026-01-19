@@ -13,6 +13,7 @@ export const system = {
 
 export const config = {
     getProcessors: () => api.get('/processors'),
+    getSettings: () => api.get('/config'),
     update: (data: any) => api.post('/config', data),
 };
 
@@ -25,5 +26,9 @@ export const files = {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
-    preview: (path: str) => \`\${API_URL}/files/preview?path=\${encodeURIComponent(path)}\`,
+    preview: (path: string) => \`\${API_URL}/files/preview?path=\${encodeURIComponent(path)}\`,
+};
+
+export const execute = {
+  run: () => api.post('/run'),
 };
