@@ -1,4 +1,4 @@
-from logging import Logger, basicConfig, getLogger
+from logging import FileHandler, Formatter, Logger, basicConfig, getLogger
 
 import facefusion.choices
 from facefusion.common_helper import get_first, get_last
@@ -7,6 +7,9 @@ from facefusion.types import LogLevel
 
 def init(log_level : LogLevel) -> None:
 	basicConfig(format = '%(message)s')
+	file_handler = FileHandler('facefusion.log')
+	file_handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+	get_package_logger().addHandler(file_handler)
 	get_package_logger().setLevel(facefusion.choices.log_level_set.get(log_level))
 
 

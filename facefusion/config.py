@@ -12,7 +12,14 @@ def get_config_parser() -> ConfigParser:
 
 	if CONFIG_PARSER is None:
 		CONFIG_PARSER = ConfigParser()
-		CONFIG_PARSER.read(state_manager.get_item('config_path'), encoding = 'utf-8')
+		config_path = state_manager.get_item('config_path')
+		config_paths = [ config_path ]
+		
+		if 'facefusion.ini' in config_path:
+			user_config_path = config_path.replace('facefusion.ini', 'user.ini')
+			config_paths.append(user_config_path)
+
+		CONFIG_PARSER.read(config_paths, encoding = 'utf-8')
 	return CONFIG_PARSER
 
 

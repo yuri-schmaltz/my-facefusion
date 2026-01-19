@@ -48,7 +48,7 @@ def signal_exit(signum : int, frame : FrameType) -> None:
 def run(program : ArgumentParser) -> None:
 	args = program.parse_args()
 	has_conda = 'CONDA_PREFIX' in os.environ
-	commands = [ shutil.which('pip'), 'install' ]
+	commands = [ sys.executable, '-m', 'pip', 'install' ]
 
 	if args.force_reinstall:
 		commands.append('--force-reinstall')
