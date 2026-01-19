@@ -26,6 +26,8 @@
 
 :root:root:root:root input[type="number"]:focus {
 	outline: unset;
+	box-shadow: 0 0 0 2px var(--primary-500);
+	border-color: var(--primary-500);
 }
 
 :root:root:root:root .reset-button {
