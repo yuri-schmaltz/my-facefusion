@@ -9,7 +9,7 @@ def pre_check() -> bool:
 
 
 def render() -> gradio.Blocks:
-	with gradio.Blocks(theme = state_manager.get_item('ui_theme')) as layout:
+	with gradio.Blocks(theme = state_manager.get_item('ui_theme'), fill_height = True) as layout:
 		with gradio.Row():
 			with gradio.Column(scale = 4):
 				with gradio.Blocks():
@@ -87,6 +87,8 @@ def render() -> gradio.Blocks:
 						face_landmarker.render()
 					with gradio.Blocks():
 						common_options.render()
+		timer = gradio.Timer(2.0)
+		timer.tick(resource_monitor.update_resource_monitor, outputs = resource_monitor.RESOURCE_MONITOR_Label)
 	return layout
 
 
@@ -130,5 +132,4 @@ def listen() -> None:
 
 def run(ui : gradio.Blocks) -> None:
 	ui.queue()
-	ui.load(resource_monitor.update_resource_monitor, outputs = resource_monitor.RESOURCE_MONITOR_Label, every = 2.0)
 	ui.launch(favicon_path = 'facefusion.ico', inbrowser = state_manager.get_item('open_browser'))
