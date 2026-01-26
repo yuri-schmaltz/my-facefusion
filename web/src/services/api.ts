@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8002';
+const API_URL = '/api';
 
 export const api = axios.create({
     baseURL: API_URL,
@@ -26,9 +26,9 @@ export const files = {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
-    preview: (path: string) => \`\${API_URL}/files/preview?path=\${encodeURIComponent(path)}\`,
+    preview: (path: string) => `${API_URL}/files/preview?path=${encodeURIComponent(path)}`,
 };
 
 export const execute = {
-  run: () => api.post('/run'),
+    run: () => api.post('/run'),
 };

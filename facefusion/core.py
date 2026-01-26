@@ -3,6 +3,7 @@ import itertools
 import shutil
 import signal
 import sys
+import os
 from time import time
 
 from facefusion import benchmarker, cli_helper, content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, hash_helper, logger, state_manager, translator, voice_extractor
@@ -62,15 +63,11 @@ def route(args : Args) -> None:
 		hard_exit(error_code)
 
 	if state_manager.get_item('command') == 'run':
-		import facefusion.uis.core as ui
-
-		if not common_pre_check() or not processors_pre_check():
-			hard_exit(2)
-		for ui_layout in ui.get_ui_layouts_modules(state_manager.get_item('ui_layouts')):
-			if not ui_layout.pre_check():
-				hard_exit(2)
-		ui.init()
-		ui.launch()
+		import uvicorn
+		# Ensure the current directory is in the python path
+		sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+		print("Starting FaceFusion API Server on port 8002...")
+		uvicorn.run("facefusion.api_server:app", host="0.0.0.0", port=8002, reload=True)
 
 	if state_manager.get_item('command') == 'headless-run':
 		if not job_manager.init_jobs(state_manager.get_item('jobs_path')):
