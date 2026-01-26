@@ -9,7 +9,7 @@ export function Terminal() {
     useEffect(() => {
         if (!isOpen) return;
 
-        const ws = new WebSocket("ws://localhost:8000/logs");
+        const ws = new WebSocket("ws://localhost:8002/logs");
 
         ws.onmessage = (event) => {
             setLogs((prev) => [...prev, event.data].slice(-100)); // Keep last 100 lines

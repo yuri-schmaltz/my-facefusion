@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import tempfile
 
-from facefusion import state_manager, job_manager
-from facefusion.jobs import job_runner
+from facefusion import state_manager, metadata, execution
+from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
 
@@ -40,12 +40,30 @@ class ConfigUpdate(BaseModel):
     output_path: Optional[str] = None
     # common settings
     face_selector_mode: Optional[str] = None
+    face_mask_types: Optional[List[str]] = None
+    face_mask_regions: Optional[List[str]] = None
     output_video_quality: Optional[int] = None
-    frame_processor_checkpoint: Optional[str] = None # Example
+    output_video_encoder: Optional[str] = None
+    execution_providers: Optional[List[str]] = None
+    execution_thread_count: Optional[int] = None
+    execution_queue_count: Optional[int] = None
     # generic bag for anything else
     settings: Optional[dict] = None
 
 # ...
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.get("/system/info")
+def system_info():
+    return {
+        "name": metadata.get("name"),
+        "version": metadata.get("version"),
+        "execution_providers": execution.get_available_execution_providers(),
+        "execution_devices": execution.detect_execution_devices() # This might be slow if nvidia-smi is called every time, but acceptable for now
+    }
 
 @app.get("/processors")
 def list_processors():
@@ -69,8 +87,13 @@ def get_config():
     return {
         "processors": state_manager.get_item('processors'),
         "face_selector_mode": state_manager.get_item('face_selector_mode'),
+        "face_mask_types": state_manager.get_item('face_mask_types'),
+        "face_mask_regions": state_manager.get_item('face_mask_regions'),
         "output_video_quality": state_manager.get_item('output_video_quality'),
+        "output_video_encoder": state_manager.get_item('output_video_encoder'),
         "execution_providers": state_manager.get_item('execution_providers'),
+        "execution_thread_count": state_manager.get_item('execution_thread_count'),
+        "execution_queue_count": state_manager.get_item('execution_queue_count'),
         # Add more defaults as needed for the UI to populate
     }
 
@@ -82,8 +105,20 @@ def update_config(config: ConfigUpdate):
         state_manager.set_item('output_path', config.output_path)
     if config.face_selector_mode is not None:
         state_manager.set_item('face_selector_mode', config.face_selector_mode)
+    if config.face_mask_types is not None:
+        state_manager.set_item('face_mask_types', config.face_mask_types)
+    if config.face_mask_regions is not None:
+        state_manager.set_item('face_mask_regions', config.face_mask_regions)
     if config.output_video_quality is not None:
         state_manager.set_item('output_video_quality', config.output_video_quality)
+    if config.output_video_encoder is not None:
+        state_manager.set_item('output_video_encoder', config.output_video_encoder)
+    if config.execution_providers is not None:
+        state_manager.set_item('execution_providers', config.execution_providers)
+    if config.execution_thread_count is not None:
+        state_manager.set_item('execution_thread_count', config.execution_thread_count)
+    if config.execution_queue_count is not None:
+        state_manager.set_item('execution_queue_count', config.execution_queue_count)
         
     if config.settings:
         for key, value in config.settings.items():
@@ -150,7 +185,12 @@ def run_job():
         'target_path': state_manager.get_item('target_path'),
         'output_path': output_path,
         'processors': state_manager.get_item('processors'),
-        # Add other critical args here if needed (e.g. face_selector_mode)
+        'face_selector_mode': state_manager.get_item('face_selector_mode'),
+        'face_mask_types': state_manager.get_item('face_mask_types'),
+        'face_mask_regions': state_manager.get_item('face_mask_regions'),
+        'execution_providers': state_manager.get_item('execution_providers'),
+        'execution_thread_count': state_manager.get_item('execution_thread_count'),
+        'execution_queue_count': state_manager.get_item('execution_queue_count'),
     }
 
     # 3. Job Workflow
