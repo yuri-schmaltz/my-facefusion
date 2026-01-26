@@ -23,6 +23,27 @@ Be aware, the [installation](https://docs.facefusion.io/installation) needs tech
 Usage
 -----
 
+### Full Stack (FastAPI + React) - **RECOMMENDED**
+
+1.  **Backend (API Server)**:
+    ```bash
+    python facefusion.py run
+    ```
+    *Starts on port 8002.*
+
+2.  **Frontend (UI)**:
+    ```bash
+    cd web
+    npm install  # First time only
+    npm run dev
+    ```
+    *Starts on port 5173 (usually).*
+
+Access the application at **http://localhost:5173**
+
+---
+
+### Legacy Usage
 Run the command:
 
 ```
