@@ -57,6 +57,10 @@ async def lifespan(app: FastAPI):
     if state_manager.get_item('face_mask_regions') is None:
         state_manager.init_item('face_mask_regions', ['skin'])
 
+    # Ensure temp_path is set
+    if state_manager.get_item('temp_path') is None:
+        state_manager.init_item('temp_path', tempfile.gettempdir())
+
     # Common Face Detector settings
     if state_manager.get_item('face_detector_model') is None:
         state_manager.init_item('face_detector_model', 'yolo_face')
