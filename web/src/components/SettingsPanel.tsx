@@ -104,7 +104,7 @@ export function SettingsPanel() {
                                 key={type}
                                 onClick={() => toggleArrayItem("face_mask_types", type)}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-medium rounded-full border transition-all",
+                                    "px-3 py-1.5 text-xs font-medium rounded-md border transition-all",
                                     (settings.face_mask_types || []).includes(type)
                                         ? "bg-red-600 border-red-500 text-white"
                                         : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
@@ -127,7 +127,7 @@ export function SettingsPanel() {
                                 key={region}
                                 onClick={() => toggleArrayItem("face_mask_regions", region)}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-medium rounded-full border transition-all",
+                                    "px-3 py-1.5 text-xs font-medium rounded-md border transition-all",
                                     (settings.face_mask_regions || []).includes(region)
                                         ? "bg-red-600 border-red-500 text-white"
                                         : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"

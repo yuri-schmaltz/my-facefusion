@@ -9,6 +9,8 @@ export const api = axios.create({
 export const system = {
     health: () => api.get('/health'),
     info: () => api.get('/system/info'),
+    selectFile: (multiple = false, initialPath?: string) =>
+        api.get(`/system/select-file?multiple=${multiple}${initialPath ? `&initial_path=${encodeURIComponent(initialPath)}` : ''}`),
 };
 
 export const processors = {

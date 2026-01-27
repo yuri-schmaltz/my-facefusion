@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import tempfile
+import anyio
+import subprocess
 
 from facefusion import state_manager, metadata, execution
 from facefusion.jobs import job_manager, job_runner
@@ -18,6 +20,10 @@ from facefusion.processors.core import get_processors_modules, load_processor_mo
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Modern lifespan context manager for startup/shutdown events."""
+    # Register keys by creating the program
+    from facefusion import core
+    core.create_program()
+    
     # Startup
     jobs_path = os.path.join(get_temp_path(), "jobs")
     job_manager.init_jobs(jobs_path)
@@ -50,6 +56,39 @@ async def lifespan(app: FastAPI):
 
     if state_manager.get_item('processors') is None:
         state_manager.init_item('processors', [])
+    
+    # Initialize processor-specific defaults
+    if state_manager.get_item('face_swapper_model') is None:
+        state_manager.init_item('face_swapper_model', 'hyperswap_1a_256')
+    if state_manager.get_item('face_swapper_pixel_boost') is None:
+        state_manager.init_item('face_swapper_pixel_boost', '256x256')
+    if state_manager.get_item('face_swapper_weight') is None:
+        state_manager.init_item('face_swapper_weight', 0.5)
+        
+    if state_manager.get_item('face_enhancer_model') is None:
+        state_manager.init_item('face_enhancer_model', 'gfpgan_1.4')
+    if state_manager.get_item('face_enhancer_blend') is None:
+        state_manager.init_item('face_enhancer_blend', 80)
+    if state_manager.get_item('face_enhancer_weight') is None:
+        state_manager.init_item('face_enhancer_weight', 1.0)
+
+    if state_manager.get_item('frame_enhancer_model') is None:
+        state_manager.init_item('frame_enhancer_model', 'realsr_x2_clear')
+    if state_manager.get_item('frame_enhancer_blend') is None:
+        state_manager.init_item('frame_enhancer_blend', 80)
+        
+    if state_manager.get_item('lip_syncer_model') is None:
+        state_manager.init_item('lip_syncer_model', 'wav2lip_gan')
+    
+    if state_manager.get_item('age_modifier_model') is None:
+        state_manager.init_item('age_modifier_model', 'styleganex_age')
+    if state_manager.get_item('age_modifier_direction') is None:
+        state_manager.init_item('age_modifier_direction', 0)
+        
+    if state_manager.get_item('expression_restorer_model') is None:
+        state_manager.init_item('expression_restorer_model', 'live_portrait')
+    if state_manager.get_item('expression_restorer_factor') is None:
+        state_manager.init_item('expression_restorer_factor', 80)
     
     yield  # Application runs here
     
@@ -101,6 +140,9 @@ class ConfigUpdate(BaseModel):
     # generic bag for anything else
     settings: Optional[dict] = None
 
+    class Config:
+        extra = "allow"
+
 # ...
 
 @app.get("/health")
@@ -115,6 +157,33 @@ def system_info():
         "execution_providers": execution.get_available_execution_providers(),
         "execution_devices": execution.detect_execution_devices() # This might be slow if nvidia-smi is called every time, but acceptable for now
     }
+
+@app.get("/system/select-file")
+async def select_file(multiple: bool = False, initial_path: Optional[str] = None):
+    """Triggers a native OS file selection dialog using Zenity."""
+    def run_zenity():
+        command = ["zenity", "--file-selection", "--title=Select Media"]
+        if multiple:
+            command.append("--multiple")
+            command.append("--separator=|")
+        if initial_path and os.path.exists(initial_path):
+            command.append(f"--filename={initial_path}")
+        
+        try:
+            # Set timeout to avoid hanging if zenity fails to show
+            return subprocess.check_output(command, stderr=subprocess.DEVNULL).decode().strip()
+        except subprocess.CalledProcessError:
+            return ""
+
+    result = await anyio.to_thread.run_sync(run_zenity)
+    
+    if not result:
+        return {"path": None, "paths": []}
+    
+    if multiple:
+        paths = result.split("|")
+        return {"path": paths[0] if paths else None, "paths": paths}
+    return {"path": result, "paths": [result]}
 
 @app.get("/processors")
 def list_processors():
@@ -137,43 +206,37 @@ def list_processors():
 
 @app.get("/config")
 def get_config():
-    # Return a subset of interesting config
-    return {
-        "processors": state_manager.get_item('processors'),
-        "face_selector_mode": state_manager.get_item('face_selector_mode'),
-        "face_mask_types": state_manager.get_item('face_mask_types'),
-        "face_mask_regions": state_manager.get_item('face_mask_regions'),
-        "output_video_quality": state_manager.get_item('output_video_quality'),
-        "output_video_encoder": state_manager.get_item('output_video_encoder'),
-        "execution_providers": state_manager.get_item('execution_providers'),
-        "execution_thread_count": state_manager.get_item('execution_thread_count'),
-        "execution_queue_count": state_manager.get_item('execution_queue_count'),
-        # Add more defaults as needed for the UI to populate
-    }
+    from facefusion.args import collect_step_args, collect_job_args
+    # Return all step and job args for the UI to stay in sync
+    config_data = collect_step_args()
+    config_data.update(collect_job_args())
+    return config_data
 
 @app.post("/config")
 def update_config(config: ConfigUpdate):
-    if config.processors is not None:
-        state_manager.set_item('processors', config.processors)
-    if config.output_path is not None:
-        state_manager.set_item('output_path', config.output_path)
-    if config.face_selector_mode is not None:
-        state_manager.set_item('face_selector_mode', config.face_selector_mode)
-    if config.face_mask_types is not None:
-        state_manager.set_item('face_mask_types', config.face_mask_types)
-    if config.face_mask_regions is not None:
-        state_manager.set_item('face_mask_regions', config.face_mask_regions)
-    if config.output_video_quality is not None:
-        state_manager.set_item('output_video_quality', config.output_video_quality)
-    if config.output_video_encoder is not None:
-        state_manager.set_item('output_video_encoder', config.output_video_encoder)
-    if config.execution_providers is not None:
-        state_manager.set_item('execution_providers', config.execution_providers)
-    if config.execution_thread_count is not None:
-        state_manager.set_item('execution_thread_count', config.execution_thread_count)
-    if config.execution_queue_count is not None:
-        state_manager.set_item('execution_queue_count', config.execution_queue_count)
-        
+    # Handle explicit fields
+    update_map = {
+        'processors': config.processors,
+        'output_path': config.output_path,
+        'face_selector_mode': config.face_selector_mode,
+        'face_mask_types': config.face_mask_types,
+        'face_mask_regions': config.face_mask_regions,
+        'output_video_quality': config.output_video_quality,
+        'output_video_encoder': config.output_video_encoder,
+        'execution_providers': config.execution_providers,
+        'execution_thread_count': config.execution_thread_count,
+        'execution_queue_count': config.execution_queue_count,
+    }
+    
+    for key, value in update_map.items():
+        if value is not None:
+            state_manager.set_item(key, value)
+            
+    # Handle extra fields (like processor-specific settings)
+    extra_data = config.model_extra or {}
+    for key, value in extra_data.items():
+        state_manager.set_item(key, value)
+
     if config.settings:
         for key, value in config.settings.items():
             state_manager.set_item(key, value)
@@ -200,30 +263,10 @@ def run_job():
     
     print(f"Output Path: {output_path}")
 
-    # 2. Collect Args (Current State)
-    # We need to gather all relevant args from state_manager to pass to the step
-    # For now, we assume state_manager has been populated by /config and /upload
-    # job_runner.process_step will eventually call apply_args(step_args), so we need to pass them here.
-    # However, job_manager.add_step expects 'step_args'. 
-    # Let's collect a subset or all items from state_manager that correspond to Args.
-    
-    # Simpler approach: Pass the target_path and processors. The rest are defaults or set via config.
-    # Ideally, we should collect all 'Args' fields.
-    
-    processors = state_manager.get_item('processors') or []
-    
-    step_args = {
-        'source_paths': state_manager.get_item('source_paths'),
-        'target_path': state_manager.get_item('target_path'),
-        'output_path': output_path,
-        'processors': processors,
-        'face_selector_mode': state_manager.get_item('face_selector_mode'),
-        'face_mask_types': state_manager.get_item('face_mask_types'),
-        'face_mask_regions': state_manager.get_item('face_mask_regions'),
-        'execution_providers': state_manager.get_item('execution_providers'),
-        'execution_thread_count': state_manager.get_item('execution_thread_count'),
-        'execution_queue_count': state_manager.get_item('execution_queue_count'),
-    }
+    from facefusion.args import collect_step_args, collect_job_args
+    step_args = collect_step_args()
+    step_args.update(collect_job_args())
+    step_args['output_path'] = output_path
     
     print(f"Step Args: {step_args}")
 
