@@ -169,10 +169,7 @@ async def lifespan(app: FastAPI):
         
         # Shutdown - cleanup if needed
         pass
-    except Exception as e:
-        print(f"CRITICAL LIFESPAN ERROR: {e}")
-        traceback.print_exc()
-        raise e
+
 
 
 app = FastAPI(
