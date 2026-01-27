@@ -213,6 +213,10 @@ class ConfigUpdate(BaseModel):
     reference_face_position: Optional[int] = None
     reference_face_distance: Optional[float] = None
     reference_frame_number: Optional[int] = None
+    # watermark remover
+    watermark_remover_model: Optional[str] = None
+    watermark_remover_area_start: Optional[List[int]] = None
+    watermark_remover_area_end: Optional[List[int]] = None
     # face masker
     face_mask_types: Optional[List[str]] = None
     face_mask_regions: Optional[List[str]] = None
@@ -338,6 +342,9 @@ def update_config(config: ConfigUpdate):
         'reference_face_position': config.reference_face_position,
         'reference_face_distance': config.reference_face_distance,
         'reference_frame_number': config.reference_frame_number,
+        'watermark_remover_model': config.watermark_remover_model,
+        'watermark_remover_area_start': config.watermark_remover_area_start,
+        'watermark_remover_area_end': config.watermark_remover_area_end,
         'face_mask_types': config.face_mask_types,
         'face_mask_regions': config.face_mask_regions,
         'output_video_quality': config.output_video_quality,
@@ -628,8 +635,12 @@ def get_processor_choices():
     from facefusion.processors.modules.frame_colorizer import choices as frame_colorizer_choices
     from facefusion.processors.modules.background_remover import choices as background_remover_choices
     from facefusion.processors.modules.deep_swapper import choices as deep_swapper_choices
+    from facefusion.processors.modules.watermark_remover import choices as watermark_remover_choices
 
     return {
+        "watermark_remover": {
+            "models": watermark_remover_choices.watermark_remover_models
+        },
         "face_swapper": {
             "models": face_swapper_choices.face_swapper_models,
             "set": face_swapper_choices.face_swapper_set,

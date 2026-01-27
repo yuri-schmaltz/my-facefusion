@@ -366,6 +366,9 @@ function App() {
         <div className="col-span-4 h-full flex flex-col overflow-hidden">
           <SettingsPanel
             helpTexts={helpTexts}
+            activeProcessors={activeProcessors}
+            allSettings={allSettings}
+            onUpdate={updateSetting}
           />
         </div>
 

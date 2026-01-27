@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { config } from "@/services/api";
+import React from "react";
 import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -9,82 +8,50 @@ const FACE_MASK_REGIONS = ['skin', 'left-eyebrow', 'right-eyebrow', 'left-eye', 
 const OUTPUT_VIDEO_ENCODERS = ['libx264', 'libx264rgb', 'libx265', 'libvpx-vp9', 'h264_nvenc', 'hevc_nvenc', 'h264_amf', 'hevc_amf', 'h264_qsv', 'hevc_qsv', 'h264_videotoolbox', 'hevc_videotoolbox', 'rawvideo'];
 const OUTPUT_AUDIO_ENCODERS = ['aac', 'libmp3lame', 'libopus', 'libvorbis', 'flac', 'pcm_s16le', 'pcm_s24le', 'rawaudio'];
 
+
 interface SettingsPanelProps {
+    activeProcessors: string[];
+    allSettings: any;
+    onUpdate: (key: string, value: any) => void;
     helpTexts: Record<string, string>;
     systemInfo?: {
         execution_providers: string[];
     };
 }
 
-export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string> }) {
-    const [settings, setSettings] = useState<any>({
-        face_selector_mode: "reference",
-        face_selector_order: "large-small",
-        face_selector_gender: "",
-        face_selector_race: "",
-        face_selector_age_start: 0,
-        face_selector_age_end: 100,
-        reference_face_distance: 0.6,
-        face_detector_score: 0.5,
-        face_landmarker_score: 0.5,
-        face_mask_types: ["box"],
-        face_mask_regions: ["skin"],
-        output_video_quality: 80,
-        output_video_encoder: "libx264",
-        execution_providers: ["cpu"],
-        execution_thread_count: 4,
-        execution_queue_count: 1,
-    });
+export const SettingsPanel: React.FC<SettingsPanelProps> = ({
+    activeProcessors,
+    allSettings: settings,
+    onUpdate,
+    helpTexts
+}) => {
 
-    useEffect(() => {
-        config.getSettings().then((res) => {
-            setSettings((prev: any) => ({ ...prev, ...res.data }));
-        });
-    }, []);
-
-    const updateBackend = (newSettings: any) => {
-        const payload = {
-            ...newSettings,
-            output_video_quality: Number(newSettings.output_video_quality),
-            output_audio_volume: Number(newSettings.output_audio_volume),
-            execution_thread_count: Number(newSettings.execution_thread_count),
-            execution_queue_count: Number(newSettings.execution_queue_count),
-            face_selector_age_start: Number(newSettings.face_selector_age_start),
-            face_selector_age_end: Number(newSettings.face_selector_age_end),
-            reference_face_distance: parseFloat(newSettings.reference_face_distance),
-            face_detector_score: parseFloat(newSettings.face_detector_score || 0.5),
-            face_landmarker_score: parseFloat(newSettings.face_landmarker_score || 0.5),
-            settings: {
-                execution_providers: Array.isArray(newSettings.execution_providers) ? newSettings.execution_providers : [newSettings.execution_providers]
-            }
-        };
-        config.update(payload).catch(console.error);
-    };
-
-    const handleChange = (key: string, value: any) => {
-        const newSettings = { ...settings, [key]: value };
-        setSettings(newSettings);
-        updateBackend(newSettings);
-    };
 
     const toggleArrayItem = (key: string, item: string) => {
         const current = (settings[key] || []);
         const newer = current.includes(item)
             ? current.filter((i: string) => i !== item)
             : [...current, item];
+        onUpdate(key, newer);
+    };
 
-        const newSettings = { ...settings, [key]: newer };
-        setSettings(newSettings);
-        updateBackend(newSettings);
+    const handleChange = (key: string, value: any) => {
+        let processedValue = value;
+        if (["output_video_quality", "output_audio_volume", "execution_thread_count", "execution_queue_count", "face_selector_age_start", "face_selector_age_end"].includes(key)) {
+            processedValue = Number(value);
+        } else if (["reference_face_distance", "face_detector_score", "face_landmarker_score"].includes(key)) {
+            processedValue = parseFloat(value || 0);
+        } else if (key === "watermark_remover_area_start" || key === "watermark_remover_area_end") {
+            processedValue = Array.isArray(value) ? value.map(Number) : [0, 0];
+        }
+        onUpdate(key, processedValue);
     };
 
     return (
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
-            {/* Header removed for cleaner UI with auto-save */}
-
             <div className="p-3 space-y-4 overflow-y-auto custom-scrollbar flex-1">
                 {/* Face Selector Mode */}
-                <div className="space-y-4">
+                <div className="space-y-4 animate-in fade-in">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -148,9 +115,8 @@ export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string>
                         </div>
                     )}
                 </div>
-
                 {/* Face Sorting */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-2 animate-in fade-in">
                     <div className="flex items-center gap-2">
                         <ArrowDownAz size={14} className="text-neutral-500" />
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -174,7 +140,7 @@ export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string>
                 </div>
 
                 {/* Face Filter */}
-                <div className="space-y-4 pt-2 pb-2 border-t border-neutral-800/50">
+                <div className="space-y-4 pt-2 pb-2 border-t border-neutral-800/50 animate-in fade-in">
                     <div className="flex items-center gap-2">
                         <Filter size={14} className="text-neutral-500" />
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -254,7 +220,7 @@ export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string>
                 </div>
 
                 {/* Face Detection Precision */}
-                <div className="space-y-4 pt-2 border-t border-neutral-800/50">
+                <div className="space-y-4 pt-2 border-t border-neutral-800/50 animate-in fade-in">
                     <div className="flex items-center gap-2">
                         <Sparkles size={14} className="text-neutral-500" />
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -427,8 +393,6 @@ export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string>
                         <span className="text-xs font-bold uppercase tracking-wider">JOBS</span>
                     </div>
 
-
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Execution Threads */}
                         <div className="space-y-3">
@@ -471,8 +435,6 @@ export function SettingsPanel({ helpTexts }: { helpTexts: Record<string, string>
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
     );

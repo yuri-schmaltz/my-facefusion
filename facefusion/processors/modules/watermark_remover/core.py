@@ -22,11 +22,13 @@ def clear_inference_pool() -> None:
 def register_args(program : ArgumentParser) -> None:
     group_processors = find_argument_group(program, 'processors')
     if group_processors:
+        group_processors.add_argument('--watermark-remover-model', help = translator.get('help.model', __package__), default = config.get_str_value('processors', 'watermark_remover_model', 'simple_inpaint'), choices = watermark_remover_choices.watermark_remover_models)
         group_processors.add_argument('--watermark-remover-area-start', help = translator.get('help.watermark_remover_area_start', __package__), type = int, nargs = '+', default = config.get_int_list('processors', 'watermark_remover_area_start', '0 0'))
         group_processors.add_argument('--watermark-remover-area-end', help = translator.get('help.watermark_remover_area_end', __package__), type = int, nargs = '+', default = config.get_int_list('processors', 'watermark_remover_area_end', '0 0'))
-        facefusion.jobs.job_store.register_step_keys([ 'watermark_remover_area_start', 'watermark_remover_area_end' ])
+        facefusion.jobs.job_store.register_step_keys([ 'watermark_remover_model', 'watermark_remover_area_start', 'watermark_remover_area_end' ])
 
 def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
+    apply_state_item('watermark_remover_model', args.get('watermark_remover_model'))
     apply_state_item('watermark_remover_area_start', args.get('watermark_remover_area_start'))
     apply_state_item('watermark_remover_area_end', args.get('watermark_remover_area_end'))
 

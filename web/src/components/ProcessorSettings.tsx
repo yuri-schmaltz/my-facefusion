@@ -150,67 +150,70 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                             {/* Watermark Remover Area Configuration */}
                             {proc === 'watermark_remover' && (
                                 <div className="space-y-4 pt-2 border-t border-neutral-800/50">
-                                    {/* Start Coordinates */}
-                                    <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Area Start (X, Y)</Label>
-                                            <Tooltip content="Starting coordinates (top-left) of the area to remove.">
+                                            <Label className="text-[10px] font-bold text-neutral-500 uppercase">Area Config</Label>
+                                            <Tooltip content="Define the rectangular area for removal using coordinates (top-left and bottom-right).">
                                                 <Info size={12} className="text-neutral-500 cursor-help" />
                                             </Tooltip>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-neutral-600 outline-none transition-colors"
-                                                placeholder="X"
-                                                value={currentSettings['watermark_remover_area_start']?.[0] || 0}
-                                                onChange={(e) => {
-                                                    const newY = currentSettings['watermark_remover_area_start']?.[1] || 0;
-                                                    onUpdate('watermark_remover_area_start', [parseInt(e.target.value) || 0, newY])
-                                                }}
-                                            />
-                                            <input
-                                                type="number"
-                                                className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-neutral-600 outline-none transition-colors"
-                                                placeholder="Y"
-                                                value={currentSettings['watermark_remover_area_start']?.[1] || 0}
-                                                onChange={(e) => {
-                                                    const newX = currentSettings['watermark_remover_area_start']?.[0] || 0;
-                                                    onUpdate('watermark_remover_area_start', [newX, parseInt(e.target.value) || 0])
-                                                }}
-                                            />
-                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                onUpdate('watermark_remover_area_start', [0, 0]);
+                                                onUpdate('watermark_remover_area_end', [0, 0]);
+                                            }}
+                                            className="text-[10px] text-neutral-500 hover:text-white transition-colors"
+                                        >
+                                            Clear Area
+                                        </button>
                                     </div>
 
-                                    {/* End Coordinates */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Area End (X, Y)</Label>
-                                            <Tooltip content="Ending coordinates (bottom-right) of the area to remove.">
-                                                <Info size={12} className="text-neutral-500 cursor-help" />
-                                            </Tooltip>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] text-neutral-500 uppercase">Start (X, Y)</Label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    value={currentSettings['watermark_remover_area_start']?.[0] || 0}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value) || 0;
+                                                        onUpdate('watermark_remover_area_start', [val, currentSettings['watermark_remover_area_start']?.[1] || 0])
+                                                    }}
+                                                />
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    value={currentSettings['watermark_remover_area_start']?.[1] || 0}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value) || 0;
+                                                        onUpdate('watermark_remover_area_start', [currentSettings['watermark_remover_area_start']?.[0] || 0, val])
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-neutral-600 outline-none transition-colors"
-                                                placeholder="X"
-                                                value={currentSettings['watermark_remover_area_end']?.[0] || 0}
-                                                onChange={(e) => {
-                                                    const newY = currentSettings['watermark_remover_area_end']?.[1] || 0;
-                                                    onUpdate('watermark_remover_area_end', [parseInt(e.target.value) || 0, newY])
-                                                }}
-                                            />
-                                            <input
-                                                type="number"
-                                                className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-neutral-600 outline-none transition-colors"
-                                                placeholder="Y"
-                                                value={currentSettings['watermark_remover_area_end']?.[1] || 0}
-                                                onChange={(e) => {
-                                                    const newX = currentSettings['watermark_remover_area_end']?.[0] || 0;
-                                                    onUpdate('watermark_remover_area_end', [newX, parseInt(e.target.value) || 0])
-                                                }}
-                                            />
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] text-neutral-500 uppercase">End (X, Y)</Label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    value={currentSettings['watermark_remover_area_end']?.[0] || 0}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value) || 0;
+                                                        onUpdate('watermark_remover_area_end', [val, currentSettings['watermark_remover_area_end']?.[1] || 0])
+                                                    }}
+                                                />
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    value={currentSettings['watermark_remover_area_end']?.[1] || 0}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value) || 0;
+                                                        onUpdate('watermark_remover_area_end', [currentSettings['watermark_remover_area_end']?.[0] || 0, val])
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
