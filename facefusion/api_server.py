@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 from typing import List, Optional
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -13,10 +14,54 @@ from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern lifespan context manager for startup/shutdown events."""
+    # Startup
+    jobs_path = os.path.join(get_temp_path(), "jobs")
+    job_manager.init_jobs(jobs_path)
+    
+    # Initialize default state items
+    if state_manager.get_item('download_providers') is None:
+        from facefusion import choices
+        state_manager.init_item('download_providers', choices.download_providers)
+    
+    if state_manager.get_item('execution_providers') is None:
+        state_manager.init_item('execution_providers', ['cpu'])
+        
+    if state_manager.get_item('execution_thread_count') is None:
+        state_manager.init_item('execution_thread_count', 4)
+
+    if state_manager.get_item('execution_queue_count') is None:
+        state_manager.init_item('execution_queue_count', 1)
+        
+    if state_manager.get_item('output_video_quality') is None:
+        state_manager.init_item('output_video_quality', 80)
+        
+    if state_manager.get_item('face_selector_mode') is None:
+        state_manager.init_item('face_selector_mode', 'reference')
+        
+    if state_manager.get_item('face_mask_types') is None:
+        state_manager.init_item('face_mask_types', ['box'])
+
+    if state_manager.get_item('face_mask_regions') is None:
+        state_manager.init_item('face_mask_regions', ['skin'])
+
+    if state_manager.get_item('processors') is None:
+        state_manager.init_item('processors', [])
+    
+    yield  # Application runs here
+    
+    # Shutdown - cleanup if needed
+    pass
+
+
 app = FastAPI(
     title="FaceFusion API",
     version="2.0.0",
-    description="API for FaceFusion 2.0 (React + FastAPI)"
+    description="API for FaceFusion 2.0 (React + FastAPI)",
+    lifespan=lifespan
 )
 
 # CORS configuration - configurable via environment variable
@@ -137,43 +182,7 @@ def update_config(config: ConfigUpdate):
 
 # Note: File upload functionality replaced by FileBrowser component + /filesystem/list API
 # Users select files from the server filesystem directly via the FileBrowserDialog
-
-@app.on_event("startup")
-def startup_event():
-    # Initialize jobs directory
-    jobs_path = os.path.join(get_temp_path(), "jobs")
-    job_manager.init_jobs(jobs_path)
-    
-    # Initialize default state items
-    # ensuring that critical items like download_providers are not None
-    # Use init_item to ensure it populates ALL contexts (cli and ui)
-    if state_manager.get_item('download_providers') is None:
-        from facefusion import choices
-        state_manager.init_item('download_providers', choices.download_providers)
-    
-    if state_manager.get_item('execution_providers') is None:
-        state_manager.init_item('execution_providers', ['cpu'])
-        
-    if state_manager.get_item('execution_thread_count') is None:
-        state_manager.init_item('execution_thread_count', 4)
-
-    if state_manager.get_item('execution_queue_count') is None:
-        state_manager.init_item('execution_queue_count', 1)
-        
-    if state_manager.get_item('output_video_quality') is None:
-        state_manager.init_item('output_video_quality', 80)
-        
-    if state_manager.get_item('face_selector_mode') is None:
-        state_manager.init_item('face_selector_mode', 'reference')
-        
-    if state_manager.get_item('face_mask_types') is None:
-        state_manager.init_item('face_mask_types', ['box'])
-
-    if state_manager.get_item('face_mask_regions') is None:
-        state_manager.init_item('face_mask_regions', ['skin'])
-
-    if state_manager.get_item('processors') is None:
-        state_manager.init_item('processors', [])
+# Note: Startup initialization is handled by the lifespan context manager above
 
 @app.post("/run")
 def run_job():
