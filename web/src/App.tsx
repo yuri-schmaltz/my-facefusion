@@ -370,6 +370,8 @@ function App() {
           helpTexts={helpTexts}
           allSettings={allSettings}
           onUpdate={updateSetting}
+          currentTargetPath={targetPath}
+          systemInfo={systemInfo}
         />
       </div>
 

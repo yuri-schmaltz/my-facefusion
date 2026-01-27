@@ -39,6 +39,12 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     }, [isOpen]); // Only trigger on open
 
     const startAnalysis = async () => {
+        if (!targetPath) {
+            setStatus('failed');
+            alert("No target video selected. Please select a video to analyze.");
+            onClose();
+            return;
+        }
         setStatus('loading');
         setProgress(0);
         setCurrentStatus("queued");

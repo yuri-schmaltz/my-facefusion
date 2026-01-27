@@ -24,6 +24,34 @@ os.environ['GOOGLE_DEFAULT_CLIENT_SECRET'] = 'no'
 # Also suppress some common Linux driver/browser noise
 os.environ['CHROME_LOG_FILE'] = '/dev/null'
 
+def configure_cuda_env():
+    """Add nvidia library paths to LD_LIBRARY_PATH if they exist."""
+    try:
+        # Determine site-packages path
+        import site
+        site_packages = site.getsitepackages()[0] # Usually the first one in venv
+        
+        libs = ['nvidia/cudnn/lib', 'nvidia/cublas/lib']
+        paths_to_add = []
+        
+        for lib in libs:
+            lib_path = os.path.join(site_packages, lib)
+            if os.path.isdir(lib_path):
+                paths_to_add.append(lib_path)
+        
+        if paths_to_add:
+            current_ld = os.environ.get('LD_LIBRARY_PATH', '')
+            # Prepend new paths
+            new_ld = ':'.join(paths_to_add)
+            if current_ld:
+                new_ld += ':' + current_ld
+            
+            os.environ['LD_LIBRARY_PATH'] = new_ld
+            print(f"Configured CUDA paths: {':'.join(paths_to_add)}")
+            
+    except Exception as e:
+        print(f"Warning: Could not configure CUDA paths: {e}")
+
 # Global references for cleanup
 backend = None
 frontend = None
@@ -69,6 +97,9 @@ def main():
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    # Configure CUDA environment variables
+    configure_cuda_env()
 
     # Pre-flight check: Kill anything on our ports to prevent conflicts
     print("Checking ports...")
