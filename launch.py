@@ -87,11 +87,29 @@ def main():
     print("Launching Frontend (port 5173)...")
     web_dir = os.path.join(os.getcwd(), "web")
     
+    frontend = None # Initialize to avoid UnboundLocalError if we exit early
+    
     npm_cmd = shutil.which('npm')
     if not npm_cmd:
         print("Error: npm not found. Please install Node.js.")
         terminate_process_tree(backend, "backend")
         sys.exit(1)
+
+    # Check Node.js version
+    try:
+        # Get node executable (shutil.which('node'))
+        node_exec = shutil.which('node') or 'node'
+        node_output = subprocess.check_output([node_exec, "-v"], text=True).strip()
+        # Parse v18.19.1 -> 18
+        major_ver = int(node_output.lstrip('v').split('.')[0])
+        if major_ver < 20:
+             print(f"\n[ERROR] Incompatible Node.js version detected: {node_output}")
+             print("FaceFusion requires Node.js v20.0.0 or higher.")
+             print("Please upgrade your Node.js installation.")
+             terminate_process_tree(backend, "backend")
+             sys.exit(1)
+    except Exception as e:
+        print(f"Warning: Could not check Node.js version: {e}")
 
     frontend = create_popen_with_pgid([npm_cmd, "run", "dev"], cwd=web_dir)
 
