@@ -11,9 +11,12 @@ const OUTPUT_AUDIO_ENCODERS = ['aac', 'libmp3lame', 'libopus', 'libvorbis', 'fla
 
 interface SettingsPanelProps {
     helpTexts: Record<string, string>;
+    systemInfo?: {
+        execution_providers: string[];
+    };
 }
 
-export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
+export function SettingsPanel({ helpTexts, systemInfo }: SettingsPanelProps) {
     const [settings, setSettings] = useState<any>({
         face_selector_mode: "reference",
         face_mask_types: ["box"],
@@ -223,6 +226,42 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                         <span className="text-xs font-bold uppercase tracking-wider">JOBS</span>
                     </div>
 
+                    {/* Execution Providers */}
+                    <div className="mb-6 space-y-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-neutral-300 block">
+                                Execution Providers
+                            </label>
+                            <Tooltip content={helpTexts['execution_providers']}>
+                                <Info size={14} className="text-neutral-500 cursor-help" />
+                            </Tooltip>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {['cpu', 'cuda', 'rocm', 'directml', 'openvino', 'coreml'].map((provider) => {
+                                const isInstalled = (systemInfo?.execution_providers || ['cpu']).includes(provider);
+                                const isSelected = (settings.execution_providers || []).includes(provider);
+
+                                return (
+                                    <button
+                                        key={provider}
+                                        onClick={() => isInstalled && toggleArrayItem("execution_providers", provider)}
+                                        disabled={!isInstalled}
+                                        className={cn(
+                                            "flex-1 px-3 py-1.5 text-xs font-medium rounded-md border transition-all truncate min-w-[80px] text-center uppercase",
+                                            isSelected
+                                                ? "bg-red-600 border-red-500 text-white"
+                                                : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600",
+                                            !isInstalled && "opacity-50 cursor-not-allowed border-dashed text-neutral-600"
+                                        )}
+                                    >
+                                        {provider.toUpperCase()}
+                                        {!isInstalled && <span className="block text-[9px] lowercase opacity-70">Not Inst.</span>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Execution Threads */}
                         <div className="space-y-3">
@@ -271,3 +310,4 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
         </div>
     );
 }
+

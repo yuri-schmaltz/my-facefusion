@@ -11,10 +11,18 @@ import tempfile
 import anyio
 import subprocess
 
-from facefusion import state_manager, metadata, execution
+from facefusion import state_manager, execution
+import facefusion.metadata as metadata
 from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
+
+print(f"DEBUG: api_server.py imported. metadata type: {type(metadata)}")
+if metadata is None:
+    print("DEBUG: metadata is None! Trying to reload or check sys.modules")
+    import sys
+    print(f"DEBUG: sys.modules['facefusion.metadata']: {sys.modules.get('facefusion.metadata')}")
+
 
 
 @asynccontextmanager
@@ -27,139 +35,144 @@ async def lifespan(app: FastAPI):
     # Startup
     jobs_path = os.path.join(get_temp_path(), "jobs")
     job_manager.init_jobs(jobs_path)
+
     
     # Initialize default state items
     if state_manager.get_item('download_providers') is None:
         from facefusion import choices
         state_manager.init_item('download_providers', choices.download_providers)
+        
+        if state_manager.get_item('execution_providers') is None:
+            state_manager.init_item('execution_providers', ['cpu'])
+            
+        if state_manager.get_item('execution_device_ids') is None:
+            state_manager.init_item('execution_device_ids', [0])
     
-    if state_manager.get_item('execution_providers') is None:
-        state_manager.init_item('execution_providers', ['cpu'])
-        
-    if state_manager.get_item('execution_device_ids') is None:
-        state_manager.init_item('execution_device_ids', [0])
-
-    if state_manager.get_item('execution_thread_count') is None:
-        state_manager.init_item('execution_thread_count', 4)
-
-    if state_manager.get_item('execution_queue_count') is None:
-        state_manager.init_item('execution_queue_count', 1)
-        
-    if state_manager.get_item('output_video_quality') is None:
-        state_manager.init_item('output_video_quality', 80)
-        
-    if state_manager.get_item('face_selector_mode') is None:
-        state_manager.init_item('face_selector_mode', 'reference')
-        
-    if state_manager.get_item('face_mask_types') is None:
-        state_manager.init_item('face_mask_types', ['box'])
-
-    if state_manager.get_item('face_mask_regions') is None:
-        state_manager.init_item('face_mask_regions', ['skin'])
-
-    # Ensure temp_path is set
-    if state_manager.get_item('temp_path') is None:
-        state_manager.init_item('temp_path', tempfile.gettempdir())
-
-    # Common Face Detector settings
-    if state_manager.get_item('face_detector_model') is None:
-        state_manager.init_item('face_detector_model', 'yolo_face')
-    if state_manager.get_item('face_detector_size') is None:
-        state_manager.init_item('face_detector_size', '640x640')
-    if state_manager.get_item('face_detector_angles') is None:
-        state_manager.init_item('face_detector_angles', [0])
-    if state_manager.get_item('face_detector_margin') is None:
-        state_manager.init_item('face_detector_margin', [0, 0, 0, 0])
-    if state_manager.get_item('face_detector_score') is None:
-        state_manager.init_item('face_detector_score', 0.5)
-
-    # Face Landmarker settings
-    if state_manager.get_item('face_landmarker_model') is None:
-        state_manager.init_item('face_landmarker_model', '2dfan4')
-    if state_manager.get_item('face_landmarker_score') is None:
-        state_manager.init_item('face_landmarker_score', 0.5)
-
-    # Face Selector settings
-    if state_manager.get_item('face_selector_order') is None:
-        state_manager.init_item('face_selector_order', 'large-small')
-    if state_manager.get_item('reference_face_position') is None:
-        state_manager.init_item('reference_face_position', 0)
-    if state_manager.get_item('reference_face_distance') is None:
-        state_manager.init_item('reference_face_distance', 0.6)
-    if state_manager.get_item('reference_frame_number') is None:
-        state_manager.init_item('reference_frame_number', 0)
-
-    # Face Mask settings
-    if state_manager.get_item('face_occluder_model') is None:
-        state_manager.init_item('face_occluder_model', 'xseg_1')
-    if state_manager.get_item('face_parser_model') is None:
-        state_manager.init_item('face_parser_model', 'bisenet_resnet_34')
-    if state_manager.get_item('face_mask_areas') is None:
-        from facefusion import choices
-        state_manager.init_item('face_mask_areas', choices.face_mask_areas)
-    if state_manager.get_item('face_mask_blur') is None:
-        state_manager.init_item('face_mask_blur', 0.3)
-    if state_manager.get_item('face_mask_padding') is None:
-        state_manager.init_item('face_mask_padding', [0, 0, 0, 0])
-
-    # Voice settings
-    if state_manager.get_item('voice_extractor_model') is None:
-        state_manager.init_item('voice_extractor_model', 'kim_vocal_2')
-
-    # Output / Temp settings
-    if state_manager.get_item('temp_frame_format') is None:
-        state_manager.init_item('temp_frame_format', 'png')
-    if state_manager.get_item('output_image_quality') is None:
-        state_manager.init_item('output_image_quality', 80)
-    if state_manager.get_item('output_image_scale') is None:
-        state_manager.init_item('output_image_scale', 1.0)
-    if state_manager.get_item('output_audio_quality') is None:
-        state_manager.init_item('output_audio_quality', 80)
-    if state_manager.get_item('output_video_preset') is None:
-        state_manager.init_item('output_video_preset', 'veryfast')
-    if state_manager.get_item('output_video_scale') is None:
-        state_manager.init_item('output_video_scale', 1.0)
-
-    if state_manager.get_item('processors') is None:
-        state_manager.init_item('processors', [])
+        if state_manager.get_item('execution_thread_count') is None:
+            state_manager.init_item('execution_thread_count', 4)
     
-    # Initialize processor-specific defaults
-    if state_manager.get_item('face_swapper_model') is None:
-        state_manager.init_item('face_swapper_model', 'hyperswap_1a_256')
-    if state_manager.get_item('face_swapper_pixel_boost') is None:
-        state_manager.init_item('face_swapper_pixel_boost', '256x256')
-    if state_manager.get_item('face_swapper_weight') is None:
-        state_manager.init_item('face_swapper_weight', 0.5)
-        
-    if state_manager.get_item('face_enhancer_model') is None:
-        state_manager.init_item('face_enhancer_model', 'gfpgan_1.4')
-    if state_manager.get_item('face_enhancer_blend') is None:
-        state_manager.init_item('face_enhancer_blend', 80)
-    if state_manager.get_item('face_enhancer_weight') is None:
-        state_manager.init_item('face_enhancer_weight', 1.0)
-
-    if state_manager.get_item('frame_enhancer_model') is None:
-        state_manager.init_item('frame_enhancer_model', 'realsr_x2_clear')
-    if state_manager.get_item('frame_enhancer_blend') is None:
-        state_manager.init_item('frame_enhancer_blend', 80)
-        
-    if state_manager.get_item('lip_syncer_model') is None:
-        state_manager.init_item('lip_syncer_model', 'wav2lip_gan')
+        if state_manager.get_item('execution_queue_count') is None:
+            state_manager.init_item('execution_queue_count', 1)
+            
+        if state_manager.get_item('output_video_quality') is None:
+            state_manager.init_item('output_video_quality', 80)
+            
+        if state_manager.get_item('face_selector_mode') is None:
+            state_manager.init_item('face_selector_mode', 'reference')
+            
+        if state_manager.get_item('face_mask_types') is None:
+            state_manager.init_item('face_mask_types', ['box'])
     
-    if state_manager.get_item('age_modifier_model') is None:
-        state_manager.init_item('age_modifier_model', 'styleganex_age')
-    if state_manager.get_item('age_modifier_direction') is None:
-        state_manager.init_item('age_modifier_direction', 0)
+        if state_manager.get_item('face_mask_regions') is None:
+            state_manager.init_item('face_mask_regions', ['skin'])
+    
+        # Ensure temp_path is set
+        if state_manager.get_item('temp_path') is None:
+            state_manager.init_item('temp_path', tempfile.gettempdir())
+    
+        # Common Face Detector settings
+        if state_manager.get_item('face_detector_model') is None:
+            state_manager.init_item('face_detector_model', 'yolo_face')
+        if state_manager.get_item('face_detector_size') is None:
+            state_manager.init_item('face_detector_size', '640x640')
+        if state_manager.get_item('face_detector_angles') is None:
+            state_manager.init_item('face_detector_angles', [0])
+        if state_manager.get_item('face_detector_margin') is None:
+            state_manager.init_item('face_detector_margin', [0, 0, 0, 0])
+        if state_manager.get_item('face_detector_score') is None:
+            state_manager.init_item('face_detector_score', 0.5)
+    
+        # Face Landmarker settings
+        if state_manager.get_item('face_landmarker_model') is None:
+            state_manager.init_item('face_landmarker_model', '2dfan4')
+        if state_manager.get_item('face_landmarker_score') is None:
+            state_manager.init_item('face_landmarker_score', 0.5)
+    
+        # Face Selector settings
+        if state_manager.get_item('face_selector_order') is None:
+            state_manager.init_item('face_selector_order', 'large-small')
+        if state_manager.get_item('reference_face_position') is None:
+            state_manager.init_item('reference_face_position', 0)
+        if state_manager.get_item('reference_face_distance') is None:
+            state_manager.init_item('reference_face_distance', 0.6)
+        if state_manager.get_item('reference_frame_number') is None:
+            state_manager.init_item('reference_frame_number', 0)
+    
+        # Face Mask settings
+        if state_manager.get_item('face_occluder_model') is None:
+            state_manager.init_item('face_occluder_model', 'xseg_1')
+        if state_manager.get_item('face_parser_model') is None:
+            state_manager.init_item('face_parser_model', 'bisenet_resnet_34')
+        if state_manager.get_item('face_mask_areas') is None:
+            from facefusion import choices
+            state_manager.init_item('face_mask_areas', choices.face_mask_areas)
+        if state_manager.get_item('face_mask_blur') is None:
+            state_manager.init_item('face_mask_blur', 0.3)
+        if state_manager.get_item('face_mask_padding') is None:
+            state_manager.init_item('face_mask_padding', [0, 0, 0, 0])
+    
+        # Voice settings
+        if state_manager.get_item('voice_extractor_model') is None:
+            state_manager.init_item('voice_extractor_model', 'kim_vocal_2')
+    
+        # Output / Temp settings
+        if state_manager.get_item('temp_frame_format') is None:
+            state_manager.init_item('temp_frame_format', 'png')
+        if state_manager.get_item('output_image_quality') is None:
+            state_manager.init_item('output_image_quality', 80)
+        if state_manager.get_item('output_image_scale') is None:
+            state_manager.init_item('output_image_scale', 1.0)
+        if state_manager.get_item('output_audio_quality') is None:
+            state_manager.init_item('output_audio_quality', 80)
+        if state_manager.get_item('output_video_preset') is None:
+            state_manager.init_item('output_video_preset', 'veryfast')
+        if state_manager.get_item('output_video_scale') is None:
+            state_manager.init_item('output_video_scale', 1.0)
+    
+        if state_manager.get_item('processors') is None:
+            state_manager.init_item('processors', [])
         
-    if state_manager.get_item('expression_restorer_model') is None:
-        state_manager.init_item('expression_restorer_model', 'live_portrait')
-    if state_manager.get_item('expression_restorer_factor') is None:
-        state_manager.init_item('expression_restorer_factor', 80)
+        # Initialize processor-specific defaults
+        if state_manager.get_item('face_swapper_model') is None:
+            state_manager.init_item('face_swapper_model', 'hyperswap_1a_256')
+        if state_manager.get_item('face_swapper_pixel_boost') is None:
+            state_manager.init_item('face_swapper_pixel_boost', '256x256')
+        if state_manager.get_item('face_swapper_weight') is None:
+            state_manager.init_item('face_swapper_weight', 0.5)
+            
+        if state_manager.get_item('face_enhancer_model') is None:
+            state_manager.init_item('face_enhancer_model', 'gfpgan_1.4')
+        if state_manager.get_item('face_enhancer_blend') is None:
+            state_manager.init_item('face_enhancer_blend', 80)
+        if state_manager.get_item('face_enhancer_weight') is None:
+            state_manager.init_item('face_enhancer_weight', 1.0)
     
-    yield  # Application runs here
-    
-    # Shutdown - cleanup if needed
-    pass
+        if state_manager.get_item('frame_enhancer_model') is None:
+            state_manager.init_item('frame_enhancer_model', 'realsr_x2_clear')
+        if state_manager.get_item('frame_enhancer_blend') is None:
+            state_manager.init_item('frame_enhancer_blend', 80)
+            
+        if state_manager.get_item('lip_syncer_model') is None:
+            state_manager.init_item('lip_syncer_model', 'wav2lip_gan')
+        
+        if state_manager.get_item('age_modifier_model') is None:
+            state_manager.init_item('age_modifier_model', 'styleganex_age')
+        if state_manager.get_item('age_modifier_direction') is None:
+            state_manager.init_item('age_modifier_direction', 0)
+            
+        if state_manager.get_item('expression_restorer_model') is None:
+            state_manager.init_item('expression_restorer_model', 'live_portrait')
+        if state_manager.get_item('expression_restorer_factor') is None:
+            state_manager.init_item('expression_restorer_factor', 80)
+        
+        yield  # Application runs here
+        
+        # Shutdown - cleanup if needed
+        pass
+    except Exception as e:
+        print(f"CRITICAL LIFESPAN ERROR: {e}")
+        traceback.print_exc()
+        raise e
 
 
 app = FastAPI(

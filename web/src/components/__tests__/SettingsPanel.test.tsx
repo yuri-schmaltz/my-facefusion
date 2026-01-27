@@ -25,9 +25,9 @@ describe('SettingsPanel', () => {
     it('renders critical sections correctly', async () => {
         render(<SettingsPanel systemInfo={mockSystemInfo} helpTexts={mockHelpTexts} />);
 
-        // Check for section headers (even if visual headers are gone, the labels exist)
-        expect(screen.getByText('Audio Settings')).toBeInTheDocument();
-        expect(screen.getByText('Engine & Jobs')).toBeInTheDocument();
+        // Check for section headers
+        expect(screen.getByText('Media Settings')).toBeInTheDocument();
+        expect(screen.getByText('JOBS')).toBeInTheDocument();
 
         // Check for specific inputs
         expect(screen.getByText('Face Selector Mode')).toBeInTheDocument();
