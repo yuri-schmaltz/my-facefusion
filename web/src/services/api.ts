@@ -9,6 +9,7 @@ export const api = axios.create({
 export const system = {
     health: () => api.get('/health'),
     info: () => api.get('/system/info'),
+    help: () => api.get('/system/help'),
     selectFile: (multiple = false, initialPath?: string) =>
         api.get(`/system/select-file?multiple=${multiple}${initialPath ? `&initial_path=${encodeURIComponent(initialPath)}` : ''}`),
 };

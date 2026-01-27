@@ -4,7 +4,8 @@ import { config, files, execute, system } from "@/services/api";
 import { Card } from "@/components/ui/card";
 import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { Terminal } from "@/components/Terminal";
+import { Terminal, TerminalButton } from "@/components/Terminal";
+import { Tooltip } from "@/components/ui/Tooltip";
 import ProcessorSettings from "./components/ProcessorSettings";
 
 const isVideo = (path: string) => {
@@ -15,18 +16,15 @@ function App() {
   const [processors, setProcessors] = useState<string[]>([]);
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [allSettings, setAllSettings] = useState<any>({});
+  const [systemInfo, setSystemInfo] = useState<any>({ execution_providers: ['cpu'] });
+  const [helpTexts, setHelpTexts] = useState<Record<string, string>>({});
 
   // App State
   const [sourcePath, setSourcePath] = useState<string | null>(null);
   const [targetPath, setTargetPath] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-
-  // File Browser State (No longer used for native picker, keeping for potential other uses or cleanup later)
-  // const [isBrowserOpen, setIsBrowserOpen] = useState(false);
-  // const [browserType, setBrowserType] = useState<"source" | "target">("source");
-
-  // Persist Last Directories
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [lastSourceDir, setLastSourceDir] = useState<string>(() => localStorage.getItem("lastSourceDir") || "");
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
 
@@ -37,6 +35,12 @@ function App() {
     });
     config.getSettings().then((res) => {
       setAllSettings(res.data);
+    });
+    system.info().then((res) => {
+      setSystemInfo(res.data);
+    });
+    system.help().then((res) => {
+      setHelpTexts(res.data);
     });
   }, []);
 
@@ -112,7 +116,7 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-neutral-950 text-white font-sans">
-      <Terminal />
+      <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} />
 
       {/* Sidebar */}
       <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
@@ -141,23 +145,23 @@ function App() {
               }[proc] || Box;
 
               return (
-                <button
-                  key={proc}
-                  onClick={() => toggleProcessor(proc)}
-                  className={`h-10 px-2 text-xs font-medium rounded-md border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                    ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
-                    : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
-                    }`}
-                  title={proc}
-                >
-                  <Icon size={14} />
-                  <span className="truncate">
-                    {proc
-                      .split("_")
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(" ")}
-                  </span>
-                </button>
+                <Tooltip key={proc} content={helpTexts[proc]}>
+                  <button
+                    onClick={() => toggleProcessor(proc)}
+                    className={`h-10 px-2 text-xs font-medium rounded-md border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
+                      ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
+                      : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                      }`}
+                  >
+                    <Icon size={14} />
+                    <span className="truncate">
+                      {proc
+                        .split("_")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
+                    </span>
+                  </button>
+                </Tooltip>
               );
             })}
           </div>
@@ -168,14 +172,19 @@ function App() {
             activeProcessors={activeProcessors}
             currentSettings={allSettings}
             onUpdate={updateSetting}
+            helpTexts={helpTexts}
           />
         </section>
 
-        <section className="space-y-4 shrink-0">
+        <section className="flex items-center gap-2 shrink-0">
+          <TerminalButton
+            isOpen={isTerminalOpen}
+            onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
+          />
           <button
             onClick={startProcessing}
             disabled={isProcessing || !sourcePath || !targetPath}
-            className={`w-full py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 ${isProcessing || !sourcePath || !targetPath
+            className={`flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 ${isProcessing || !sourcePath || !targetPath
               ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
               : "bg-white text-black hover:bg-neutral-200"
               }`}
@@ -195,7 +204,10 @@ function App() {
 
         {/* Center Column: Settings */}
         <div className="col-span-4 h-full flex flex-col overflow-hidden">
-          <SettingsPanel />
+          <SettingsPanel
+            systemInfo={systemInfo}
+            helpTexts={helpTexts}
+          />
         </div>
 
         {/* Right Column: Source / Target / Preview */}

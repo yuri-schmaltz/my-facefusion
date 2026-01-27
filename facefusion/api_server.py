@@ -36,6 +36,9 @@ async def lifespan(app: FastAPI):
     if state_manager.get_item('execution_providers') is None:
         state_manager.init_item('execution_providers', ['cpu'])
         
+    if state_manager.get_item('execution_device_ids') is None:
+        state_manager.init_item('execution_device_ids', [0])
+
     if state_manager.get_item('execution_thread_count') is None:
         state_manager.init_item('execution_thread_count', 4)
 
@@ -53,6 +56,65 @@ async def lifespan(app: FastAPI):
 
     if state_manager.get_item('face_mask_regions') is None:
         state_manager.init_item('face_mask_regions', ['skin'])
+
+    # Common Face Detector settings
+    if state_manager.get_item('face_detector_model') is None:
+        state_manager.init_item('face_detector_model', 'yolo_face')
+    if state_manager.get_item('face_detector_size') is None:
+        state_manager.init_item('face_detector_size', '640x640')
+    if state_manager.get_item('face_detector_angles') is None:
+        state_manager.init_item('face_detector_angles', [0])
+    if state_manager.get_item('face_detector_margin') is None:
+        state_manager.init_item('face_detector_margin', [0, 0, 0, 0])
+    if state_manager.get_item('face_detector_score') is None:
+        state_manager.init_item('face_detector_score', 0.5)
+
+    # Face Landmarker settings
+    if state_manager.get_item('face_landmarker_model') is None:
+        state_manager.init_item('face_landmarker_model', '2dfan4')
+    if state_manager.get_item('face_landmarker_score') is None:
+        state_manager.init_item('face_landmarker_score', 0.5)
+
+    # Face Selector settings
+    if state_manager.get_item('face_selector_order') is None:
+        state_manager.init_item('face_selector_order', 'large-small')
+    if state_manager.get_item('reference_face_position') is None:
+        state_manager.init_item('reference_face_position', 0)
+    if state_manager.get_item('reference_face_distance') is None:
+        state_manager.init_item('reference_face_distance', 0.6)
+    if state_manager.get_item('reference_frame_number') is None:
+        state_manager.init_item('reference_frame_number', 0)
+
+    # Face Mask settings
+    if state_manager.get_item('face_occluder_model') is None:
+        state_manager.init_item('face_occluder_model', 'xseg_1')
+    if state_manager.get_item('face_parser_model') is None:
+        state_manager.init_item('face_parser_model', 'bisenet_resnet_34')
+    if state_manager.get_item('face_mask_areas') is None:
+        from facefusion import choices
+        state_manager.init_item('face_mask_areas', choices.face_mask_areas)
+    if state_manager.get_item('face_mask_blur') is None:
+        state_manager.init_item('face_mask_blur', 0.3)
+    if state_manager.get_item('face_mask_padding') is None:
+        state_manager.init_item('face_mask_padding', [0, 0, 0, 0])
+
+    # Voice settings
+    if state_manager.get_item('voice_extractor_model') is None:
+        state_manager.init_item('voice_extractor_model', 'kim_vocal_2')
+
+    # Output / Temp settings
+    if state_manager.get_item('temp_frame_format') is None:
+        state_manager.init_item('temp_frame_format', 'png')
+    if state_manager.get_item('output_image_quality') is None:
+        state_manager.init_item('output_image_quality', 80)
+    if state_manager.get_item('output_image_scale') is None:
+        state_manager.init_item('output_image_scale', 1.0)
+    if state_manager.get_item('output_audio_quality') is None:
+        state_manager.init_item('output_audio_quality', 80)
+    if state_manager.get_item('output_video_preset') is None:
+        state_manager.init_item('output_video_preset', 'veryfast')
+    if state_manager.get_item('output_video_scale') is None:
+        state_manager.init_item('output_video_scale', 1.0)
 
     if state_manager.get_item('processors') is None:
         state_manager.init_item('processors', [])
@@ -155,8 +217,31 @@ def system_info():
         "name": metadata.get("name"),
         "version": metadata.get("version"),
         "execution_providers": execution.get_available_execution_providers(),
-        "execution_devices": execution.detect_execution_devices() # This might be slow if nvidia-smi is called every time, but acceptable for now
+        "execution_devices": execution.detect_execution_devices()
     }
+
+@app.get("/system/help")
+def get_help():
+    """Returns help text for all configuration keys for tooltips."""
+    from facefusion import translator, jobs
+    help_dict = {}
+    
+    # Common keys from job_store
+    all_keys = jobs.job_store.get_job_keys() + jobs.job_store.get_step_keys()
+    
+    for key in all_keys:
+        # Try to find help in translator
+        # Most keys are prefixed with 'help.'
+        help_text = translator.get(f"help.{key}")
+        if help_text:
+            help_dict[key] = help_text
+        else:
+            # Try without prefix
+            help_text = translator.get(key)
+            if help_text:
+                help_dict[key] = help_text
+                
+    return help_dict
 
 @app.get("/system/select-file")
 async def select_file(multiple: bool = False, initial_path: Optional[str] = None):
