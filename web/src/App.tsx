@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react";
 import { config, files, execute, system } from "@/services/api";
 import { Card } from "@/components/ui/card";
-import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box } from "lucide-react";
+import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, Info } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
 import ProcessorSettings from "./components/ProcessorSettings";
@@ -98,6 +99,15 @@ function App() {
     config.update({ [key]: value });
   };
 
+  const toggleArrayItem = (key: string, item: string) => {
+    const current = (allSettings[key] || []);
+    const newer = current.includes(item)
+      ? current.filter((i: string) => i !== item)
+      : [...current, item];
+
+    updateSetting(key, newer);
+  };
+
   const startProcessing = async () => {
     if (!sourcePath || !targetPath) return;
     setIsProcessing(true);
@@ -120,11 +130,7 @@ function App() {
 
       {/* Sidebar */}
       <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
-        <div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
-            FaceFusion 2.0
-          </h1>
-        </div>
+
 
         <section className="flex-1 overflow-y-auto custom-scrollbar">
           <h2 className="text-sm font-semibold text-neutral-400 mb-4 uppercase tracking-wider">
@@ -174,6 +180,43 @@ function App() {
             onUpdate={updateSetting}
             helpTexts={helpTexts}
           />
+        </section>
+
+        <section className="space-y-3 pt-4 border-t border-neutral-800">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider block">
+              Execution Provider
+            </label>
+            <Tooltip content={helpTexts['execution_providers']}>
+              <Info size={12} className="text-neutral-500 cursor-help" />
+            </Tooltip>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {["cuda", "cpu", "openvino", "rocm"].map((provider) => {
+              const current = allSettings.execution_providers || [];
+              const isSelected = current.includes(provider);
+              const isAvailable = (systemInfo.execution_providers || ['cpu']).includes(provider);
+
+              return (
+                <button
+                  key={provider}
+                  disabled={!isAvailable}
+                  onClick={() => {
+                    toggleArrayItem("execution_providers", provider);
+                  }}
+                  className={cn(
+                    "px-2 py-1.5 text-[10px] font-bold rounded border text-center transition-all",
+                    isSelected
+                      ? "bg-red-600/20 border-red-500 text-red-500"
+                      : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
+                    !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
+                  )}
+                >
+                  {provider.toUpperCase()}
+                </button>
+              )
+            })}
+          </div>
         </section>
 
         <section className="flex items-center gap-2 shrink-0 h-14">

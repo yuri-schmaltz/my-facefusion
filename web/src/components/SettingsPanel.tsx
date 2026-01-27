@@ -83,6 +83,7 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
                         className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
                     >
                         <option value="reference">Reference (One Face)</option>
+                        <option value="automatic">Automatic (Smart)</option>
                         <option value="one">One (First Found)</option>
                         <option value="many">Many (All Faces)</option>
                     </select>
@@ -104,7 +105,7 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
                                 key={type}
                                 onClick={() => toggleArrayItem("face_mask_types", type)}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-medium rounded-md border transition-all",
+                                    "flex-1 px-3 py-1.5 text-xs font-medium rounded-md border transition-all truncate",
                                     (settings.face_mask_types || []).includes(type)
                                         ? "bg-red-600 border-red-500 text-white"
                                         : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
@@ -132,7 +133,7 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
                                 key={region}
                                 onClick={() => toggleArrayItem("face_mask_regions", region)}
                                 className={cn(
-                                    "px-3 py-1.5 text-xs font-medium rounded-md border transition-all",
+                                    "flex-1 px-3 py-1.5 text-xs font-medium rounded-md border transition-all truncate min-w-[100px] text-center",
                                     (settings.face_mask_regions || []).includes(region)
                                         ? "bg-red-600 border-red-500 text-white"
                                         : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
@@ -264,44 +265,7 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
                     </div>
                 </div>
 
-                {/* Execution Provider */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-neutral-300 block">
-                            Execution Provider
-                        </label>
-                        <Tooltip content={helpTexts['execution_providers']}>
-                            <Info size={14} className="text-neutral-500 cursor-help" />
-                        </Tooltip>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {["cuda", "cpu", "openvino", "rocm"].map((provider) => {
-                            const current = settings.execution_providers || [];
-                            const isSelected = current.includes(provider);
-                            const isAvailable = (systemInfo.execution_providers || ['cpu']).includes(provider);
 
-                            return (
-                                <button
-                                    key={provider}
-                                    disabled={!isAvailable}
-                                    onClick={() => {
-                                        toggleArrayItem("execution_providers", provider);
-                                    }}
-                                    className={cn(
-                                        "px-3 py-2 text-xs font-bold rounded-lg border text-center transition-all",
-                                        isSelected
-                                            ? "bg-red-600/20 border-red-500 text-red-500"
-                                            : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600 hover:text-neutral-300",
-                                        !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
-                                    )}
-                                >
-                                    {provider.toUpperCase()}
-                                    {!isAvailable && <span className="block text-[8px] font-normal opacity-50">Not Inst.</span>}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
             </div>
         </div>
     );

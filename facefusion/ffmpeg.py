@@ -36,8 +36,13 @@ def run_ffmpeg_with_progress(commands : List[Command], update_progress : UpdateP
 			process.wait(timeout = 0.5)
 		except subprocess.TimeoutExpired:
 			continue
+		
+		if process.returncode != 0:
+			log_debug(process) # Force log error on failure
 		return process
 
+	if process.returncode != 0:
+		log_debug(process)
 	return process
 
 
@@ -57,11 +62,16 @@ def run_ffmpeg(commands : List[Command]) -> subprocess.Popen[bytes]:
 			process.wait(timeout = 0.5)
 		except subprocess.TimeoutExpired:
 			continue
+		
+		if process.returncode != 0:
+			log_debug(process)
 		return process
 
 	if process_manager.is_stopping():
 		process.terminate()
 
+	if process.returncode != 0:
+		log_debug(process)
 	return process
 
 
@@ -76,7 +86,9 @@ def log_debug(process : subprocess.Popen[bytes]) -> None:
 
 	for error in errors:
 		if error.strip():
-			logger.debug(error.strip(), __name__)
+	for error in errors:
+		if error.strip():
+			logger.error(error.strip(), __name__) # Promote to error level
 
 
 def get_available_encoder_set() -> EncoderSet:

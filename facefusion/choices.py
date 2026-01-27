@@ -14,7 +14,7 @@ face_detector_set : FaceDetectorSet =\
 }
 face_detector_models : List[FaceDetectorModel] = list(face_detector_set.keys())
 face_landmarker_models : List[FaceLandmarkerModel] = [ 'many', '2dfan4', 'peppa_wutz' ]
-face_selector_modes : List[FaceSelectorMode] = [ 'many', 'one', 'reference' ]
+face_selector_modes : List[FaceSelectorMode] = [ 'automatic', 'many', 'one', 'reference' ]
 face_selector_orders : List[FaceSelectorOrder] = [ 'left-right', 'right-left', 'top-bottom', 'bottom-top', 'small-large', 'large-small', 'best-worst', 'worst-best' ]
 face_selector_genders : List[Gender] = [ 'female', 'male' ]
 face_selector_races : List[Race] = [ 'white', 'black', 'latino', 'asian', 'indian', 'arabic' ]
