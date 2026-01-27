@@ -7,7 +7,12 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
-import ProcessorSettings from "./components/ProcessorSettings";
+import FaceSelector from "@/components/FaceSelector";
+// ... imports
+
+// ... inside App component
+
+
 
 const isVideo = (path: string) => {
   return path.match(/\.(mp4|webm|ogg|mov)$/i);
@@ -346,6 +351,16 @@ function App() {
               </div>
             </Card>
           </div>
+
+          {/* Face Selector Row */}
+          {targetPath && (
+            <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-2 min-h-[100px] shrink-0 overflow-y-auto custom-scrollbar">
+              <FaceSelector
+                targetPath={targetPath}
+                onSelect={(idx) => updateSetting("reference_face_position", idx)}
+              />
+            </div>
+          )}
 
           {/* Preview Card */}
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">

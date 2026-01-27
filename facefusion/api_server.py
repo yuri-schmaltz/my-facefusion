@@ -614,9 +614,69 @@ def get_processor_choices():
             "models": deep_swapper_choices.deep_swapper_models,
             "morph_range": list(deep_swapper_choices.deep_swapper_morph_range)
         }
-    }            "areas": expression_restorer_choices.expression_restorer_areas
-        }
     }
 
 
+# --- Faces API ---
 
+class FaceDetectRequest(BaseModel):
+    path: str
+    frame_number: int = 0
+
+@app.post("/faces/detect")
+def detect_faces_endpoint(req: FaceDetectRequest):
+    import cv2
+    import base64
+    from facefusion import face_analyser
+    
+    path = req.path
+    # Security check using existing preview logic
+    path = os.path.realpath(os.path.abspath(path.strip('"\'')))
+    allowed_roots = [
+        os.path.realpath(os.path.abspath(get_temp_path())), 
+        os.path.realpath(os.path.abspath(os.path.expanduser("~"))),
+        os.path.realpath(os.path.abspath(os.getcwd()))
+    ]
+    if not any(path.startswith(root) for root in allowed_roots) or not os.path.exists(path):
+         raise HTTPException(status_code=403, detail="Access denied or file not found")
+
+    vision_frame = None
+    if is_image(path):
+        from facefusion.vision import read_static_image
+        vision_frame = read_static_image(path)
+    elif is_video(path):
+        from facefusion.vision import read_video_frame
+        vision_frame = read_video_frame(path, req.frame_number)
+    
+    if vision_frame is None:
+         raise HTTPException(400, "Could not read frame")
+
+    # Detect faces
+    faces = face_analyser.get_many_faces([vision_frame])
+    
+    results = []
+    for idx, face in enumerate(faces):
+        # Create crop
+        box = face.bounding_box
+        margin = 32
+        top = max(0, int(box[1]) - margin)
+        bottom = min(vision_frame.shape[0], int(box[3]) + margin)
+        left = max(0, int(box[0]) - margin)
+        right = min(vision_frame.shape[1], int(box[2]) + margin)
+        
+        crop = vision_frame[top:bottom, left:right]
+        
+        # Encode
+        _, buffer = cv2.imencode('.jpg', crop)
+        b64 = base64.b64encode(buffer).decode('utf-8')
+        
+        results.append({
+            "index": idx,
+            "score": float(face.score_set['detector']),
+            "gender": face.gender,
+            "age": face.age,
+            "race": face.race,
+            "thumbnail": f"data:image/jpeg;base64,{b64}"
+        })
+        
+    return {"faces": results}

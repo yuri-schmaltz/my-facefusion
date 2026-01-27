@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { processors } from '@/services/api';
+import { getModelMetadata } from '@/data/models';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectItem } from '@/components/ui/select';
@@ -93,11 +94,27 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                         value={currentSettings[`${proc}_model`]}
                                         onChange={(e: any) => onUpdate(`${proc}_model`, (e.target as HTMLSelectElement).value)}
                                     >
-                                        {procChoices.models.map((m) => (
-                                            <SelectItem key={m} value={m}>
-                                                {m}
-                                            </SelectItem>
-                                        ))}
+                                        {(() => {
+                                            // Group models by category
+                                            const metadata: Record<string, any[]> = {};
+                                            procChoices.models.forEach(m => {
+                                                const meta = getModelMetadata(proc, m);
+                                                const cat = meta.category || 'Other';
+                                                if (!metadata[cat]) metadata[cat] = [];
+                                                metadata[cat].push({ value: m, ...meta });
+                                            });
+
+                                            // Render groups
+                                            return Object.entries(metadata).map(([category, models]) => (
+                                                <optgroup key={category} label={category} className="bg-neutral-800 text-neutral-400 font-semibold uppercase text-[10px] tracking-wider">
+                                                    {models.map((m: any) => (
+                                                        <SelectItem key={m.value} value={m.value}>
+                                                            {m.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </optgroup>
+                                            ));
+                                        })()}
                                     </Select>
                                 </div>
                             )}
