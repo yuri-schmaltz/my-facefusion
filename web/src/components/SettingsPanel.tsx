@@ -10,7 +10,6 @@ const OUTPUT_AUDIO_ENCODERS = ['aac', 'libmp3lame', 'libopus', 'libvorbis', 'fla
 
 
 interface SettingsPanelProps {
-    activeProcessors: string[];
     allSettings: any;
     onUpdate: (key: string, value: any) => void;
     helpTexts: Record<string, string>;
@@ -20,7 +19,6 @@ interface SettingsPanelProps {
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
-    activeProcessors,
     allSettings: settings,
     onUpdate,
     helpTexts
