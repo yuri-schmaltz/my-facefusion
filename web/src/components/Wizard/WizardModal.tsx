@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, ChevronRight, ChevronLeft, Check, Wand2, Search, Users, Settings, Loader2 } from "lucide-react";
+import { X, ChevronRight, Wand2, Search, Users, Settings, Loader2, Target, HardDrive, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { wizard, config } from "@/services/api";
+import { wizard } from "@/services/api";
 
 interface WizardModalProps {
     isOpen: boolean;
@@ -9,15 +9,16 @@ interface WizardModalProps {
     targetPath: string;
 }
 
-type Step = 'analyze' | 'cluster' | 'optimize';
+type Step = 'analyze' | 'cluster' | 'optimize' | 'generate';
 
 export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targetPath }) => {
     const [currentStep, setCurrentStep] = useState<Step>('analyze');
-    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState<string>('idle'); // 'idle', 'loading', 'completed', 'failed'
     const [jobId, setJobId] = useState<string | null>(null);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
     const [clusters, setClusters] = useState<any[]>([]);
     const [suggestions, setSuggestions] = useState<any>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [currentStatus, setCurrentStatus] = useState("queued");
     const [statusMessage, setStatusMessage] = useState("Initializing...");
@@ -30,14 +31,18 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         'queued': 'Waiting in queue...'
     };
 
+    // Initial Trigger
     useEffect(() => {
-        if (isOpen && targetPath) {
+        if (isOpen && currentStep === 'analyze' && !jobId && status === 'idle') {
             startAnalysis();
         }
-    }, [isOpen, targetPath]);
+    }, [isOpen]); // Only trigger on open
 
     const startAnalysis = async () => {
-        setLoading(true);
+        setStatus('loading');
+        setProgress(0);
+        setCurrentStatus("queued");
+        setStatusMessage("Initializing...");
         try {
             const res = await wizard.analyze(targetPath);
             const id = res.data.job_id;
@@ -47,65 +52,72 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
             const interval = setInterval(async () => {
                 try {
                     const pRes = await wizard.getProgress(id);
-                    const { status, progress: p, result, error } = pRes.data;
+                    const { status: jobStatus, progress: p, result, error } = pRes.data;
 
                     setProgress(p);
-                    setCurrentStatus(status);
-                    setStatusMessage(statusLabels[status] || status);
+                    setCurrentStatus(jobStatus);
+                    setStatusMessage(statusLabels[jobStatus] || jobStatus);
 
-                    if (status === 'completed') {
+                    if (jobStatus === 'completed') {
                         clearInterval(interval);
                         setAnalysisResult(result);
+                        setStatus('completed');
                         setCurrentStep('cluster');
                         fetchClusters(id);
-                    } else if (status === 'failed') {
+                    } else if (jobStatus === 'failed') {
                         clearInterval(interval);
-                        setLoading(false);
+                        setStatus('failed');
                         alert("Analysis failed: " + error);
                     }
                 } catch (err) {
                     console.error("Polling failed", err);
                     clearInterval(interval);
-                    setLoading(false);
+                    setStatus('failed');
                 }
             }, 1000);
         } catch (err) {
             console.error("Analysis failed", err);
-            setLoading(false);
+            setStatus('failed');
         }
     };
 
     const fetchClusters = async (id: string) => {
-        setLoading(true);
+        setStatus('loading');
         try {
             const res = await wizard.cluster(id);
             setClusters(res.data.clusters);
+            setStatus('completed');
         } catch (err) {
             console.error("Clustering failed", err);
-        } finally {
-            setLoading(false);
+            setStatus('failed');
         }
     };
 
-    const fetchSuggestions = async () => {
+    const runOptimization = async () => {
         if (!jobId) return;
-        setLoading(true);
+        setStatus('loading');
         try {
             const res = await wizard.suggest(jobId);
             setSuggestions(res.data.suggestions);
             setCurrentStep('optimize');
+            setStatus('completed');
         } catch (err) {
             console.error("Suggestions failed", err);
-        } finally {
-            setLoading(false);
+            setStatus('failed');
         }
     };
 
-    const handleApply = async () => {
-        if (suggestions) {
-            await config.update(suggestions);
+    const handleGenerateJobs = async () => {
+        if (!jobId) return;
+        setIsGenerating(true);
+        try {
+            await wizard.generate(jobId);
+            onClose();
+        } catch (err) {
+            console.error("Failed to generate jobs", err);
+        } finally {
+            setIsGenerating(false);
         }
-        onClose();
     };
 
     if (!isOpen) return null;
@@ -135,7 +147,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                         { id: 'analyze', label: 'Analysis', icon: Search },
                         { id: 'cluster', label: 'Grouping', icon: Users },
                         { id: 'optimize', label: 'Optimization', icon: Settings },
-                    ].map((step, idx) => (
+                        { id: 'generate', label: 'Generation', icon: Wand2 },
+                    ].map((step) => (
                         <div
                             key={step.id}
                             className={cn(
@@ -156,8 +169,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     {currentStep === 'analyze' && (
                         <div className="h-full flex flex-col items-center justify-center space-y-8 py-10">
                             <div className="relative">
-                                <Search size={64} className="text-red-600 animate-pulse" />
-                                <div className="absolute inset-0 border-2 border-red-600 rounded-full animate-ping opacity-20" />
+                                <Loader2 size={64} className="text-red-600 animate-spin" />
                             </div>
                             <div className="text-center space-y-4 w-full max-w-md">
                                 <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
@@ -194,7 +206,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 <span className="text-xs font-mono text-neutral-500 uppercase tracking-widest">{clusters.length} Unique Faces Found</span>
                             </div>
 
-                            {loading ? (
+                            {status === 'loading' ? (
                                 <div className="flex items-center justify-center py-20">
                                     <Loader2 className="animate-spin text-red-600" size={32} />
                                 </div>
@@ -223,8 +235,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                         </div>
                     )}
 
-                    {currentStep === 'optimize' && (
-                        <div className="space-y-8">
+                    {currentStep === 'optimize' && suggestions && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="bg-red-600/10 border border-red-600/20 rounded-xl p-6 flex items-start gap-4">
                                 <Settings className="text-red-500 shrink-0" size={24} />
                                 <div>
@@ -251,53 +263,119 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     </div>
                                 </div>
                             </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
+                                    <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
+                                        <Target size={14} className="text-blue-400" /> Face Detector
+                                    </h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Model</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_model}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Size</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_size}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Score</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_score}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
+                                    <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
+                                        <HardDrive size={14} className="text-green-400" /> System Resources
+                                    </h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Memory Limit</span>
+                                            <span className="text-white font-mono">{suggestions.system_memory_limit} GB</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Execution Threads</span>
+                                            <span className="text-white font-mono">{suggestions.execution_thread_count}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3">
+                                <Info className="text-blue-400 shrink-0 mt-0.5" size={16} />
+                                <p className="text-xs text-blue-200">
+                                    These settings have been optimized based on the resolution of your video and your available system memory.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentStep === 'generate' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center py-10">
+                            <div className="flex justify-center">
+                                <div className="p-4 bg-green-500/10 rounded-full mb-4">
+                                    <Wand2 size={48} className="text-green-500" />
+                                </div>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Ready to Generate</h3>
+                            <p className="text-neutral-400 max-w-md mx-auto">
+                                We will create <strong>{clusters.length} usage jobs</strong> based on the scenes and face groups we identified.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
+                                <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Scenes</span>
+                                    <span className="text-xl font-mono text-white">{Object.keys(analysisResult?.scenes || {}).length}</span>
+                                </div>
+                                <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Face Groups</span>
+                                    <span className="text-xl font-mono text-white">{clusters.length}</span>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="p-6 border-t border-neutral-800 flex items-center justify-between bg-neutral-950/30">
-                    <div>
-                        {currentStep !== 'analyze' && (
-                            <button
-                                onClick={() => currentStep === 'cluster' ? setCurrentStep('analyze') : setCurrentStep('cluster')}
-                                className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors text-sm font-bold"
-                            >
-                                <ChevronLeft size={16} />
-                                Back
-                            </button>
-                        )}
-                    </div>
+                {/* Footer / Actions */}
+                <div className="p-6 border-t border-neutral-800 flex justify-between bg-neutral-950/50">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2 rounded-xl text-neutral-400 hover:bg-neutral-800 transition-colors font-medium text-sm"
+                    >
+                        Cancel
+                    </button>
 
-                    <div className="flex gap-3">
+                    {currentStep === 'cluster' && (
                         <button
-                            onClick={onClose}
-                            className="px-6 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:bg-neutral-800 transition-all text-sm font-bold"
+                            onClick={runOptimization}
+                            disabled={status === 'loading'}
+                            className="bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-neutral-200 transition-colors flex items-center gap-2"
                         >
-                            Cancel
+                            {status === 'loading' && <Loader2 size={16} className="animate-spin" />}
+                            Next: Optimization
                         </button>
+                    )}
 
-                        {currentStep === 'cluster' && (
-                            <button
-                                onClick={fetchSuggestions}
-                                disabled={loading}
-                                className="px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-600/20 transition-all text-sm font-bold flex items-center gap-2 disabled:opacity-50"
-                            >
-                                Next Step
-                                <ChevronRight size={16} />
-                            </button>
-                        )}
+                    {currentStep === 'optimize' && (
+                        <button
+                            onClick={() => setCurrentStep('generate')}
+                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
+                        >
+                            Next: Generation
+                        </button>
+                    )}
 
-                        {currentStep === 'optimize' && (
-                            <button
-                                onClick={handleApply}
-                                className="px-8 py-2.5 bg-white hover:bg-neutral-200 text-black rounded-xl shadow-lg transition-all text-sm font-bold flex items-center gap-2"
-                            >
-                                <Check size={16} />
-                                Apply Optimizations
-                            </button>
-                        )}
-                    </div>
+                    {currentStep === 'generate' && (
+                        <button
+                            onClick={handleGenerateJobs}
+                            disabled={isGenerating}
+                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
+                        >
+                            {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                            Generate Jobs
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

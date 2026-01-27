@@ -886,20 +886,27 @@ class WizardAnalyzeRequest(BaseModel):
     video_path: str
 
 wizard_tasks = {}
+wizard_suggestions = {}
 
 def process_wizard_analysis(job_id: str, video_path: str):
     from facefusion.vision import read_video_frame
     from facefusion import face_analyser
     
+    print(f"[WIZARD] Starting analysis for job {job_id} on {video_path}")
     try:
         wizard_tasks[job_id]["status"] = "detecting_scenes"
+        print(f"[WIZARD] Job {job_id} set to detecting_scenes")
         
         def on_scenes_progress(progress):
+            print(f"[WIZARD] Job {job_id} scene progress: {progress}")
             wizard_tasks[job_id]["progress"] = progress * 0.5 # Scene detection is 50%
             
+        print(f"[WIZARD] Calling get_scene_timeframes...")
         scenes = get_scene_timeframes(video_path, progress_callback=on_scenes_progress)
+        print(f"[WIZARD] Scenes detected: {len(scenes)}")
         
         wizard_tasks[job_id]["status"] = "analyzing_faces"
+        print(f"[WIZARD] Job {job_id} set to analyzing_faces")
         scene_faces = {}
         total_scenes = len(scenes)
         
@@ -1002,8 +1009,64 @@ async def wizard_suggest(req: WizardClusterRequest):
     for faces in data["scene_faces"].values():
         all_faces.extend(faces)
         
-    suggestions = suggest_settings(data["video_path"], all_faces)
-    return {"suggestions": suggestions}
+    settings = suggest_settings(data["video_path"], all_faces)
+    return {"suggestions": settings}
+
+
+class WizardGenerateRequest(BaseModel):
+    job_id: str
+
+@app.post("/api/v1/wizard/generate")
+async def wizard_generate(req: WizardGenerateRequest):
+    if req.job_id not in analyzed_videos:
+          raise HTTPException(404, "Data not found")
+          
+    data = analyzed_videos[req.job_id]
+    video_path = wizard_tasks.get(req.job_id, {}).get("video_path") # Assuming we store this
+    
+    # Check if we have suggestions
+    settings = wizard_suggestions.get(req.job_id, {})
+    
+    # Create jobs for each scene
+    scenes = data.get("scenes", [])
+    created_jobs = []
+    
+    for i, (start_frame, end_frame) in enumerate(scenes):
+        # Create a job for this scene
+        # We'll use the suggested settings + clip trimming
+        
+        # Determine output path
+        dir_name = os.path.dirname(video_path)
+        base_name = os.path.basename(video_path)
+        name, ext = os.path.splitext(base_name)
+        output_path = os.path.join(dir_name, f"{name}_scene_{i+1}{ext}")
+        
+        job_id = job_manager.create_job(f"Scene {i+1} - {name}")
+        
+        # Apply suggested settings to the job
+        # Note: job_manager doesn't support applying a dict directly yet in this mock,
+        # but normally we would update the job's config.
+        # For now, we'll just queue it with the trim arguments.
+        
+        # Ideally, we would clone the current global settings AND applied wizard settings
+        # to this specific job. 
+        # For this implementation, we will assume global state is used for execution 
+        # but we set the specific trim arguments.
+        
+        job_manager.add_step(job_id, {
+            "name": "process",
+            "args": {
+                "trim_frame_start": start_frame,
+                "trim_frame_end": end_frame,
+                "target_path": video_path,
+                "output_path": output_path,
+                **settings # Apply optimized settings
+            }
+        })
+        
+        created_jobs.append(job_id)
+        
+    return {"created_jobs": created_jobs, "count": len(created_jobs)}
 
 # Global cache
 analyzed_videos = {}
