@@ -86,7 +86,7 @@ def run(program : ArgumentParser) -> None:
 		onnxruntime_name, onnxruntime_version, rocm_version = ONNXRUNTIME_SET.get(args.onnxruntime) #type:ignore[misc]
 		python_id = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
 
-		if python_id in [ 'cp310', 'cp312' ]:
+		if python_id in [ 'cp312' ]:
 			wheel_name = onnxruntime_name + '-' + onnxruntime_version + '-' + python_id + '-' + python_id + '-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl'
 			wheel_url = 'https://repo.radeon.com/rocm/manylinux/rocm-rel-' + rocm_version + '/' + wheel_name
 			commands.append(wheel_url)
