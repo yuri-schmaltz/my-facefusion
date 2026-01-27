@@ -62,17 +62,30 @@ export function Terminal({ isOpen, onToggle }: TerminalProps) {
     );
 }
 
-export function TerminalButton({ isOpen, onToggle, className }: TerminalProps & { className?: string }) {
+export function TerminalButton({ isOpen, onToggle, className, isProcessing }: TerminalProps & { className?: string, isProcessing?: boolean }) {
     return (
         <button
             onClick={onToggle}
             className={cn(
-                "bg-neutral-900 border border-neutral-800 text-neutral-400 p-2.5 rounded-lg hover:border-green-500 hover:text-green-500 transition-all shadow-lg shadow-black/20",
+                "h-full px-4 flex flex-col items-center justify-center gap-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-lg hover:border-green-500 hover:text-green-500 transition-all shadow-lg shadow-black/20",
                 isOpen && "border-green-500 text-green-500",
+                // Pulse effect when processing and not open
+                (isProcessing && !isOpen) && "animate-pulse border-red-500/50 text-red-400",
+                // Active looking when open
+                (isOpen && isProcessing) && "border-red-500 text-red-500 bg-red-950/20",
                 className
             )}
         >
-            <TerminalSquare size={20} />
+            <div className="relative">
+                <TerminalSquare size={18} />
+                {isProcessing && (
+                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                )}
+            </div>
+            {/* <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:block">Logs</span> */}
         </button>
     );
 }

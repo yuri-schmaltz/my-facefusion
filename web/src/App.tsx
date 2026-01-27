@@ -176,10 +176,12 @@ function App() {
           />
         </section>
 
-        <section className="flex items-center gap-2 shrink-0">
+        <section className="flex items-center gap-2 shrink-0 h-14">
           <TerminalButton
             isOpen={isTerminalOpen}
             onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
+            isProcessing={isProcessing}
+            className="w-14"
           />
           <button
             onClick={startProcessing}

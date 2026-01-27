@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { config } from "@/services/api";
-import { Save, Info, Volume2, HardDrive } from "lucide-react";
+import { Info, Volume2, HardDrive } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 
@@ -25,7 +25,6 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
         execution_thread_count: 4,
         execution_queue_count: 1,
     });
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         config.getSettings().then((res) => {
@@ -33,55 +32,39 @@ export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
         });
     }, []);
 
+    const updateBackend = (newSettings: any) => {
+        const payload = {
+            ...newSettings,
+            output_video_quality: Number(newSettings.output_video_quality),
+            execution_thread_count: Number(newSettings.execution_thread_count),
+            execution_queue_count: Number(newSettings.execution_queue_count),
+            settings: {
+                execution_providers: Array.isArray(newSettings.execution_providers) ? newSettings.execution_providers : [newSettings.execution_providers]
+            }
+        };
+        config.update(payload).catch(console.error);
+    };
+
     const handleChange = (key: string, value: any) => {
-        setSettings((prev: any) => ({ ...prev, [key]: value }));
+        const newSettings = { ...settings, [key]: value };
+        setSettings(newSettings);
+        updateBackend(newSettings);
     };
 
     const toggleArrayItem = (key: string, item: string) => {
-        setSettings((prev: any) => {
-            const current = (prev[key] || []);
-            const newer = current.includes(item)
-                ? current.filter((i: string) => i !== item)
-                : [...current, item];
-            return { ...prev, [key]: newer };
-        });
-    };
+        const current = (settings[key] || []);
+        const newer = current.includes(item)
+            ? current.filter((i: string) => i !== item)
+            : [...current, item];
 
-    const handleSave = async () => {
-        setLoading(true);
-        try {
-            const payload = {
-                ...settings,
-                output_video_quality: Number(settings.output_video_quality),
-                execution_thread_count: Number(settings.execution_thread_count),
-                execution_queue_count: Number(settings.execution_queue_count),
-                settings: {
-                    execution_providers: Array.isArray(settings.execution_providers) ? settings.execution_providers : [settings.execution_providers]
-                }
-            }
-
-            await config.update(payload);
-            // Optionally show success toast
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+        const newSettings = { ...settings, [key]: newer };
+        setSettings(newSettings);
+        updateBackend(newSettings);
     };
 
     return (
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
-            <div className="flex items-center justify-between p-6 border-b border-neutral-800 shrink-0">
-                <h2 className="text-lg font-semibold text-white">Settings</h2>
-                <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-neutral-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {loading ? <span className="animate-spin">⏳</span> : <Save size={16} />}
-                    Save
-                </button>
-            </div>
+            {/* Header removed for cleaner UI with auto-save */}
 
             <div className="p-6 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                 {/* Face Selector Mode */}
