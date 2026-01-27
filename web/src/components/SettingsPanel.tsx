@@ -7,30 +7,30 @@ import { system } from "@/services/api";
 
 
 interface SettingsPanelProps {
-    allSettings: any;
-    onUpdate: (key: string, value: any) => void;
-    helpTexts: Record<string, string>;
-    systemInfo?: {
+    settings: Record<string, any>;
+    choices: Record<string, any>;
+    helpTexts?: Record<string, string>;
+    systemInfo: {
+        name: string;
+        version: string;
         execution_providers: string[];
-    };
+        execution_devices: string[];
+        cpu_count?: number;
+    } | null;
+    onChange: (key: string, value: any) => void;
     currentTargetPath?: string | null;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
-    allSettings: settings,
-    onUpdate,
-    helpTexts,
+    settings,
+    choices,
+    helpTexts = {},
+    systemInfo,
+    onChange,
     currentTargetPath
 }) => {
     const [wizardOpen, setWizardOpen] = React.useState(false);
     const [activeTab, setActiveTab] = React.useState("faces");
-    const [choices, setChoices] = React.useState<any>(null);
-
-    React.useEffect(() => {
-        system.getGlobalChoices().then(res => {
-            setChoices(res.data);
-        });
-    }, []);
 
     const tabs = [
         { id: "faces", label: "Faces", icon: User },
@@ -44,7 +44,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         const newer = current.includes(item)
             ? current.filter((i: string) => i !== item)
             : [...current, item];
-        onUpdate(key, newer);
+        onChange(key, newer);
     };
 
     const handleChange = (key: string, value: any) => {
@@ -59,7 +59,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             // Handle array of 4 numbers
             processedValue = Array.isArray(value) ? value.map(Number) : [0, 0, 0, 0];
         }
-        onUpdate(key, processedValue);
+        onChange(key, processedValue);
     };
 
     return (
@@ -672,7 +672,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <input
                                         type="range"
                                         min="1"
-                                        max={navigator.hardwareConcurrency || 16}
+                                        max={Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}
                                         step="1"
                                         value={settings.execution_thread_count || 4}
                                         onChange={(e) => handleChange("execution_thread_count", e.target.value)}
@@ -680,7 +680,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     />
                                     <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
                                         <span>1</span>
-                                        <span>{navigator.hardwareConcurrency || 16}</span>
+                                        <span>{Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}</span>
                                     </div>
                                 </div>
 

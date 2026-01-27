@@ -244,11 +244,13 @@ def health():
 
 @app.get("/system/info")
 def system_info():
+    import os
     return {
         "name": metadata.get("name"),
         "version": metadata.get("version"),
         "execution_providers": execution.get_available_execution_providers(),
-        "execution_devices": execution.detect_execution_devices()
+        "execution_devices": execution.detect_execution_devices(),
+        "cpu_count": os.cpu_count() or 4
     }
 
 @app.get("/system/help")

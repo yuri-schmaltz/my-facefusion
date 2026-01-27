@@ -367,11 +367,12 @@ function App() {
       {/* Column 2: Settings */}
       <div className="h-full flex flex-col overflow-hidden">
         <SettingsPanel
+          settings={allSettings}
+          choices={globalChoices}
           helpTexts={helpTexts}
-          allSettings={allSettings}
-          onUpdate={updateSetting}
-          currentTargetPath={targetPath}
           systemInfo={systemInfo}
+          onChange={updateSetting}
+          currentTargetPath={targetPath}
         />
       </div>
 
