@@ -94,27 +94,11 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                         value={currentSettings[`${proc}_model`]}
                                         onChange={(e: any) => onUpdate(`${proc}_model`, (e.target as HTMLSelectElement).value)}
                                     >
-                                        {(() => {
-                                            // Group models by category
-                                            const metadata: Record<string, any[]> = {};
-                                            procChoices.models.forEach(m => {
-                                                const meta = getModelMetadata(proc, m);
-                                                const cat = meta.category || 'Other';
-                                                if (!metadata[cat]) metadata[cat] = [];
-                                                metadata[cat].push({ value: m, ...meta });
-                                            });
-
-                                            // Render groups
-                                            return Object.entries(metadata).map(([category, models]) => (
-                                                <optgroup key={category} label={category} className="bg-neutral-800 text-neutral-400 font-semibold uppercase text-[10px] tracking-wider">
-                                                    {models.map((m: any) => (
-                                                        <SelectItem key={m.value} value={m.value}>
-                                                            {m.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </optgroup>
-                                            ));
-                                        })()}
+                                        {procChoices.models.map((m) => (
+                                            <SelectItem key={m} value={m}>
+                                                {m}
+                                            </SelectItem>
+                                        ))}
                                     </Select>
                                 </div>
                             )}
