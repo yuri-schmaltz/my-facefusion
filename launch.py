@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+"""
+FaceFusion Orchestrator (launch.py)
+-----------------------------------
+Main entrypoint for end-users. Handles:
+1. Starting the core backend (facefusion.py)
+2. Starting the web frontend
+3. Managing process lifecycle and clean cleanup.
+"""
 import subprocess
 import time
 import webbrowser

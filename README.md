@@ -23,7 +23,19 @@ Be aware, the [installation](https://docs.facefusion.io/installation) needs tech
 Usage
 -----
 
-### Full Stack (FastAPI + React) - **RECOMMENDED**
+### Easy Start (Recommended)
+
+Run the full stack (Backend + Frontend) with a single command:
+```bash
+python launch.py
+```
+*Automatically handles process management and opens the browser.*
+
+---
+
+### Advanced / Manual Usage
+
+If you prefer to run services manually:
 
 1.  **Backend (API Server)**:
     ```bash
