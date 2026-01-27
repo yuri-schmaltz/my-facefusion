@@ -3,7 +3,7 @@ import shutil
 import time
 from typing import List, Optional
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -706,6 +706,41 @@ def get_processor_choices():
     }
 
 
+@app.get("/api/v1/choices")
+def get_global_choices():
+    from facefusion import choices
+    from facefusion.uis import choices as uis_choices
+    return {
+        "face_detector_models": choices.face_detector_models,
+        "face_detector_set": choices.face_detector_set,
+        "face_landmarker_models": choices.face_landmarker_models,
+        "face_occluder_models": choices.face_occluder_models,
+        "face_parser_models": choices.face_parser_models,
+        "face_mask_types": choices.face_mask_types,
+        "face_mask_regions": choices.face_mask_regions,
+        "face_mask_areas": choices.face_mask_areas,
+        "voice_extractor_models": choices.voice_extractor_models,
+        "temp_frame_formats": choices.temp_frame_formats,
+        "output_video_presets": choices.output_video_presets,
+        "video_memory_strategies": choices.video_memory_strategies,
+        "log_levels": choices.log_levels,
+        "ui_workflows": choices.ui_workflows,
+        "execution_providers": choices.execution_providers,
+        "face_detector_angles": list(choices.face_detector_angles),
+        "preview_modes": uis_choices.preview_modes,
+        "preview_resolutions": uis_choices.preview_resolutions,
+        "ranges": {
+            "face_detector_score": list(choices.face_detector_score_range),
+            "face_landmarker_score": list(choices.face_landmarker_score_range),
+            "face_mask_blur": list(choices.face_mask_blur_range),
+            "face_mask_padding": list(choices.face_mask_padding_range),
+            "system_memory_limit": list(choices.system_memory_limit_range),
+            "face_detector_margin": list(choices.face_detector_margin_range),
+            "output_video_scale": list(choices.output_video_scale_range),
+            "reference_face_distance": list(choices.reference_face_distance_range)
+        }
+    }
+
 # --- Faces API ---
 
 class FaceDetectRequest(BaseModel):
@@ -850,41 +885,73 @@ def detect_faces_endpoint(req: FaceDetectRequest):
 class WizardAnalyzeRequest(BaseModel):
     video_path: str
 
-@app.post("/api/v1/wizard/analyze")
-async def wizard_analyze(req: WizardAnalyzeRequest):
+wizard_tasks = {}
+
+def process_wizard_analysis(job_id: str, video_path: str):
     from facefusion.vision import read_video_frame
     from facefusion import face_analyser
     
+    try:
+        wizard_tasks[job_id]["status"] = "detecting_scenes"
+        
+        def on_scenes_progress(progress):
+            wizard_tasks[job_id]["progress"] = progress * 0.5 # Scene detection is 50%
+            
+        scenes = get_scene_timeframes(video_path, progress_callback=on_scenes_progress)
+        
+        wizard_tasks[job_id]["status"] = "analyzing_faces"
+        scene_faces = {}
+        total_scenes = len(scenes)
+        
+        for idx, (start, end) in enumerate(scenes):
+            wizard_tasks[job_id]["progress"] = 0.5 + (idx / total_scenes) * 0.5
+            middle_frame = start + (end - start) // 2
+            vision_frame = read_video_frame(video_path, middle_frame)
+            if vision_frame is not None:
+                faces = face_analyser.get_many_faces([vision_frame])
+                scene_faces[idx] = faces
+                
+        analyzed_videos[job_id] = {
+            "video_path": video_path,
+            "scenes": scenes,
+            "scene_faces": scene_faces
+        }
+        wizard_tasks[job_id]["status"] = "completed"
+        wizard_tasks[job_id]["progress"] = 1.0
+    except Exception as e:
+        print(f"Wizard analysis failed: {e}")
+        wizard_tasks[job_id]["status"] = "failed"
+        wizard_tasks[job_id]["error"] = str(e)
+
+@app.post("/api/v1/wizard/analyze")
+async def wizard_analyze(req: WizardAnalyzeRequest, background_tasks: BackgroundTasks):
     video_path = os.path.realpath(os.path.abspath(req.video_path.strip('"\'')))
     if not os.path.exists(video_path):
         raise HTTPException(404, "Video not found")
         
-    # 1. Detect scenes
-    scenes = get_scene_timeframes(video_path)
-    
-    # 2. Detect faces in each scene (sampling the middle frame of each scene)
-    scene_faces = {}
-    for idx, (start, end) in enumerate(scenes):
-        middle_frame = start + (end - start) // 2
-        vision_frame = read_video_frame(video_path, middle_frame)
-        if vision_frame is not None:
-            faces = face_analyser.get_many_faces([vision_frame])
-            scene_faces[idx] = faces
-            
-    # Internal cache for clustering
     job_id = "wizard_" + str(int(time.time()))
-    analyzed_videos[job_id] = {
-        "video_path": video_path,
-        "scenes": scenes,
-        "scene_faces": scene_faces
+    wizard_tasks[job_id] = {
+        "status": "queued",
+        "progress": 0.0
     }
     
-    # Return serializable data
-    return {
-        "job_id": job_id,
-        "scenes_count": len(scenes),
-        "scenes": scenes
-    }
+    background_tasks.add_task(process_wizard_analysis, job_id, video_path)
+    
+    return {"job_id": job_id}
+
+@app.get("/api/v1/wizard/progress/{job_id}")
+async def wizard_progress(job_id: str):
+    if job_id not in wizard_tasks:
+        raise HTTPException(404, "Task not found")
+    
+    res = wizard_tasks[job_id].copy()
+    if res["status"] == "completed":
+        data = analyzed_videos.get(job_id, {})
+        res["result"] = {
+            "scenes_count": len(data.get("scenes", [])),
+            "scenes": data.get("scenes", [])
+        }
+    return res
 
 class WizardClusterRequest(BaseModel):
     job_id: str

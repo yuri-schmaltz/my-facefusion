@@ -35,6 +35,8 @@ function App() {
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const [previewResolution, setPreviewResolution] = useState("512x512");
+  const [globalChoices, setGlobalChoices] = useState<any>({});
 
   useEffect(() => {
     config.getProcessors().then((res) => {
@@ -49,6 +51,9 @@ function App() {
     });
     system.help().then((res) => {
       setHelpTexts(res.data);
+    });
+    system.getGlobalChoices().then((res) => {
+      setGlobalChoices(res.data);
     });
   }, []);
 
@@ -509,6 +514,27 @@ function App() {
 
         {/* Preview Card */}
         <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
+          {/* Preview Toolbar */}
+          {previewUrl && (
+            <div className="absolute top-4 right-4 z-20 flex gap-2">
+              <select
+                value={previewResolution}
+                onChange={(e) => setPreviewResolution(e.target.value)}
+                className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
+              >
+                {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
+                  <option key={res} value={res} className="bg-neutral-900">{res}</option>
+                ))}
+              </select>
+
+              {isPreviewLoading && (
+                <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
+                  <Loader2 size={16} className="animate-spin text-red-500" />
+                </div>
+              )}
+            </div>
+          )}
+
           {outputUrl ? (
             <div className="w-full h-full relative group">
               <video
@@ -592,7 +618,7 @@ function App() {
         </div>
 
       </div>
-    </div>
+    </div >
   );
 }
 

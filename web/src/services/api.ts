@@ -10,6 +10,7 @@ export const system = {
     health: () => api.get('/health'),
     info: () => api.get('/system/info'),
     help: () => api.get('/system/help'),
+    getGlobalChoices: () => api.get('/api/v1/choices'),
     selectFile: (multiple = false, initialPath?: string) =>
         api.get(`/system/select-file?multiple=${multiple}${initialPath ? `&initial_path=${encodeURIComponent(initialPath)}` : ''}`),
 };
@@ -51,9 +52,10 @@ export const execute = {
 };
 
 export const wizard = {
-    analyze: (videoPath: str) => api.post('/api/v1/wizard/analyze', { video_path: videoPath }),
-    cluster: (jobId: string, threshold: float = 0.6) => api.post('/api/v1/wizard/cluster', { job_id: jobId, threshold }),
+    analyze: (videoPath: string) => api.post('/api/v1/wizard/analyze', { video_path: videoPath }),
+    cluster: (jobId: string, threshold: number = 0.6) => api.post('/api/v1/wizard/cluster', { job_id: jobId, threshold }),
     suggest: (jobId: string) => api.post('/api/v1/wizard/suggest', { job_id: jobId }),
+    getProgress: (jobId: string) => api.get(`/api/v1/wizard/progress/${jobId}`),
 };
 
 export default api;

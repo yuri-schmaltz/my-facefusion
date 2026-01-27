@@ -18,6 +18,17 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     const [analysisResult, setAnalysisResult] = useState<any>(null);
     const [clusters, setClusters] = useState<any[]>([]);
     const [suggestions, setSuggestions] = useState<any>(null);
+    const [progress, setProgress] = useState(0);
+    const [currentStatus, setCurrentStatus] = useState("queued");
+    const [statusMessage, setStatusMessage] = useState("Initializing...");
+
+    const statusLabels: Record<string, string> = {
+        'detecting_scenes': 'Detecting scenes...',
+        'analyzing_faces': 'Analyzing faces in scenes...',
+        'completed': 'Analysis complete!',
+        'failed': 'Analysis failed.',
+        'queued': 'Waiting in queue...'
+    };
 
     useEffect(() => {
         if (isOpen && targetPath) {
@@ -29,13 +40,37 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         setLoading(true);
         try {
             const res = await wizard.analyze(targetPath);
-            setJobId(res.data.job_id);
-            setAnalysisResult(res.data);
-            setCurrentStep('cluster');
-            fetchClusters(res.data.job_id);
+            const id = res.data.job_id;
+            setJobId(id);
+
+            // Poll for progress
+            const interval = setInterval(async () => {
+                try {
+                    const pRes = await wizard.getProgress(id);
+                    const { status, progress: p, result, error } = pRes.data;
+
+                    setProgress(p);
+                    setCurrentStatus(status);
+                    setStatusMessage(statusLabels[status] || status);
+
+                    if (status === 'completed') {
+                        clearInterval(interval);
+                        setAnalysisResult(result);
+                        setCurrentStep('cluster');
+                        fetchClusters(id);
+                    } else if (status === 'failed') {
+                        clearInterval(interval);
+                        setLoading(false);
+                        alert("Analysis failed: " + error);
+                    }
+                } catch (err) {
+                    console.error("Polling failed", err);
+                    clearInterval(interval);
+                    setLoading(false);
+                }
+            }, 1000);
         } catch (err) {
             console.error("Analysis failed", err);
-        } finally {
             setLoading(false);
         }
     };
@@ -119,16 +154,35 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     {currentStep === 'analyze' && (
-                        <div className="h-full flex flex-col items-center justify-center space-y-6">
+                        <div className="h-full flex flex-col items-center justify-center space-y-8 py-10">
                             <div className="relative">
                                 <Search size={64} className="text-red-600 animate-pulse" />
                                 <div className="absolute inset-0 border-2 border-red-600 rounded-full animate-ping opacity-20" />
                             </div>
-                            <div className="text-center">
-                                <h3 className="text-lg font-bold text-white mb-2">Analyzing Video...</h3>
-                                <p className="text-sm text-neutral-400 max-w-sm">
-                                    Detecting scenes and identifying unique face characteristics to optimize your workflow.
-                                </p>
+                            <div className="text-center space-y-4 w-full max-w-md">
+                                <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
+                                <div className="flex items-center justify-center gap-3 text-sm text-neutral-400">
+                                    <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                        Scenes
+                                    </div>
+                                    <ChevronRight size={14} className="text-neutral-700" />
+                                    <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                        Faces
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                        <span>Progress</span>
+                                        <span>{Math.round(progress * 100)}%</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/50 shadow-inner">
+                                        <div
+                                            className="h-full bg-red-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)]"
+                                            style={{ width: `${progress * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
