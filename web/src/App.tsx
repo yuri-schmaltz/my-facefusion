@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { config, files, execute, system } from "@/services/api";
-import { Card } from "@/components/ui/card";
+import { files, execute, system, config } from "@/services/api";
 import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, Info, X } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
@@ -119,14 +118,41 @@ function App() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [jobStatus, setJobStatus] = useState<string>("idle");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
+  // Live Preview Logic
+  useEffect(() => {
+    const fetchPreview = async () => {
+      if (sourcePath && targetPath && !isProcessing) {
+        setIsPreviewLoading(true);
+        try {
+          const res = await execute.preview({
+            path: targetPath,
+            time_seconds: currentVideoTime
+          });
+          setPreviewUrl(res.data.preview);
+        } catch (err) {
+          console.error("Preview failed:", err);
+        } finally {
+          setIsPreviewLoading(false);
+        }
+      } else {
+        setPreviewUrl(null);
+      }
+    };
+
+    const debounce = setTimeout(fetchPreview, 500);
+    return () => clearTimeout(debounce);
+  }, [sourcePath, targetPath, currentVideoTime, isProcessing, activeProcessors, allSettings]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
 
     if (isProcessing && jobId) {
       interval = setInterval(async () => {
         try {
-          const res = await execute.getJobStatus(jobId);
+          const res = await execute.getStatus(jobId);
           const status = res.data.status;
           const currentProgress = res.data.progress || 0;
 
@@ -144,6 +170,7 @@ function App() {
           }
         } catch (err) {
           console.error("Failed to poll job status:", err);
+          clearInterval(interval);
         }
       }, 1000);
     }
@@ -422,6 +449,7 @@ function App() {
                         <video
                           src={files.preview(targetPath)}
                           className="w-full h-full object-contain pointer-events-auto"
+                          onTimeUpdate={(e) => setCurrentVideoTime(e.currentTarget.currentTime)}
                           controls
                           muted
                           loop
@@ -519,6 +547,19 @@ function App() {
                   <p className="text-center text-xs text-neutral-600 pt-2">
                     {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
                   </p>
+                </div>
+              </div>
+            ) : previewUrl ? (
+              <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
+                <img src={previewUrl} className="w-full h-full object-contain" />
+                {isPreviewLoading && (
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
+                    <Loader2 size={16} className="animate-spin text-red-500" />
+                  </div>
+                )}
+                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                  <Sparkles size={14} className="text-red-500" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
                 </div>
               </div>
             ) : (

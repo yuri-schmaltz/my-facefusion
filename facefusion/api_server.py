@@ -200,13 +200,26 @@ def get_temp_path() -> str:
 # --- Models ---
 class ConfigUpdate(BaseModel):
     processors: Optional[List[str]] = None
+    source_paths: Optional[List[str]] = None
+    target_path: Optional[str] = None
     output_path: Optional[str] = None
-    # common settings
+    # face selector
     face_selector_mode: Optional[str] = None
+    face_selector_order: Optional[str] = None
+    face_selector_gender: Optional[str] = None
+    face_selector_race: Optional[str] = None
+    face_selector_age_start: Optional[int] = None
+    face_selector_age_end: Optional[int] = None
+    reference_face_position: Optional[int] = None
+    reference_face_distance: Optional[float] = None
+    reference_frame_number: Optional[int] = None
+    # face masker
     face_mask_types: Optional[List[str]] = None
     face_mask_regions: Optional[List[str]] = None
+    # output
     output_video_quality: Optional[int] = None
     output_video_encoder: Optional[str] = None
+    # execution
     execution_providers: Optional[List[str]] = None
     execution_thread_count: Optional[int] = None
     execution_queue_count: Optional[int] = None
@@ -313,8 +326,18 @@ def update_config(config: ConfigUpdate):
     # Handle explicit fields
     update_map = {
         'processors': config.processors,
+        'source_paths': config.source_paths,
+        'target_path': config.target_path,
         'output_path': config.output_path,
         'face_selector_mode': config.face_selector_mode,
+        'face_selector_order': config.face_selector_order,
+        'face_selector_gender': config.face_selector_gender,
+        'face_selector_race': config.face_selector_race,
+        'face_selector_age_start': config.face_selector_age_start,
+        'face_selector_age_end': config.face_selector_age_end,
+        'reference_face_position': config.reference_face_position,
+        'reference_face_distance': config.reference_face_distance,
+        'reference_frame_number': config.reference_frame_number,
         'face_mask_types': config.face_mask_types,
         'face_mask_regions': config.face_mask_regions,
         'output_video_quality': config.output_video_quality,
@@ -675,6 +698,69 @@ class FaceDetectRequest(BaseModel):
     path: str
     frame_number: int = 0
     time_seconds: float = None
+
+@app.post("/preview")
+def get_preview_endpoint(req: FaceDetectRequest):
+    import cv2
+    import base64
+    from facefusion import face_analyser, state_manager, audio
+    from facefusion.processors.core import get_processors_modules
+    from facefusion.vision import read_static_image, read_video_frame, detect_video_fps, read_static_images, extract_vision_mask, conditional_merge_vision_mask
+    
+    path = req.path
+    path = os.path.realpath(os.path.abspath(path.strip('"\'')))
+    
+    # 1. Get Target Frame
+    vision_frame = None
+    if is_image(path):
+        vision_frame = read_static_image(path)
+    elif is_video(path):
+        fps = detect_video_fps(path) or 30.0
+        frame_num = int(req.time_seconds * fps) if req.time_seconds is not None else req.frame_number
+        vision_frame = read_video_frame(path, frame_num)
+    
+    if vision_frame is None:
+        raise HTTPException(400, "Could not read target frame")
+
+    # 2. Get Source and Reference
+    source_paths = state_manager.get_item('source_paths')
+    processors = state_manager.get_item('processors')
+    
+    # If no source or no processors, return the original target frame
+    if not source_paths or not processors:
+         _, buffer = cv2.imencode('.jpg', vision_frame)
+         b64 = base64.b64encode(buffer).decode('utf-8')
+         return {"preview": f"data:image/jpeg;base64,{b64}"}
+
+    source_vision_frames = read_static_images(source_paths)
+    reference_frame_number = state_manager.get_item('reference_frame_number')
+    reference_vision_frame = read_video_frame(path, reference_frame_number)
+    
+    # 3. Process
+    temp_vision_frame = vision_frame.copy()
+    temp_vision_mask = extract_vision_mask(temp_vision_frame)
+    
+    for processor_module in get_processors_modules(processors):
+        # Ensure model is loaded for preview
+        processor_module.pre_process('preview')
+        
+        temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+        {
+            'reference_vision_frame': reference_vision_frame,
+            'source_vision_frames': source_vision_frames,
+            'source_audio_frame': audio.create_empty_audio_frame(),
+            'source_voice_frame': audio.create_empty_audio_frame(),
+            'target_vision_frame': vision_frame[:, :, :3],
+            'temp_vision_frame': temp_vision_frame[:, :, :3],
+            'temp_vision_mask': temp_vision_mask
+        })
+
+    temp_vision_frame = conditional_merge_vision_mask(temp_vision_frame, temp_vision_mask)
+    
+    # 4. Return
+    _, buffer = cv2.imencode('.jpg', temp_vision_frame)
+    b64 = base64.b64encode(buffer).decode('utf-8')
+    return {"preview": f"data:image/jpeg;base64,{b64}"}
 
 @app.post("/faces/detect")
 def detect_faces_endpoint(req: FaceDetectRequest):

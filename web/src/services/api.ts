@@ -46,6 +46,8 @@ export const filesystem = {
 export const execute = {
     run: () => api.post('/run'),
     stop: () => api.post('/stop'),
+    getStatus: (jobId: string) => api.get(`/jobs/status/${jobId}`),
+    preview: (payload: { path: string, time_seconds?: number, frame_number?: number }) => api.post('/preview', payload),
 };
 
 export default api;
