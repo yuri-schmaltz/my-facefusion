@@ -102,12 +102,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-2 mt-2">
                                 {[
-                                    { id: 'reference', label: 'Reference', icon: Target, desc: 'Specific target' },
-                                    { id: 'automatic', label: 'Automatic', icon: Zap, desc: 'Smart logic' },
-                                    { id: 'one', label: 'Single', icon: User, desc: 'First found' },
-                                    { id: 'many', label: 'Many', icon: Users, desc: 'All faces' },
+                                    { id: 'reference', label: 'Reference', icon: Target },
+                                    { id: 'automatic', label: 'Automatic', icon: Zap },
+                                    { id: 'one', label: 'Single', icon: User },
+                                    { id: 'many', label: 'Many', icon: Users },
                                 ].map((mode) => (
                                     <button
                                         key={mode.id}
@@ -118,23 +118,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             }
                                         }}
                                         className={cn(
-                                            "flex-col items-start p-3 rounded-xl border transition-all relative overflow-hidden group",
+                                            "flex items-center justify-between px-3 py-2 rounded-lg border transition-all relative overflow-hidden group h-9",
                                             settings.face_selector_mode === mode.id
                                                 ? "bg-red-600/10 border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.1)]"
                                                 : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
                                         )}
                                     >
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <mode.icon size={16} className={cn(settings.face_selector_mode === mode.id ? "text-red-500" : "text-neutral-500")} />
+                                        <div className="flex items-center gap-2">
+                                            <mode.icon size={14} className={cn(settings.face_selector_mode === mode.id ? "text-red-500" : "text-neutral-500")} />
                                             <span className={cn("text-xs font-bold", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
                                                 {mode.label}
                                             </span>
                                         </div>
-                                        <span className="text-[10px] leading-tight text-neutral-500 opacity-80">{mode.desc}</span>
                                         {settings.face_selector_mode === mode.id && (
-                                            <div className="absolute top-0 right-0 p-1 opacity-40">
-                                                <Sparkles size={10} className="text-red-500" />
-                                            </div>
+                                            <Sparkles size={10} className="text-red-500 opacity-50" />
                                         )}
                                     </button>
                                 ))}
@@ -161,18 +158,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Face Sorting */}
-                        <div className="grid grid-cols-2 gap-4 pt-2">
-                            <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                            <div className="space-y-1.5">
                                 <div className="flex items-center gap-2">
-                                    <ArrowDownAz size={14} className="text-neutral-500" />
-                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                    <ArrowDownAz size={12} className="text-neutral-500" />
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
                                         Selection Order
                                     </label>
                                 </div>
                                 <select
                                     value={settings.face_selector_order || "large-small"}
                                     onChange={(e) => handleChange("face_selector_order", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
+                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
                                 >
                                     {(choices?.face_selector_orders || ["large-small"]).map((o: string) => (
                                         <option key={o} value={o}>{o.replace(/-/g, ' ')}</option>
@@ -180,17 +177,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </select>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-1.5">
                                 <div className="flex items-center gap-2">
-                                    <Target size={14} className="text-neutral-500" />
-                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                    <Target size={12} className="text-neutral-500" />
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
                                         Detector Model
                                     </label>
                                 </div>
                                 <select
                                     value={settings.face_detector_model || "yolo_face"}
                                     onChange={(e) => handleChange("face_detector_model", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
+                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
                                 >
                                     {(choices?.face_detector_models || ["yolo_face"]).map((m: string) => (
                                         <option key={m} value={m}>{m}</option>
@@ -199,25 +196,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Detector Size</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Detector Size</label>
                                 <select
                                     value={settings.face_detector_size || "640x640"}
                                     onChange={(e) => handleChange("face_detector_size", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs"
+                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
                                 >
                                     {(choices?.face_detector_set?.[settings.face_detector_model || 'yolo_face'] || ["640x640"]).map((s: string) => (
                                         <option key={s} value={s}>{s}</option>
                                     ))}
                                 </select>
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Landmarker Model</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Landmarker Model</label>
                                 <select
                                     value={settings.face_landmarker_model || "2dfan4"}
                                     onChange={(e) => handleChange("face_landmarker_model", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs"
+                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
                                 >
                                     {(choices?.face_landmarker_models || ["2dfan4"]).map((m: string) => (
                                         <option key={m} value={m}>{m}</option>
@@ -227,17 +224,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Face Filter */}
-                        <div className="space-y-4 pt-2 pb-2 border-t border-neutral-800/50">
+                        <div className="space-y-2 pt-2 pb-1 border-t border-neutral-800/50">
                             <div className="flex items-center gap-2">
-                                <Filter size={14} className="text-neutral-500" />
-                                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                <Filter size={12} className="text-neutral-500" />
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
                                     Content Filtering
                                 </label>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-2">
                                 {/* Gender Filter */}
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Gender</label>
                                     <div className="flex bg-neutral-800 rounded-lg p-0.5">
                                         {[
@@ -249,7 +246,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 key={g.id}
                                                 onClick={() => handleChange("face_selector_gender", g.id)}
                                                 className={cn(
-                                                    "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
+                                                    "flex-1 py-0.5 text-[10px] font-bold rounded-md transition-all",
                                                     settings.face_selector_gender === g.id
                                                         ? "bg-red-600 text-white"
                                                         : "text-neutral-500 hover:text-neutral-300"
@@ -262,12 +259,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
 
                                 {/* Race Filter */}
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Race</label>
                                     <select
                                         value={settings.face_selector_race || ""}
                                         onChange={(e) => handleChange("face_selector_race", e.target.value)}
-                                        className="w-full bg-neutral-800 border-none text-neutral-400 rounded-lg p-1.5 text-[10px] focus:ring-1 focus:ring-red-500 outline-none"
+                                        className="w-full bg-neutral-800 border-none text-neutral-400 rounded-lg p-1 text-[10px] focus:ring-1 focus:ring-red-500 outline-none h-6"
                                     >
                                         <option value="">All Ethnicities</option>
                                         <option value="white">White</option>
@@ -281,25 +278,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </div>
 
                             {/* Age Range */}
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                     <span>Target Age Range</span>
-                                    <span className="text-neutral-300">{settings.face_selector_age_start} - {settings.face_selector_age_end} years</span>
+                                    <span className="text-neutral-300">{settings.face_selector_age_start} - {settings.face_selector_age_end} yrs</span>
                                 </label>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
                                     <input
                                         type="number"
                                         value={settings.face_selector_age_start || 0}
                                         onChange={(e) => handleChange("face_selector_age_start", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1.5 text-xs text-center focus:ring-red-500 outline-none"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-red-500 outline-none h-7"
                                         placeholder="Min"
                                     />
-                                    <div className="h-px bg-neutral-700 w-4 shadow-sm" />
+                                    <div className="h-px bg-neutral-700 w-3 shadow-sm" />
                                     <input
                                         type="number"
                                         value={settings.face_selector_age_end || 100}
                                         onChange={(e) => handleChange("face_selector_age_end", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1.5 text-xs text-center focus:ring-red-500 outline-none"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-red-500 outline-none h-7"
                                         placeholder="Max"
                                     />
                                 </div>
@@ -307,16 +304,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Detection Precision */}
-                        <div className="space-y-4 pt-4 border-t border-neutral-800/50">
+                        <div className="space-y-2 pt-2 border-t border-neutral-800/50">
                             <div className="flex items-center gap-2">
-                                <Sparkles size={14} className="text-neutral-500" />
-                                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                <Sparkles size={12} className="text-neutral-500" />
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
                                     Detector Settings
                                 </label>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Detector Score</span>
                                         <span className="text-red-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
@@ -329,7 +326,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Landmarker Score</span>
                                         <span className="text-red-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
@@ -344,7 +341,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase">Detector Angles</label>
                                 <div className="flex gap-2">
                                     {[0, 90, 180, 270].map((angle) => (
@@ -352,7 +349,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             key={angle}
                                             onClick={() => toggleArrayItem("face_detector_angles", angle as any)}
                                             className={cn(
-                                                "flex-1 py-1 text-[10px] font-bold rounded-md border transition-all",
+                                                "flex-1 py-0.5 text-[10px] font-bold rounded-md border transition-all h-6",
                                                 (settings.face_detector_angles || [0]).includes(angle)
                                                     ? "bg-red-600 border-red-500 text-white"
                                                     : "bg-neutral-800/50 border-neutral-700 text-neutral-500"
@@ -364,7 +361,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase">Detector Margin (T R B L) </label>
                                 <div className="grid grid-cols-4 gap-2">
                                     {[0, 1, 2, 3].map((idx) => (
@@ -377,7 +374,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 newMargin[idx] = Number(e.target.value);
                                                 handleChange("face_detector_margin", newMargin);
                                             }}
-                                            className="bg-neutral-800 border-none text-white rounded-md p-1.5 text-[10px] text-center"
+                                            className="bg-neutral-800 border-none text-white rounded-md p-1 text-[10px] text-center h-6"
                                         />
                                     ))}
                                 </div>
@@ -661,21 +658,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Execution Threads */}
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                            Execution Threads
-                                        </label>
-                                        <Tooltip content={helpTexts['execution_thread_count']}>
-                                            <Info size={12} className="text-neutral-500 cursor-help" />
-                                        </Tooltip>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-[10px] font-bold text-neutral-500 uppercase block">
+                                                Execution Threads
+                                            </label>
+                                            <Tooltip content={helpTexts['execution_thread_count']}>
+                                                <Info size={12} className="text-neutral-500 cursor-help" />
+                                            </Tooltip>
+                                        </div>
+                                        <span className="text-xs font-bold text-red-500">{settings.execution_thread_count || 4}</span>
                                     </div>
                                     <input
-                                        type="number"
-                                        min="1" max="128"
+                                        type="range"
+                                        min="1"
+                                        max={navigator.hardwareConcurrency || 16}
+                                        step="1"
                                         value={settings.execution_thread_count || 4}
                                         onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
                                     />
+                                    <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
+                                        <span>1</span>
+                                        <span>{navigator.hardwareConcurrency || 16}</span>
+                                    </div>
                                 </div>
 
                                 {/* Execution Queue */}

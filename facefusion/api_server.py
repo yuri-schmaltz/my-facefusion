@@ -465,11 +465,12 @@ def process_job_background(job_id: str, output_path: str):
         update_job_progress(job_id, progress_float * 100)
 
     # Attach to state_manager so workflow can find it? 
-    # Better: Patch state_manager or use a global in api_server referenced by workflow?
-    # Since workflow is in another storage, we need a way to pass this.
     # Hack for now: We will attach it to state_manager temporarily for the workflow to discover
-    state_manager.set_item('current_job_progress_callback', progress_callback)
-
+    # Force set in specific contexts to avoid detection issues
+    from facefusion.state_manager import STATE_SET
+    STATE_SET['cli']['current_job_progress_callback'] = progress_callback
+    STATE_SET['ui']['current_job_progress_callback'] = progress_callback
+    
     try:
         success = job_runner.run_job(job_id, process_step)
         if success:
