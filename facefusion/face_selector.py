@@ -26,6 +26,19 @@ def select_faces(reference_vision_frame : VisionFrame, target_vision_frame : Vis
 			match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
 			return match_faces
 
+	if state_manager.get_item('face_selector_mode') == 'automatic':
+		reference_faces = get_many_faces([ reference_vision_frame ])
+		reference_faces = sort_and_filter_faces(reference_faces)
+		reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
+		if reference_face:
+			match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
+			if match_faces:
+				return match_faces
+		# Fallback to 'one' if reference matching fails or no reference face
+		target_face = get_one_face(sort_and_filter_faces(target_faces))
+		if target_face:
+			return [ target_face ]
+
 	return []
 
 

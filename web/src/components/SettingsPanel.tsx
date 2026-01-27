@@ -10,11 +10,10 @@ const OUTPUT_VIDEO_ENCODERS = ['libx264', 'libx264rgb', 'libx265', 'libvpx-vp9',
 const OUTPUT_AUDIO_ENCODERS = ['aac', 'libmp3lame', 'libopus', 'libvorbis', 'flac', 'pcm_s16le', 'pcm_s24le', 'rawaudio'];
 
 interface SettingsPanelProps {
-    systemInfo: any;
     helpTexts: Record<string, string>;
 }
 
-export function SettingsPanel({ systemInfo, helpTexts }: SettingsPanelProps) {
+export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
     const [settings, setSettings] = useState<any>({
         face_selector_mode: "reference",
         face_mask_types: ["box"],

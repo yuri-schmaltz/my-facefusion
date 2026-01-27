@@ -86,8 +86,6 @@ def log_debug(process : subprocess.Popen[bytes]) -> None:
 
 	for error in errors:
 		if error.strip():
-	for error in errors:
-		if error.strip():
 			logger.error(error.strip(), __name__) # Promote to error level
 
 

@@ -250,7 +250,6 @@ function App() {
         {/* Center Column: Settings */}
         <div className="col-span-4 h-full flex flex-col overflow-hidden">
           <SettingsPanel
-            systemInfo={systemInfo}
             helpTexts={helpTexts}
           />
         </div>
