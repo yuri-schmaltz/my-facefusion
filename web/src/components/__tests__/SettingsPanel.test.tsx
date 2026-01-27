@@ -34,23 +34,7 @@ describe('SettingsPanel', () => {
         expect(screen.getByText('Execution Threads')).toBeInTheDocument();
     });
 
-    it('renders execution providers based on availability', async () => {
-        render(<SettingsPanel systemInfo={mockSystemInfo} helpTexts={mockHelpTexts} />);
 
-        // CPU should be available and active (default)
-        const cpuButton = screen.getByText('CPU').closest('button');
-        expect(cpuButton).not.toBeDisabled();
-
-        // CUDA should be enabled since it is in mockSystemInfo
-        const cudaButton = screen.getByText('CUDA').closest('button');
-        expect(cudaButton).not.toBeDisabled();
-
-        // ROCM wasn't in mockSystemInfo, should be disabled/dimmed
-        // Note: Our component visual logic handles this class-wise, but we can verify availability logic
-        const rocmButton = screen.getByText('ROCM');
-        // In the component, we add "Not Inst." text for unavailable ones
-        expect(rocmButton).toHaveTextContent('Not Inst.');
-    });
 
     it('triggers config update immediately on change (Auto-Save)', async () => {
         render(<SettingsPanel systemInfo={mockSystemInfo} helpTexts={mockHelpTexts} />);

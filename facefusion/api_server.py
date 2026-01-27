@@ -417,6 +417,12 @@ async def run_job(background_tasks: BackgroundTasks):
     job_progress[job_id]["status"] = "failed"
     raise HTTPException(500, "Job creation failed")
 
+@app.post("/stop")
+def stop_processing():
+    from facefusion import process_manager
+    process_manager.stop()
+    return {"status": "stopping"}
+
 def process_job_background(job_id: str, output_path: str):
     print(f"Starting background processing for {job_id}")
     from facefusion.core import process_step

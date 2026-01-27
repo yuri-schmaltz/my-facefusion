@@ -75,12 +75,12 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
 
                 return (
                     <Card key={proc} className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm overflow-hidden">
-                        <CardHeader className="py-3 px-4 border-b border-neutral-800 bg-neutral-900/30">
+                        <CardHeader className="py-2 px-3 border-b border-neutral-800 bg-neutral-900/30">
                             <CardTitle className="text-sm font-medium text-neutral-200 capitalize flex items-center gap-2">
                                 {proc.replace(/_/g, ' ')}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="p-4 space-y-4">
+                        <CardContent className="p-3 space-y-3">
                             {/* Model Selection */}
                             {procChoices.models && (
                                 <div className="space-y-2">

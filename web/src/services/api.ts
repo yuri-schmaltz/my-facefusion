@@ -45,6 +45,7 @@ export const filesystem = {
 
 export const execute = {
     run: () => api.post('/run'),
+    stop: () => api.post('/stop'),
 };
 
 export default api;

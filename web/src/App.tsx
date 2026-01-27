@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { config, files, execute, system } from "@/services/api";
 import { Card } from "@/components/ui/card";
-import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, Info } from "lucide-react";
+import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, Info, X } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
@@ -35,6 +35,7 @@ function App() {
   const [lastSourceDir, setLastSourceDir] = useState<string>(() => localStorage.getItem("lastSourceDir") || "");
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
+  const [showStopConfirm, setShowStopConfirm] = useState(false);
 
   useEffect(() => {
     config.getProcessors().then((res) => {
@@ -177,130 +178,162 @@ function App() {
       <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} />
 
       {/* Sidebar */}
-      <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
+      <aside className="w-[420px] py-3 pl-3 pr-1.5 flex flex-col h-screen overflow-hidden">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
+          <div className="p-3 space-y-4 flex flex-col h-full overflow-hidden">
+            <section className="shrink-0">
+              <div className="grid grid-cols-2 gap-2">
+                {processors.map((proc) => {
+                  const Icon = {
+                    face_swapper: Replace,
+                    face_enhancer: Sparkles,
+                    frame_enhancer: AppWindow,
+                    face_debugger: Bug,
+                    expression_restorer: Smile,
+                    age_modifier: Clock,
+                    background_remover: Eraser,
+                    watermark_remover: Eraser,
+                    frame_colorizer: Palette,
+                    lip_syncer: Mic2
+                  }[proc] || Box;
 
-        <section className="shrink-0">
-          <h2 className="text-sm font-semibold text-neutral-400 mb-4 uppercase tracking-wider">
-            Processors
-          </h2>
-          <div className="grid grid-cols-3 gap-2">
-            {processors.map((proc) => {
-              const Icon = {
-                face_swapper: Replace,
-                face_enhancer: Sparkles,
-                frame_enhancer: AppWindow,
-                face_debugger: Bug,
-                expression_restorer: Smile,
-                age_modifier: Clock,
-                background_remover: Eraser,
-                watermark_remover: Eraser,
-                frame_colorizer: Palette,
-                lip_syncer: Mic2
-              }[proc] || Box;
+                  return (
+                    <Tooltip key={proc} content={helpTexts[proc]}>
+                      <button
+                        onClick={() => toggleProcessor(proc)}
+                        className={`h-10 px-2 text-xs font-medium rounded-md border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
+                          ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
+                          : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                          }`}
+                      >
+                        <Icon size={14} />
+                        <span className="truncate">
+                          {proc
+                            .split("_")
+                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(" ")}
+                        </span>
+                      </button>
+                    </Tooltip>
+                  );
+                })}
+              </div>
+            </section>
 
-              return (
-                <Tooltip key={proc} content={helpTexts[proc]}>
-                  <button
-                    onClick={() => toggleProcessor(proc)}
-                    className={`h-10 px-2 text-xs font-medium rounded-md border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                      ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
-                      : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
-                      }`}
-                  >
-                    <Icon size={14} />
-                    <span className="truncate">
-                      {proc
-                        .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </span>
-                  </button>
-                </Tooltip>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
-          <ProcessorSettings
-            activeProcessors={activeProcessors}
-            currentSettings={allSettings}
-            onUpdate={updateSetting}
-            helpTexts={helpTexts}
-          />
-        </section>
-
-        <section className="space-y-3 pt-4 border-t border-neutral-800">
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider block">
-              Execution Provider
-            </label>
-            <Tooltip content={helpTexts['execution_providers']}>
-              <Info size={12} className="text-neutral-500 cursor-help" />
-            </Tooltip>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {["cuda", "cpu", "openvino", "rocm"].map((provider) => {
-              const current = allSettings.execution_providers || [];
-              const isSelected = current.includes(provider);
-              const isAvailable = (systemInfo.execution_providers || ['cpu']).includes(provider);
-
-              return (
-                <button
-                  key={provider}
-                  disabled={!isAvailable}
-                  onClick={() => {
-                    toggleArrayItem("execution_providers", provider);
-                  }}
-                  className={cn(
-                    "px-2 py-1.5 text-[10px] font-bold rounded border text-center transition-all",
-                    isSelected
-                      ? "bg-red-600/20 border-red-500 text-red-500"
-                      : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
-                    !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
-                  )}
-                >
-                  {provider.toUpperCase()}
-                </button>
-              )
-            })}
-          </div>
-        </section>
-        <section className="flex items-center gap-2 shrink-0 h-14">
-          <TerminalButton
-            isOpen={isTerminalOpen}
-            onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
-            isProcessing={isProcessing}
-            className="w-14"
-          />
-          <button
-            onClick={startProcessing}
-            disabled={isProcessing || !sourcePath || !targetPath}
-            className={`flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 relative overflow-hidden ${isProcessing || !sourcePath || !targetPath
-              ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-              : "bg-white text-black hover:bg-neutral-200"
-              }`}
-          >
-            {isProcessing && (
-              <div
-                className="absolute inset-0 bg-green-500/20 transition-all duration-300 ease-linear origin-left"
-                style={{ width: `${progress}%` }}
+            <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
+              <ProcessorSettings
+                activeProcessors={activeProcessors}
+                currentSettings={allSettings}
+                onUpdate={updateSetting}
+                helpTexts={helpTexts}
               />
-            )}
-            {isProcessing ? (
-              <Loader2 size={18} className="animate-spin z-10" />
+            </section>
+
+            <section className="space-y-2 pt-3 border-t border-neutral-800 shrink-0">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider block">
+                  Execution Provider
+                </label>
+                <Tooltip content={helpTexts['execution_providers']}>
+                  <Info size={12} className="text-neutral-500 cursor-help" />
+                </Tooltip>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {["cpu", "cuda", "rocm", "directml", "openvino", "coreml"].map((provider) => {
+                  const current = allSettings.execution_providers || [];
+                  const isSelected = current.includes(provider);
+                  const isAvailable = (systemInfo.execution_providers || ['cpu']).includes(provider);
+
+                  return (
+                    <button
+                      key={provider}
+                      disabled={!isAvailable}
+                      onClick={() => {
+                        toggleArrayItem("execution_providers", provider);
+                      }}
+                      className={cn(
+                        "px-2 py-1.5 text-[10px] font-bold rounded border text-center transition-all",
+                        isSelected
+                          ? "bg-red-600/20 border-red-500 text-red-500"
+                          : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
+                        !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
+                      )}
+                    >
+                      {provider.toUpperCase()}
+                      {!isAvailable && <span className="block text-[8px] opacity-50">N/A</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+          </div>
+
+          <section className="p-4 bg-neutral-900/50 border-t border-neutral-800 flex items-center gap-2 shrink-0">
+            <TerminalButton
+              isOpen={isTerminalOpen}
+              onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
+              isProcessing={isProcessing}
+              className="w-14"
+            />
+            {showStopConfirm ? (
+              <div className="flex-1 flex gap-1 animate-in fade-in zoom-in-95 duration-200">
+                <button
+                  onClick={async () => {
+                    await execute.stop();
+                    setShowStopConfirm(false);
+                  }}
+                  className="flex-1 py-4 font-bold rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20"
+                >
+                  <X size={18} /> Confirm Stop
+                </button>
+                <button
+                  onClick={() => setShowStopConfirm(false)}
+                  className="px-6 py-4 font-bold rounded-lg bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition"
+                >
+                  Cancel
+                </button>
+              </div>
             ) : (
-              <Play size={18} />
+              <button
+                onClick={() => {
+                  if (isProcessing) {
+                    setShowStopConfirm(true);
+                  } else {
+                    startProcessing();
+                  }
+                }}
+                disabled={!isProcessing && (!sourcePath || !targetPath)}
+                className={cn(
+                  "flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 relative overflow-hidden",
+                  isProcessing
+                    ? "bg-red-600/10 border border-red-500/50 text-red-500 hover:bg-red-600/20"
+                    : (!sourcePath || !targetPath
+                      ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                      : "bg-white text-black hover:bg-neutral-200")
+                )}
+              >
+                {isProcessing && (
+                  <div
+                    className="absolute inset-0 bg-red-500/10 transition-all duration-300 ease-linear origin-left"
+                    style={{ width: `${progress}%` }}
+                  />
+                )}
+                {isProcessing ? (
+                  <X size={18} className="z-10" />
+                ) : (
+                  <Play size={18} />
+                )}
+                <span className="z-10 relative">
+                  {isProcessing ? `Stop Processing (${Math.round(progress)}%)` : "Start Processing"}
+                </span>
+              </button>
             )}
-            <span className="z-10 relative">
-              {isProcessing ? `Processing ${Math.round(progress)}%` : "Start Processing"}
-            </span>
-          </button>
-        </section>
+          </section>
+        </div>
       </aside>
 
       {/* Main Content Layout */}
-      <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden h-screen">
+      <main className="flex-1 py-3 pl-1.5 pr-3 grid grid-cols-12 gap-3 overflow-hidden h-screen">
 
         {/* Center Column: Settings */}
         <div className="col-span-4 h-full flex flex-col overflow-hidden">
@@ -310,8 +343,142 @@ function App() {
         </div>
 
         {/* Right Column: Source / Target / Preview */}
-        <div className="col-span-8 h-full flex flex-col gap-6 overflow-hidden">
-          {/* ... Source/Target cards ... */}
+        <div className="col-span-8 h-full flex flex-col gap-3 overflow-hidden">
+          <div className="grid grid-cols-2 gap-3 h-[250px]">
+            {/* Source Card */}
+            <div
+              className={cn(
+                "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
+                sourcePath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+              )}
+            >
+              {sourcePath ? (
+                <>
+                  <div className="absolute inset-0 z-0">
+                    {isVideo(sourcePath) ? (
+                      <video
+                        src={files.preview(sourcePath)}
+                        className="w-full h-full object-contain pointer-events-auto"
+                        controls
+                        muted
+                        loop
+                      />
+                    ) : (
+                      <img
+                        src={files.preview(sourcePath)}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                  </div>
+
+                  <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
+                    <div
+                      onClick={() => openBrowser("source")}
+                      className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
+                    >
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
+                        {sourcePath.split('/').pop()}
+                      </span>
+                      <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSourcePath(null);
+                        config.update({ source_paths: [] });
+                      }}
+                      className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
+                    >
+                      <X size={14} />
+                    </button>
+                    {/* The rest of the card is empty and allows pointer-events-none to pass through to the video below */}
+                  </div>
+                </>
+              ) : (
+                <div
+                  onClick={() => openBrowser("source")}
+                  className="flex flex-col items-center justify-center w-full h-full"
+                >
+                  <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
+                  <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
+                  <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+                </div>
+              )}
+            </div>
+
+            {/* Target Card */}
+            <div className="flex flex-col h-full overflow-hidden">
+              <div
+                className={cn(
+                  "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all flex-1 group min-h-0 relative overflow-hidden",
+                  targetPath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+                )}
+              >
+                {targetPath ? (
+                  <>
+                    <div className="absolute inset-0 z-0">
+                      {isVideo(targetPath) ? (
+                        <video
+                          src={files.preview(targetPath)}
+                          className="w-full h-full object-contain pointer-events-auto"
+                          controls
+                          muted
+                          loop
+                        />
+                      ) : (
+                        <img
+                          src={files.preview(targetPath)}
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+
+                    <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
+                      <div
+                        onClick={() => openBrowser("target")}
+                        className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
+                      >
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
+                          {targetPath.split('/').pop()}
+                        </span>
+                        <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTargetPath(null);
+                          config.update({ target_path: null });
+                        }}
+                        className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    onClick={() => openBrowser("target")}
+                    className="flex flex-col items-center justify-center w-full h-full"
+                  >
+                    <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
+                    <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Target</p>
+                    <p className="text-[10px] text-neutral-600 mt-1 italic">The base media</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Detected Faces Card */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 animate-in fade-in slide-in-from-top-2 duration-500 min-h-[140px] flex flex-col">
+            <FaceSelector
+              targetPath={targetPath}
+              currentTime={currentVideoTime}
+              onSelect={(index) => updateSetting("reference_face_position", index)}
+            />
+          </div>
 
           {/* Preview Card */}
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
@@ -386,7 +553,7 @@ function App() {
 
         </div>
       </main>
-    </div>
+    </div >
   );
 }
 
