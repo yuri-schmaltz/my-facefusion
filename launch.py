@@ -60,6 +60,15 @@ def main():
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    # Pre-flight check: Kill anything on our ports to prevent conflicts
+    print("Checking ports...")
+    try:
+        # Kill anything on 8002 (Backend) and 5173 (Frontend)
+        subprocess.run("lsof -t -i:8002 -i:5173 | xargs -r kill -9", shell=True, stderr=subprocess.DEVNULL)
+        time.sleep(1) # Wait for release
+    except Exception as e:
+        print(f"Warning during port cleanup: {e}")
     
     # 1. Start Backend
     print("Launching Backend (port 8002)...")
