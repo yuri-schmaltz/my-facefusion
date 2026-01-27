@@ -163,35 +163,41 @@ def startup_event():
     
     # Initialize default state items
     # ensuring that critical items like download_providers are not None
+    # Use init_item to ensure it populates ALL contexts (cli and ui)
     if state_manager.get_item('download_providers') is None:
         from facefusion import choices
-        state_manager.set_item('download_providers', choices.download_providers)
+        state_manager.init_item('download_providers', choices.download_providers)
     
     if state_manager.get_item('execution_providers') is None:
-        state_manager.set_item('execution_providers', ['cpu'])
+        state_manager.init_item('execution_providers', ['cpu'])
         
     if state_manager.get_item('execution_thread_count') is None:
-        state_manager.set_item('execution_thread_count', 4)
+        state_manager.init_item('execution_thread_count', 4)
 
     if state_manager.get_item('execution_queue_count') is None:
-        state_manager.set_item('execution_queue_count', 1)
+        state_manager.init_item('execution_queue_count', 1)
         
     if state_manager.get_item('output_video_quality') is None:
-        state_manager.set_item('output_video_quality', 80)
+        state_manager.init_item('output_video_quality', 80)
         
     if state_manager.get_item('face_selector_mode') is None:
-        state_manager.set_item('face_selector_mode', 'reference')
+        state_manager.init_item('face_selector_mode', 'reference')
         
     if state_manager.get_item('face_mask_types') is None:
-        state_manager.set_item('face_mask_types', ['box'])
+        state_manager.init_item('face_mask_types', ['box'])
 
     if state_manager.get_item('face_mask_regions') is None:
-        state_manager.set_item('face_mask_regions', ['skin'])
+        state_manager.init_item('face_mask_regions', ['skin'])
+
+    if state_manager.get_item('processors') is None:
+        state_manager.init_item('processors', [])
 
 @app.post("/run")
 def run_job():
+    print("--- RUN JOB REQUEST RECEIVED ---")
     # 1. Prepare Job ID e Output Path
     job_id = "job_" + str(int(time.time()))
+    print(f"Generated Job ID: {job_id}")
     
     # Check if output path is set, else generate one
     output_path = state_manager.get_item('output_path')
@@ -200,6 +206,8 @@ def run_job():
         output_path = os.path.join(get_temp_path(), "api_outputs", output_name)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
+    print(f"Output Path: {output_path}")
+
     # 2. Collect Args (Current State)
     # We need to gather all relevant args from state_manager to pass to the step
     # For now, we assume state_manager has been populated by /config and /upload
@@ -210,11 +218,13 @@ def run_job():
     # Simpler approach: Pass the target_path and processors. The rest are defaults or set via config.
     # Ideally, we should collect all 'Args' fields.
     
+    processors = state_manager.get_item('processors') or []
+    
     step_args = {
         'source_paths': state_manager.get_item('source_paths'),
         'target_path': state_manager.get_item('target_path'),
         'output_path': output_path,
-        'processors': state_manager.get_item('processors'),
+        'processors': processors,
         'face_selector_mode': state_manager.get_item('face_selector_mode'),
         'face_mask_types': state_manager.get_item('face_mask_types'),
         'face_mask_regions': state_manager.get_item('face_mask_regions'),
@@ -222,22 +232,37 @@ def run_job():
         'execution_thread_count': state_manager.get_item('execution_thread_count'),
         'execution_queue_count': state_manager.get_item('execution_queue_count'),
     }
+    
+    print(f"Step Args: {step_args}")
 
     # 3. Job Workflow
+    print("Creating Job...")
     if job_manager.create_job(job_id):
+        print("Job Created. Adding Step...")
         if job_manager.add_step(job_id, step_args):
+            print("Step Added. Submitting Job...")
             if job_manager.submit_job(job_id):
+                print("Job Submitted. Running Job...")
                 # 4. Run Job (Synchronous for MVP, Async later)
                 # We need to import process_step from core, or pass a processor function
                 from facefusion.core import process_step
                 
                 if job_runner.run_job(job_id, process_step):
+                    print("--- JOB COMPLETED SUCCESSFULLY ---")
                     return {
                         "status": "completed",
                         "job_id": job_id,
                         "output_path": output_path,
                         "preview_url": f"/files/preview?path={output_path}" # Convenience
                     }
+                else:
+                    print("--- JOB FAILED DURING EXECUTION ---")
+            else:
+                print("--- JOB SUBMISSION FAILED ---")
+        else:
+            print("--- STEP ADDITION FAILED ---")
+    else:
+        print("--- JOB CREATION FAILED ---")
                 
     raise HTTPException(500, "Job execution failed")
 
@@ -291,5 +316,120 @@ async def websocket_endpoint(websocket: WebSocket):
         pass
     except Exception as e:
         print(f"WS Error: {e}")
+
+# --- Filesystem API ---
+
+class FilesystemRequest(BaseModel):
+    path: Optional[str] = None
+
+@app.post("/filesystem/list")
+def list_filesystem(req: FilesystemRequest):
+    import platform
+    
+    input_path = req.path
+    print(f"DEBUG: Filesystem Request input_path='{input_path}'")
+    
+    current_path = input_path
+    
+    # Handle initial load
+    if not current_path:
+        current_path = os.path.expanduser("~")
+        print(f"DEBUG: Defaulting to Home: '{current_path}'")
+        if platform.system() == "Windows":
+             pass
+    
+    # Force absolute path resolution
+    resolved_path = os.path.abspath(current_path)
+    print(f"DEBUG: Resolved path: '{resolved_path}'")
+    
+    # Security/Validity Check
+    if not os.path.exists(resolved_path):
+        print(f"ERROR: Path does not exist: {resolved_path}")
+        raise HTTPException(status_code=400, detail=f"Path not found: {resolved_path}")
+        
+    if not os.path.isdir(resolved_path):
+        print(f"ERROR: Path is not a directory: {resolved_path}")
+        raise HTTPException(status_code=400, detail=f"Not a directory: {resolved_path}")
+    
+    items = []
+    parent = os.path.dirname(resolved_path)
+    
+    try:
+        with os.scandir(resolved_path) as it:
+            for entry in it:
+                try:
+                    # Use follow_symlinks=False to avoid FileNotFoundError on broken symlinks
+                    is_dir = entry.is_dir(follow_symlinks=True)
+                    item_type = "folder" if is_dir else "file"
+                    
+                    size = 0
+                    if not is_dir:
+                        try:
+                            size = entry.stat().st_size
+                        except OSError:
+                            # broken symlink or permission issue on specific file
+                            size = 0
+
+                    items.append({
+                        "name": entry.name,
+                        "type": item_type,
+                        "path": entry.path,
+                        "size": size
+                    })
+                except (PermissionError, OSError) as e:
+                    # Skip things we can't even "is_dir" (like broken symlinks or locked files)
+                    print(f"DEBUG: Skipping entry '{entry.name}' due to error: {e}")
+                    continue
+    except PermissionError:
+        print(f"ERROR: Permission denied: {resolved_path}")
+        raise HTTPException(status_code=400, detail=f"Permission denied accessing: {resolved_path}")
+    except Exception as e:
+        print(f"ERROR: Unexpected error: {e}")
+        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        
+    # Sort: Folders first, then files
+    items.sort(key=lambda x: (x['type'] != 'folder', x['name'].lower()))
+    
+    print(f"DEBUG: Success. Returning {len(items)} items.")
+    
+@app.get("/processors/choices")
+def get_processor_choices():
+    from facefusion.processors.modules.face_swapper import choices as face_swapper_choices
+    from facefusion.processors.modules.face_enhancer import choices as face_enhancer_choices
+    from facefusion.processors.modules.frame_enhancer import choices as frame_enhancer_choices
+    from facefusion.processors.modules.lip_syncer import choices as lip_syncer_choices
+    from facefusion.processors.modules.age_modifier import choices as age_modifier_choices
+    from facefusion.processors.modules.expression_restorer import choices as expression_restorer_choices
+
+    return {
+        "face_swapper": {
+            "models": face_swapper_choices.face_swapper_models,
+            "set": face_swapper_choices.face_swapper_set,
+            "weight_range": list(face_swapper_choices.face_swapper_weight_range)
+        },
+        "face_enhancer": {
+            "models": face_enhancer_choices.face_enhancer_models,
+            "blend_range": list(face_enhancer_choices.face_enhancer_blend_range),
+            "weight_range": list(face_enhancer_choices.face_enhancer_weight_range)
+        },
+        "frame_enhancer": {
+            "models": frame_enhancer_choices.frame_enhancer_models,
+            "blend_range": list(frame_enhancer_choices.frame_enhancer_blend_range)
+        },
+        "lip_syncer": {
+            "models": lip_syncer_choices.lip_syncer_models,
+            "weight_range": list(lip_syncer_choices.lip_syncer_weight_range)
+        },
+        "age_modifier": {
+            "models": age_modifier_choices.age_modifier_models,
+            "direction_range": list(age_modifier_choices.age_modifier_direction_range)
+        },
+        "expression_restorer": {
+            "models": expression_restorer_choices.expression_restorer_models,
+            "factor_range": list(expression_restorer_choices.expression_restorer_factor_range),
+            "areas": expression_restorer_choices.expression_restorer_areas
+        }
+    }
+
 
 

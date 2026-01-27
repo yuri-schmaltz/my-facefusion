@@ -11,6 +11,10 @@ export const system = {
     info: () => api.get('/system/info'),
 };
 
+export const processors = {
+    getChoices: () => api.get('/processors/choices'),
+};
+
 export const config = {
     getProcessors: () => api.get('/processors'),
     getSettings: () => api.get('/config'),
@@ -26,9 +30,18 @@ export const files = {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
-    preview: (path: string) => `${API_URL}/files/preview?path=${encodeURIComponent(path)}`,
+    preview: (path: string) => {
+        // Return URL directly for img src
+        return `${API_URL}/files/preview?path=${encodeURIComponent(path)}`;
+    }
+};
+
+export const filesystem = {
+    list: (path?: string) => api.post('/filesystem/list', { path })
 };
 
 export const execute = {
     run: () => api.post('/run'),
 };
+
+export default api;
