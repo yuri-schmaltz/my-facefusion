@@ -9,7 +9,13 @@ export function Terminal() {
     useEffect(() => {
         if (!isOpen) return;
 
-        const ws = new WebSocket("ws://localhost:8002/logs");
+        // Dynamic WebSocket URL - works with any deployment
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // In dev mode, Vite runs on 5173, backend on 8002 - detect and adjust
+        const currentHost = window.location.host;
+        const wsHost = import.meta.env.VITE_WS_HOST ||
+            (currentHost.includes(':5173') ? currentHost.replace(':5173', ':8002') : currentHost);
+        const ws = new WebSocket(`${wsProtocol}//${wsHost}/logs`);
 
         ws.onmessage = (event) => {
             setLogs((prev) => [...prev, event.data].slice(-100)); // Keep last 100 lines

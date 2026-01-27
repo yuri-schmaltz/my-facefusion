@@ -19,10 +19,16 @@ app = FastAPI(
     description="API for FaceFusion 2.0 (React + FastAPI)"
 )
 
-# CORS configuration
+# CORS configuration - configurable via environment variable
+# Default: localhost only. Set CORS_ORIGINS=http://host1,http://host2 for multiple origins
+CORS_ORIGINS = os.environ.get(
+    "CORS_ORIGINS", 
+    "http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -129,25 +135,8 @@ def update_config(config: ConfigUpdate):
             
     return {"status": "updated", "current_state": get_config()}
 
-# Removed obsolete /upload endpoint
-def obsolete_upload():
-    pass
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    file_path = os.path.join(temp_dir, file.filename)
-    
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    # Update state manager
-    if type == 'source':
-        # FaceFusion typically supports multiple source paths, but state_manager usually holds one string or list?
-        # Checking args.py: 'source_paths' is a list [str]
-        state_manager.set_item('source_paths', [file_path])
-    elif type == 'target':
-        state_manager.set_item('target_path', file_path)
-        
-    return {"status": "uploaded", "path": file_path, "type": type}
+# Note: File upload functionality replaced by FileBrowser component + /filesystem/list API
+# Users select files from the server filesystem directly via the FileBrowserDialog
 
 @app.on_event("startup")
 def startup_event():
@@ -264,18 +253,20 @@ def run_job():
 def get_preview(path: str):
     """
     Hardened preview endpoint: Only allows files within temp_path, home, or project root.
+    Uses realpath to resolve symlinks and prevent symlink-based traversal attacks.
     """
-    path = os.path.abspath(path.strip('"\''))
+    # Resolve symlinks BEFORE path validation to prevent symlink attacks
+    path = os.path.realpath(os.path.abspath(path.strip('"\'')))
+    
     # Allow access only to temp_path, home, or project root
-    # Note: expanduser is safe as it returns the user's home dir
     allowed_roots = [
-        os.path.abspath(get_temp_path()), 
-        os.path.abspath(os.path.expanduser("~")),
-        os.path.abspath(os.getcwd())
+        os.path.realpath(os.path.abspath(get_temp_path())), 
+        os.path.realpath(os.path.abspath(os.path.expanduser("~"))),
+        os.path.realpath(os.path.abspath(os.getcwd()))
     ]
     
     if any(path.startswith(root) for root in allowed_roots):
-        if os.path.exists(path):
+        if os.path.exists(path) and os.path.isfile(path):
             return FileResponse(path)
             
     raise HTTPException(status_code=403, detail="Access denied")
