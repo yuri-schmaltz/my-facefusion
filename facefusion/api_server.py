@@ -548,6 +548,11 @@ def get_processor_choices():
     from facefusion.processors.modules.lip_syncer import choices as lip_syncer_choices
     from facefusion.processors.modules.age_modifier import choices as age_modifier_choices
     from facefusion.processors.modules.expression_restorer import choices as expression_restorer_choices
+    from facefusion.processors.modules.face_debugger import choices as face_debugger_choices
+    from facefusion.processors.modules.face_editor import choices as face_editor_choices
+    from facefusion.processors.modules.frame_colorizer import choices as frame_colorizer_choices
+    from facefusion.processors.modules.background_remover import choices as background_remover_choices
+    from facefusion.processors.modules.deep_swapper import choices as deep_swapper_choices
 
     return {
         "face_swapper": {
@@ -574,8 +579,42 @@ def get_processor_choices():
         },
         "expression_restorer": {
             "models": expression_restorer_choices.expression_restorer_models,
-            "factor_range": list(expression_restorer_choices.expression_restorer_factor_range),
-            "areas": expression_restorer_choices.expression_restorer_areas
+            "factor_range": list(expression_restorer_choices.expression_restorer_factor_range)
+        },
+        "face_debugger": {
+            "items": face_debugger_choices.face_debugger_items
+        },
+        "face_editor": {
+            "models": face_editor_choices.face_editor_models,
+            "eyebrow_direction_range": list(face_editor_choices.face_editor_eyebrow_direction_range),
+            "eye_gaze_horizontal_range": list(face_editor_choices.face_editor_eye_gaze_horizontal_range),
+            "eye_gaze_vertical_range": list(face_editor_choices.face_editor_eye_gaze_vertical_range),
+            "eye_open_ratio_range": list(face_editor_choices.face_editor_eye_open_ratio_range),
+            "lip_open_ratio_range": list(face_editor_choices.face_editor_lip_open_ratio_range),
+            "mouth_grim_range": list(face_editor_choices.face_editor_mouth_grim_range),
+            "mouth_pout_range": list(face_editor_choices.face_editor_mouth_pout_range),
+            "mouth_purse_range": list(face_editor_choices.face_editor_mouth_purse_range),
+            "mouth_smile_range": list(face_editor_choices.face_editor_mouth_smile_range),
+            "mouth_position_horizontal_range": list(face_editor_choices.face_editor_mouth_position_horizontal_range),
+            "mouth_position_vertical_range": list(face_editor_choices.face_editor_mouth_position_vertical_range),
+            "head_pitch_range": list(face_editor_choices.face_editor_head_pitch_range),
+            "head_yaw_range": list(face_editor_choices.face_editor_head_yaw_range),
+            "head_roll_range": list(face_editor_choices.face_editor_head_roll_range)
+        },
+        "frame_colorizer": {
+            "models": frame_colorizer_choices.frame_colorizer_models,
+            "sizes": frame_colorizer_choices.frame_colorizer_sizes,
+            "blend_range": list(frame_colorizer_choices.frame_colorizer_blend_range)
+        },
+        "background_remover": {
+            "models": background_remover_choices.background_remover_models,
+            # "color_range": list(background_remover_choices.background_remover_color_range) # Skipping color for now as UI doesn't support it well
+        },
+        "deep_swapper": {
+            "models": deep_swapper_choices.deep_swapper_models,
+            "morph_range": list(deep_swapper_choices.deep_swapper_morph_range)
+        }
+    }            "areas": expression_restorer_choices.expression_restorer_areas
         }
     }
 
