@@ -16,6 +16,9 @@ import facefusion.metadata as metadata
 from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
+from facefusion.scene_detector import get_scene_timeframes
+from facefusion.face_clusterer import cluster_faces
+from facefusion.auto_tuner import suggest_settings
 
 
 
@@ -840,3 +843,100 @@ def detect_faces_endpoint(req: FaceDetectRequest):
         })
         
     return {"faces": results}
+
+
+# --- Wizard API ---
+
+class WizardAnalyzeRequest(BaseModel):
+    video_path: str
+
+@app.post("/api/v1/wizard/analyze")
+async def wizard_analyze(req: WizardAnalyzeRequest):
+    from facefusion.vision import read_video_frame
+    from facefusion import face_analyser
+    
+    video_path = os.path.realpath(os.path.abspath(req.video_path.strip('"\'')))
+    if not os.path.exists(video_path):
+        raise HTTPException(404, "Video not found")
+        
+    # 1. Detect scenes
+    scenes = get_scene_timeframes(video_path)
+    
+    # 2. Detect faces in each scene (sampling the middle frame of each scene)
+    scene_faces = {}
+    for idx, (start, end) in enumerate(scenes):
+        middle_frame = start + (end - start) // 2
+        vision_frame = read_video_frame(video_path, middle_frame)
+        if vision_frame is not None:
+            faces = face_analyser.get_many_faces([vision_frame])
+            scene_faces[idx] = faces
+            
+    # Internal cache for clustering
+    job_id = "wizard_" + str(int(time.time()))
+    analyzed_videos[job_id] = {
+        "video_path": video_path,
+        "scenes": scenes,
+        "scene_faces": scene_faces
+    }
+    
+    # Return serializable data
+    return {
+        "job_id": job_id,
+        "scenes_count": len(scenes),
+        "scenes": scenes
+    }
+
+class WizardClusterRequest(BaseModel):
+    job_id: str
+    threshold: float = 0.6
+
+@app.post("/api/v1/wizard/cluster")
+async def wizard_cluster(req: WizardClusterRequest):
+    if req.job_id not in analyzed_videos:
+        raise HTTPException(404, "Analyzed data not found for this job_id")
+        
+    data = analyzed_videos[req.job_id]
+    all_faces = []
+    for faces in data["scene_faces"].values():
+        all_faces.extend(faces)
+        
+    clusters = cluster_faces(all_faces, req.threshold)
+    
+    # Prepare response with thumbnails
+    cluster_results = []
+    import cv2
+    import base64
+    
+    for c_idx, cluster in enumerate(clusters):
+        # Use first face as representative
+        rep_face = cluster[0]
+        # We need the frame to create a thumbnail, but we don't store it in cache.
+        # For the representative, we'll just return the index and metadata for now.
+        # In a real implementation, we'd cache the thumbnail or re-read it.
+        cluster_results.append({
+            "cluster_index": c_idx,
+            "face_count": len(cluster),
+            "representative": {
+                "gender": str(rep_face.gender),
+                "age": int(rep_face.age.start if isinstance(rep_face.age, range) else rep_face.age),
+                "race": str(rep_face.race)
+            }
+        })
+        
+    return {"clusters": cluster_results}
+
+@app.post("/api/v1/wizard/suggest")
+async def wizard_suggest(req: WizardClusterRequest):
+    if req.job_id not in analyzed_videos:
+        raise HTTPException(404, "Analyzed data not found")
+        
+    data = analyzed_videos[req.job_id]
+    all_faces = []
+    for faces in data["scene_faces"].values():
+        all_faces.extend(faces)
+        
+    suggestions = suggest_settings(data["video_path"], all_faces)
+    return {"suggestions": suggestions}
+
+# Global cache
+analyzed_videos = {}

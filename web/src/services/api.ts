@@ -46,8 +46,14 @@ export const filesystem = {
 export const execute = {
     run: () => api.post('/run'),
     stop: () => api.post('/stop'),
-    getStatus: (jobId: string) => api.get(`/jobs/status/${jobId}`),
+    getStatus: (jobId: string) => api.get(`/jobs/${jobId}`), // Fixed URL match with api_server
     preview: (payload: { path: string, time_seconds?: number, frame_number?: number }) => api.post('/preview', payload),
+};
+
+export const wizard = {
+    analyze: (videoPath: str) => api.post('/api/v1/wizard/analyze', { video_path: videoPath }),
+    cluster: (jobId: string, threshold: float = 0.6) => api.post('/api/v1/wizard/cluster', { job_id: jobId, threshold }),
+    suggest: (jobId: string) => api.post('/api/v1/wizard/suggest', { job_id: jobId }),
 };
 
 export default api;

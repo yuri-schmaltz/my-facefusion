@@ -4,7 +4,11 @@ from typing import List, Optional, Tuple
 
 import cv2
 import numpy
-from cv2.typing import Size
+try:
+	from cv2.typing import Size
+except ImportError:
+	from typing import Any
+	Size = Any
 
 from facefusion.common_helper import is_windows
 from facefusion.filesystem import get_file_extension, is_image, is_video
