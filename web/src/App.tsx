@@ -138,12 +138,13 @@ export default function App() {
         <div className="col-span-7 h-full flex flex-col gap-4 overflow-hidden">
 
           {/* Top: Source & Target (Side by Side) */}
+          {/* Top: Source & Target (Side by Side) */}
           <div className="grid grid-cols-2 gap-4 shrink-0 h-72">
             <Card className="bg-neutral-900/50 border-neutral-800 flex flex-col h-full overflow-hidden">
               <CardHeader className="text-neutral-300 font-semibold flex items-center gap-2 py-3 px-4 shrink-0">
                 <Upload size={16} /> Source
               </CardHeader>
-              <CardContent className="flex-1 p-0 relative min-h-0">
+              <CardContent className="flex-1 p-0 relative min-h-0 bg-black/50">
                 <div className="w-full h-full flex flex-col items-center justify-center text-neutral-500 hover:bg-white/5 transition relative group p-2">
                   <input
                     type="file"
@@ -180,7 +181,7 @@ export default function App() {
               <CardHeader className="text-neutral-300 font-semibold flex items-center gap-2 py-3 px-4 shrink-0">
                 <Upload size={16} /> Target
               </CardHeader>
-              <CardContent className="flex-1 p-0 relative min-h-0">
+              <CardContent className="flex-1 p-0 relative min-h-0 bg-black/50">
                 <div className="w-full h-full flex flex-col items-center justify-center text-neutral-500 hover:bg-white/5 transition relative group p-2">
                   <input
                     type="file"

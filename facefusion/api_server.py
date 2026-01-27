@@ -67,15 +67,18 @@ def system_info():
 
 @app.get("/processors")
 def list_processors():
-    # Helper to scan the directory for available processors
-    # Assuming standard structure facefusion/processors/modules
-    processors_path = resolve_file_paths('facefusion/processors/modules')
+    # Use pkgutil to robustly find processor modules
+    import pkgutil
+    import facefusion.processors.modules
+    
     available = []
-    for path in processors_path:
-        # crude extraction of dir name, depending on resolve_file_paths behavior
-        # Assuming resolve_file_paths returns absolute paths to modules/files
-        name = get_file_name(path)
-        available.append(name)
+    if hasattr(facefusion.processors.modules, '__path__'):
+        for _, name, is_pkg in pkgutil.iter_modules(facefusion.processors.modules.__path__):
+            if is_pkg: # Processors are subpackages (e.g. face_swapper directory)
+                available.append(name)
+    
+    # Sort for consistency
+    available.sort()
     
     # Get currently active
     active = state_manager.get_item('processors')
@@ -157,6 +160,33 @@ def startup_event():
     # Initialize jobs directory
     jobs_path = os.path.join(get_temp_path(), "jobs")
     job_manager.init_jobs(jobs_path)
+    
+    # Initialize default state items
+    # ensuring that critical items like download_providers are not None
+    if state_manager.get_item('download_providers') is None:
+        from facefusion import choices
+        state_manager.set_item('download_providers', choices.download_providers)
+    
+    if state_manager.get_item('execution_providers') is None:
+        state_manager.set_item('execution_providers', ['cpu'])
+        
+    if state_manager.get_item('execution_thread_count') is None:
+        state_manager.set_item('execution_thread_count', 4)
+
+    if state_manager.get_item('execution_queue_count') is None:
+        state_manager.set_item('execution_queue_count', 1)
+        
+    if state_manager.get_item('output_video_quality') is None:
+        state_manager.set_item('output_video_quality', 80)
+        
+    if state_manager.get_item('face_selector_mode') is None:
+        state_manager.set_item('face_selector_mode', 'reference')
+        
+    if state_manager.get_item('face_mask_types') is None:
+        state_manager.set_item('face_mask_types', ['box'])
+
+    if state_manager.get_item('face_mask_regions') is None:
+        state_manager.set_item('face_mask_regions', ['skin'])
 
 @app.post("/run")
 def run_job():
