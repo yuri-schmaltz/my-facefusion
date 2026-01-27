@@ -17,11 +17,8 @@ from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
 
-print(f"DEBUG: api_server.py imported. metadata type: {type(metadata)}")
-if metadata is None:
-    print("DEBUG: metadata is None! Trying to reload or check sys.modules")
-    import sys
-    print(f"DEBUG: sys.modules['facefusion.metadata']: {sys.modules.get('facefusion.metadata')}")
+
+
 
 
 
