@@ -144,13 +144,14 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                     </div>
                 </div>
 
-                {/* Audio Settings Section */}
+                {/* Media Settings Section */}
                 <div className="pt-4 border-t border-neutral-800 space-y-6">
                     <div className="flex items-center gap-2 text-neutral-400">
                         <Volume2 size={16} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Audio Settings</span>
+                        <span className="text-xs font-bold uppercase tracking-wider">Media Settings</span>
                     </div>
 
+                    {/* Audio Controls */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-3">
                             <label className="text-xs font-medium text-neutral-500 uppercase">Audio Encoder</label>
@@ -178,25 +179,18 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                             />
                         </div>
                     </div>
-                </div>
 
-                {/* Execution / Jobs Section */}
-                <div className="pt-4 border-t border-neutral-800 space-y-6">
-                    <div className="flex items-center gap-2 text-neutral-400">
-                        <HardDrive size={16} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Engine & Jobs</span>
-                    </div>
-
+                    {/* Video Controls */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Output Encoding */}
                         <div className="space-y-3">
-                            <label className="text-sm font-medium text-neutral-300 block">
+                            <label className="text-xs font-medium text-neutral-500 uppercase block">
                                 Video Encoder
                             </label>
                             <select
                                 value={settings.output_video_encoder || "libx264"}
                                 onChange={(e) => handleChange("output_video_encoder", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all"
                             >
                                 {OUTPUT_VIDEO_ENCODERS.map(enc => (
                                     <option key={enc} value={enc}>{enc}</option>
@@ -206,7 +200,7 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
 
                         {/* Video Quality */}
                         <div className="space-y-3">
-                            <label className="text-sm font-medium text-neutral-300 flex justify-between items-center">
+                            <label className="text-xs font-medium text-neutral-500 uppercase flex justify-between items-center">
                                 <span>Output Quality</span>
                                 <span className="text-red-500 font-bold">{settings.output_video_quality || 80}%</span>
                             </label>
@@ -216,20 +210,28 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                                 max="100"
                                 value={settings.output_video_quality || 80}
                                 onChange={(e) => handleChange("output_video_quality", e.target.value)}
-                                className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* Jobs Section */}
+                <div className="pt-4 border-t border-neutral-800 space-y-6">
+                    <div className="flex items-center gap-2 text-neutral-400">
+                        <HardDrive size={16} />
+                        <span className="text-xs font-bold uppercase tracking-wider">JOBS</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Execution Threads */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-neutral-300 block">
+                                <label className="text-xs font-medium text-neutral-500 uppercase block">
                                     Execution Threads
                                 </label>
                                 <Tooltip content={helpTexts['execution_thread_count']}>
-                                    <Info size={14} className="text-neutral-500 cursor-help" />
+                                    <Info size={12} className="text-neutral-500 cursor-help" />
                                 </Tooltip>
                             </div>
                             <input
@@ -238,18 +240,18 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                                 max="128"
                                 value={settings.execution_thread_count || 4}
                                 onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all"
                             />
                         </div>
 
                         {/* Execution Queue */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-neutral-300 block">
+                                <label className="text-xs font-medium text-neutral-500 uppercase block">
                                     Execution Queue
                                 </label>
                                 <Tooltip content={helpTexts['execution_queue_count']}>
-                                    <Info size={14} className="text-neutral-500 cursor-help" />
+                                    <Info size={12} className="text-neutral-500 cursor-help" />
                                 </Tooltip>
                             </div>
                             <input
@@ -258,7 +260,7 @@ export function SettingsPanel({ helpTexts }: SettingsPanelProps) {
                                 max="32"
                                 value={settings.execution_queue_count || 1}
                                 onChange={(e) => handleChange("execution_queue_count", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all"
                             />
                         </div>
                     </div>

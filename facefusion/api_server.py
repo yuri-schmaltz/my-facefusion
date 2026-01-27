@@ -346,7 +346,14 @@ def run_job():
     # Check if output path is set, else generate one
     output_path = state_manager.get_item('output_path')
     if not output_path:
-        output_name = f"output_{job_id}.mp4" # Assuming video for now, or detect based on source
+        target_path = state_manager.get_item('target_path')
+        extension = ".mp4" # Default fallback
+        if target_path:
+            _, ext = os.path.splitext(target_path)
+            if ext:
+                extension = ext
+                
+        output_name = f"output_{job_id}{extension}"
         output_path = os.path.join(get_temp_path(), "api_outputs", output_name)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
