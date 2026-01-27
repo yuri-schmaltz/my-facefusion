@@ -156,11 +156,6 @@ def validate_source_paths(source_paths : List[str]) -> Tuple[List[str], List[str
 
 def resolve_download_url(base_name : str, file_name : str) -> Optional[str]:
 	download_providers = state_manager.get_item('download_providers')
-	if download_providers is None:
-		print(f"CRITICAL ERROR: download_providers is None! State: {state_manager.STATE_SET}")
-		# Fallback to defaults
-		from facefusion import choices
-		download_providers = choices.download_providers
 
 	for download_provider in download_providers:
 		download_url = resolve_download_url_by_provider(download_provider, base_name, file_name)
