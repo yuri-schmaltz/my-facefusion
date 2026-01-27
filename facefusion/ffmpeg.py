@@ -98,7 +98,7 @@ def get_available_encoder_set() -> EncoderSet:
 	commands = ffmpeg_builder.chain(
 		ffmpeg_builder.get_encoders()
 	)
-	process = run_ffmpeg(commands)
+	process = open_ffmpeg(commands)
 
 	while line := process.stdout.readline().decode().lower():
 		if line.startswith(' a'):

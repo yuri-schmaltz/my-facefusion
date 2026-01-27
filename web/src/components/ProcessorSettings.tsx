@@ -16,6 +16,10 @@ interface ProcessorChoices {
         direction_range?: number[];
         factor_range?: number[];
         areas?: string[];
+        sizes?: string[];
+        items?: string[];
+        // Dynamic keys for other ranges
+        [key: string]: any;
     };
 }
 
@@ -62,11 +66,17 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                 const procChoices = choices[proc];
                 if (!procChoices) return null;
 
+                // Identify all range keys that are NOT weight or blend (handled separately)
+                const rangeKeys = Object.keys(procChoices).filter(key =>
+                    key.endsWith('_range') &&
+                    !['weight_range', 'blend_range'].includes(key)
+                );
+
                 return (
                     <Card key={proc} className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm overflow-hidden">
                         <CardHeader className="py-3 px-4 border-b border-neutral-800 bg-neutral-900/30">
-                            <CardTitle className="text-sm font-medium text-neutral-200 capitalize">
-                                {proc.replace('_', ' ')}
+                            <CardTitle className="text-sm font-medium text-neutral-200 capitalize flex items-center gap-2">
+                                {proc.replace(/_/g, ' ')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 space-y-4">
@@ -92,7 +102,29 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 </div>
                             )}
 
-                            {/* Pixel Boost (Dependent on Face Swapper Model) */}
+                            {/* Size Selection (e.g. Frame Colorizer) */}
+                            {procChoices.sizes && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-xs text-neutral-400">Size</Label>
+                                        <Tooltip content={helpTexts[`${proc}_size`]}>
+                                            <Info size={12} className="text-neutral-500 cursor-help" />
+                                        </Tooltip>
+                                    </div>
+                                    <Select
+                                        value={currentSettings[`${proc}_size`]}
+                                        onChange={(e: any) => onUpdate(`${proc}_size`, (e.target as HTMLSelectElement).value)}
+                                    >
+                                        {procChoices.sizes.map((s) => (
+                                            <SelectItem key={s} value={s}>
+                                                {s}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                </div>
+                            )}
+
+                            {/* Set Selection (Pixel Boost) */}
                             {proc === 'face_swapper' && procChoices.set && (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2">
@@ -114,7 +146,79 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 </div>
                             )}
 
-                            {/* Weight Slider */}
+                            {/* Items Selection (e.g. Face Debugger) */}
+                            {procChoices.items && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Label className="text-xs text-neutral-400 mb-1">Items</Label>
+                                        <Tooltip content={helpTexts[`${proc}_items`]}>
+                                            <Info size={12} className="text-neutral-500 cursor-help" />
+                                        </Tooltip>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {procChoices.items.map((item) => {
+                                            const currentItems = currentSettings[`${proc}_items`] || [];
+                                            const isSelected = currentItems.includes(item);
+                                            return (
+                                                <button
+                                                    key={item}
+                                                    onClick={() => {
+                                                        const newItems = isSelected
+                                                            ? currentItems.filter((i: string) => i !== item)
+                                                            : [...currentItems, item];
+                                                        onUpdate(`${proc}_items`, newItems);
+                                                    }}
+                                                    className={`px-2 py-1.5 text-[10px] rounded border text-center transition-all ${isSelected
+                                                        ? "bg-red-600/20 border-red-500 text-red-500 font-bold"
+                                                        : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600"
+                                                        }`}
+                                                >
+                                                    {item}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Dynamic Range Sliders (e.g. Face Editor specific ranges) */}
+                            {rangeKeys.map(key => {
+                                const settingName = key.replace('_range', ''); // e.g. 'head_pitch'
+                                const fullSettingKey = `${proc}_${settingName}`; // e.g. 'face_editor_head_pitch'
+                                const range = procChoices[key as keyof typeof procChoices] as number[];
+                                const val = currentSettings[fullSettingKey];
+
+                                // Skip if value is missing (backend sync issue)
+                                if (val === undefined) return null;
+
+                                return (
+                                    <div key={key} className="space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <Label className="text-xs text-neutral-400 capitalize">
+                                                    {settingName.replace(/_/g, ' ')}
+                                                </Label>
+                                                <Tooltip content={helpTexts[fullSettingKey]}>
+                                                    <Info size={12} className="text-neutral-500 cursor-help" />
+                                                </Tooltip>
+                                            </div>
+                                            <span className="text-[10px] text-neutral-500 font-mono">
+                                                {typeof val === 'number' ? val.toFixed(2) : val}
+                                            </span>
+                                        </div>
+                                        <Slider
+                                            value={[val]}
+                                            min={Math.min(...range)}
+                                            max={Math.max(...range)}
+                                            step={0.05}
+                                            onValueChange={(v) => onUpdate(fullSettingKey, v[0])}
+                                            className="py-1"
+                                        />
+                                    </div>
+                                );
+                            })}
+
+                            {/* Standard Weight Slider */}
                             {procChoices.weight_range && (
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
@@ -139,7 +243,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 </div>
                             )}
 
-                            {/* Blend Slider */}
+                            {/* Standard Blend Slider */}
                             {procChoices.blend_range && (
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
@@ -159,56 +263,6 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                         max={Math.max(...procChoices.blend_range)}
                                         step={1}
                                         onValueChange={(val: any) => onUpdate(`${proc}_blend`, val[0])}
-                                        className="py-1"
-                                    />
-                                </div>
-                            )}
-
-                            {/* Direction Slider (Age Modifier) */}
-                            {procChoices.direction_range && (
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Direction</Label>
-                                            <Tooltip content={helpTexts[`${proc}_direction`]}>
-                                                <Info size={12} className="text-neutral-500 cursor-help" />
-                                            </Tooltip>
-                                        </div>
-                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                            {currentSettings[`${proc}_direction`]}
-                                        </span>
-                                    </div>
-                                    <Slider
-                                        value={[currentSettings[`${proc}_direction`]]}
-                                        min={Math.min(...procChoices.direction_range)}
-                                        max={Math.max(...procChoices.direction_range)}
-                                        step={1}
-                                        onValueChange={(val: any) => onUpdate(`${proc}_direction`, val[0])}
-                                        className="py-1"
-                                    />
-                                </div>
-                            )}
-
-                            {/* Factor Slider (Expression Restorer) */}
-                            {procChoices.factor_range && (
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Factor</Label>
-                                            <Tooltip content={helpTexts[`${proc}_factor`]}>
-                                                <Info size={12} className="text-neutral-500 cursor-help" />
-                                            </Tooltip>
-                                        </div>
-                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                            {currentSettings[`${proc}_factor`]}%
-                                        </span>
-                                    </div>
-                                    <Slider
-                                        value={[currentSettings[`${proc}_factor`]]}
-                                        min={Math.min(...procChoices.factor_range)}
-                                        max={Math.max(...procChoices.factor_range)}
-                                        step={1}
-                                        onValueChange={(val: any) => onUpdate(`${proc}_factor`, val[0])}
                                         className="py-1"
                                     />
                                 </div>

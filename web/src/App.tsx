@@ -132,7 +132,7 @@ function App() {
       <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
 
 
-        <section className="flex-1 overflow-y-auto custom-scrollbar">
+        <section className="shrink-0">
           <h2 className="text-sm font-semibold text-neutral-400 mb-4 uppercase tracking-wider">
             Processors
           </h2>
@@ -173,7 +173,7 @@ function App() {
           </div>
         </section>
 
-        <section className="flex-[2] overflow-y-auto custom-scrollbar -mx-2 px-2">
+        <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
           <ProcessorSettings
             activeProcessors={activeProcessors}
             currentSettings={allSettings}
@@ -261,7 +261,7 @@ function App() {
           <div className="grid grid-cols-2 gap-4 h-72 shrink-0">
 
             {/* Source Card */}
-            <Card className="flex flex-col overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
+            <Card className="flex flex-col h-full overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
               <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => openBrowser("source")}
@@ -273,7 +273,7 @@ function App() {
 
               <div
                 onClick={() => !sourcePath && openBrowser("source")}
-                className="flex-1 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
+                className="flex-1 min-h-0 p-2 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
               >
                 {sourcePath ? (
                   <div className="w-full h-full relative flex items-center justify-center">
@@ -304,7 +304,7 @@ function App() {
             </Card>
 
             {/* Target Card */}
-            <Card className="flex flex-col overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
+            <Card className="flex flex-col h-full overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
               <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => openBrowser("target")}
@@ -316,7 +316,7 @@ function App() {
 
               <div
                 onClick={() => !targetPath && openBrowser("target")}
-                className="flex-1 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
+                className="flex-1 min-h-0 p-2 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
               >
                 {targetPath ? (
                   <div className="w-full h-full relative flex items-center justify-center">
