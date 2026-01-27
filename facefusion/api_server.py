@@ -129,15 +129,9 @@ def update_config(config: ConfigUpdate):
             
     return {"status": "updated", "current_state": get_config()}
 
-@app.post("/upload")
-async def upload_file(type: str = Form(...), file: UploadFile = File(...)):
-    """
-    type: 'source' | 'target'
-    """
-    if type not in ['source', 'target']:
-        raise HTTPException(status_code=400, detail="Invalid upload type")
-    
-    temp_dir = os.path.join(get_temp_path(), "api_uploads")
+# Removed obsolete /upload endpoint
+def obsolete_upload():
+    pass
     os.makedirs(temp_dir, exist_ok=True)
     
     file_path = os.path.join(temp_dir, file.filename)
@@ -268,12 +262,23 @@ def run_job():
 
 @app.get("/files/preview")
 def get_preview(path: str):
-    # Security note: This is unsafe for production, allows reading any file. 
-    # For local "Senior" app tool, it's acceptable for now but should be scoped.
-    # Also strip quotes just in case
-    path = path.strip('"\'')
-    if os.path.exists(path):
-        return FileResponse(path)
+    """
+    Hardened preview endpoint: Only allows files within temp_path, home, or project root.
+    """
+    path = os.path.abspath(path.strip('"\''))
+    # Allow access only to temp_path, home, or project root
+    # Note: expanduser is safe as it returns the user's home dir
+    allowed_roots = [
+        os.path.abspath(get_temp_path()), 
+        os.path.abspath(os.path.expanduser("~")),
+        os.path.abspath(os.getcwd())
+    ]
+    
+    if any(path.startswith(root) for root in allowed_roots):
+        if os.path.exists(path):
+            return FileResponse(path)
+            
+    raise HTTPException(status_code=403, detail="Access denied")
 import asyncio
 import logging
 from fastapi import WebSocket, WebSocketDisconnect
@@ -391,7 +396,11 @@ def list_filesystem(req: FilesystemRequest):
     items.sort(key=lambda x: (x['type'] != 'folder', x['name'].lower()))
     
     print(f"DEBUG: Success. Returning {len(items)} items.")
-    
+    return {
+        "items": items,
+        "path": resolved_path,
+        "parent": parent
+    }
 @app.get("/processors/choices")
 def get_processor_choices():
     from facefusion.processors.modules.face_swapper import choices as face_swapper_choices

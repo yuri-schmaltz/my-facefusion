@@ -90,8 +90,9 @@ function App() {
       if (res.data.status === "completed") {
         setOutputUrl(res.data.preview_url);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Processing failed: ${err.response?.data?.detail || err.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -109,7 +110,7 @@ function App() {
       />
 
       {/* Sidebar */}
-      <aside className="w-80 border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
+      <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
         <div>
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
             FaceFusion 2.0
@@ -121,7 +122,7 @@ function App() {
           <h2 className="text-sm font-semibold text-neutral-400 mb-4 uppercase tracking-wider">
             Processors
           </h2>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {processors.map((proc) => {
               const Icon = {
                 face_swapper: Replace,
@@ -189,12 +190,12 @@ function App() {
       <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden h-screen">
 
         {/* Center Column: Settings */}
-        <div className="col-span-5 h-full flex flex-col overflow-hidden">
+        <div className="col-span-4 h-full flex flex-col overflow-hidden">
           <SettingsPanel />
         </div>
 
         {/* Right Column: Source / Target / Preview */}
-        <div className="col-span-7 h-full flex flex-col gap-6 overflow-hidden">
+        <div className="col-span-8 h-full flex flex-col gap-6 overflow-hidden">
 
           {/* Top Row: Source and Target Cards */}
           <div className="grid grid-cols-2 gap-4 h-72 shrink-0">
