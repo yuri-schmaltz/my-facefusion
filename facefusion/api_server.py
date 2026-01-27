@@ -336,17 +336,48 @@ def update_config(config: ConfigUpdate):
 # Users select files from the server filesystem directly via the FileBrowserDialog
 # Note: Startup initialization is handled by the lifespan context manager above
 
+# --- Job Progress & Status Management ---
+# Global shared state for job progress
+job_progress = {}
+
+@app.get("/jobs/{job_id}")
+def get_job_status(job_id: str):
+    if job_id not in job_progress:
+         # Try to load from disk via job_manager if not in memory
+         status = "unknown"
+         # For now simple check
+         return {"job_id": job_id, "status": "unknown", "progress": 0.0}
+    return job_progress[job_id]
+
+
+def update_job_progress(job_id: str, progress: float):
+    if job_id in job_progress:
+        job_progress[job_id]["progress"] = progress
+
+from fastapi import BackgroundTasks
+
 @app.post("/run")
-def run_job():
+async def run_job(background_tasks: BackgroundTasks):
     print("--- RUN JOB REQUEST RECEIVED ---")
     # 1. Prepare Job ID e Output Path
     job_id = "job_" + str(int(time.time()))
     print(f"Generated Job ID: {job_id}")
     
+    # Initialize progress tracking
+    job_progress[job_id] = {
+        "job_id": job_id,
+        "status": "queued",
+        "progress": 0.0
+    }
+
     # Check if output path is set, else generate one
     output_path = state_manager.get_item('output_path')
+    target_path = state_manager.get_item('target_path')
+    
+    if not target_path:
+        raise HTTPException(status_code=400, detail="No target media selected. Please re-select the file.")
+
     if not output_path:
-        target_path = state_manager.get_item('target_path')
         extension = ".mp4" # Default fallback
         if target_path:
             _, ext = os.path.splitext(target_path)
@@ -357,45 +388,53 @@ def run_job():
         output_path = os.path.join(get_temp_path(), "api_outputs", output_name)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    print(f"Output Path: {output_path}")
-
+    # 2. Collect Args
     from facefusion.args import collect_step_args, collect_job_args
     step_args = collect_step_args()
     step_args.update(collect_job_args())
     step_args['output_path'] = output_path
     
-    print(f"Step Args: {step_args}")
-
-    # 3. Job Workflow
-    print("Creating Job...")
+    # 3. Create Job (Synchronous setup)
     if job_manager.create_job(job_id):
-        print("Job Created. Adding Step...")
         if job_manager.add_step(job_id, step_args):
-            print("Step Added. Submitting Job...")
             if job_manager.submit_job(job_id):
-                print("Job Submitted. Running Job...")
-                # 4. Run Job (Synchronous for MVP, Async later)
-                # We need to import process_step from core, or pass a processor function
-                from facefusion.core import process_step
-                
-                if job_runner.run_job(job_id, process_step):
-                    print("--- JOB COMPLETED SUCCESSFULLY ---")
-                    return {
-                        "status": "completed",
-                        "job_id": job_id,
-                        "output_path": output_path,
-                        "preview_url": f"/files/preview?path={output_path}" # Convenience
-                    }
-                else:
-                    print("--- JOB FAILED DURING EXECUTION ---")
-            else:
-                print("--- JOB SUBMISSION FAILED ---")
+                # 4. Run Job Asynchronously
+                job_progress[job_id]["status"] = "processing"
+                background_tasks.add_task(process_job_background, job_id, output_path)
+                return {
+                    "status": "processing",
+                    "job_id": job_id,
+                    "output_path": output_path
+                }
+
+    job_progress[job_id]["status"] = "failed"
+    raise HTTPException(500, "Job creation failed")
+
+def process_job_background(job_id: str, output_path: str):
+    print(f"Starting background processing for {job_id}")
+    from facefusion.core import process_step
+    
+    # Define a progress callback helper
+    def progress_callback(progress_float):
+        update_job_progress(job_id, progress_float * 100)
+
+    # Attach to state_manager so workflow can find it? 
+    # Better: Patch state_manager or use a global in api_server referenced by workflow?
+    # Since workflow is in another storage, we need a way to pass this.
+    # Hack for now: We will attach it to state_manager temporarily for the workflow to discover
+    state_manager.set_item('current_job_progress_callback', progress_callback)
+
+    try:
+        success = job_runner.run_job(job_id, process_step)
+        if success:
+            job_progress[job_id]["status"] = "completed"
+            job_progress[job_id]["progress"] = 100.0
+            job_progress[job_id]["preview_url"] = f"/files/preview?path={output_path}"
         else:
-            print("--- STEP ADDITION FAILED ---")
-    else:
-        print("--- JOB CREATION FAILED ---")
-                
-    raise HTTPException(500, "Job execution failed")
+            job_progress[job_id]["status"] = "failed"
+    except Exception as e:
+        print(f"Background Job Failed: {e}")
+        job_progress[job_id]["status"] = "failed"
 
 @app.get("/files/preview")
 def get_preview(path: str):
@@ -622,6 +661,7 @@ def get_processor_choices():
 class FaceDetectRequest(BaseModel):
     path: str
     frame_number: int = 0
+    time_seconds: float = None
 
 @app.post("/faces/detect")
 def detect_faces_endpoint(req: FaceDetectRequest):
@@ -633,7 +673,7 @@ def detect_faces_endpoint(req: FaceDetectRequest):
     # Security check using existing preview logic
     path = os.path.realpath(os.path.abspath(path.strip('"\'')))
     allowed_roots = [
-        os.path.realpath(os.path.abspath(get_temp_path())), 
+        os.path.realpath(os.path.abspath(get_temp_path())),
         os.path.realpath(os.path.abspath(os.path.expanduser("~"))),
         os.path.realpath(os.path.abspath(os.getcwd()))
     ]
@@ -645,8 +685,12 @@ def detect_faces_endpoint(req: FaceDetectRequest):
         from facefusion.vision import read_static_image
         vision_frame = read_static_image(path)
     elif is_video(path):
-        from facefusion.vision import read_video_frame
-        vision_frame = read_video_frame(path, req.frame_number)
+        from facefusion.vision import read_video_frame, detect_video_fps
+        frame_num = req.frame_number
+        if req.time_seconds is not None:
+             fps = detect_video_fps(path) or 30.0
+             frame_num = int(req.time_seconds * fps)
+        vision_frame = read_video_frame(path, frame_num)
     
     if vision_frame is None:
          raise HTTPException(400, "Could not read frame")
@@ -670,12 +714,18 @@ def detect_faces_endpoint(req: FaceDetectRequest):
         _, buffer = cv2.imencode('.jpg', crop)
         b64 = base64.b64encode(buffer).decode('utf-8')
         
+        # Handle types safely
+        age = face.age.start if isinstance(face.age, range) else int(face.age)
+        gender = str(face.gender)
+        race = str(face.race)
+        score = float(face.score_set.get('detector', 0.0))
+
         results.append({
             "index": idx,
-            "score": float(face.score_set['detector']),
-            "gender": face.gender,
-            "age": face.age,
-            "race": face.race,
+            "score": score,
+            "gender": gender,
+            "age": age,
+            "race": race,
             "thumbnail": f"data:image/jpeg;base64,{b64}"
         })
         

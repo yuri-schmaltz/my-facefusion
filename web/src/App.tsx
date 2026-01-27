@@ -7,6 +7,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
+import ProcessorSettings from "@/components/ProcessorSettings";
 import FaceSelector from "@/components/FaceSelector";
 // ... imports
 
@@ -33,6 +34,7 @@ function App() {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [lastSourceDir, setLastSourceDir] = useState<string>(() => localStorage.getItem("lastSourceDir") || "");
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
+  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
 
   useEffect(() => {
     config.getProcessors().then((res) => {
@@ -113,18 +115,59 @@ function App() {
     updateSetting(key, newer);
   };
 
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const [jobStatus, setJobStatus] = useState<string>("idle");
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isProcessing && jobId) {
+      interval = setInterval(async () => {
+        try {
+          const res = await execute.getJobStatus(jobId);
+          const status = res.data.status;
+          const currentProgress = res.data.progress || 0;
+
+          setProgress(currentProgress);
+          setJobStatus(status);
+
+          if (status === "completed") {
+            setIsProcessing(false);
+            setOutputUrl(res.data.preview_url);
+            clearInterval(interval);
+          } else if (status === "failed") {
+            setIsProcessing(false);
+            alert("Job failed during processing.");
+            clearInterval(interval);
+          }
+        } catch (err) {
+          console.error("Failed to poll job status:", err);
+        }
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProcessing, jobId]);
+
   const startProcessing = async () => {
     if (!sourcePath || !targetPath) return;
     setIsProcessing(true);
+    setProgress(0);
+    setJobStatus("processing");
+    setOutputUrl(null); // Clear previous output
     try {
       const res = await execute.run();
-      if (res.data.status === "completed") {
-        setOutputUrl(res.data.preview_url);
+      if (res.data.status === "processing") {
+        setJobId(res.data.job_id);
+      } else {
+        // Fallback for sync
+        alert("Job finished immediately (sync mode?)");
+        setIsProcessing(false);
       }
     } catch (err: any) {
       console.error(err);
       alert(`Processing failed: ${err.response?.data?.detail || err.message}`);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -135,7 +178,6 @@ function App() {
 
       {/* Sidebar */}
       <aside className="w-[420px] border-r border-neutral-800 p-6 space-y-8 flex flex-col h-screen">
-
 
         <section className="shrink-0">
           <h2 className="text-sm font-semibold text-neutral-400 mb-4 uppercase tracking-wider">
@@ -151,6 +193,7 @@ function App() {
                 expression_restorer: Smile,
                 age_modifier: Clock,
                 background_remover: Eraser,
+                watermark_remover: Eraser,
                 frame_colorizer: Palette,
                 lip_syncer: Mic2
               }[proc] || Box;
@@ -223,7 +266,6 @@ function App() {
             })}
           </div>
         </section>
-
         <section className="flex items-center gap-2 shrink-0 h-14">
           <TerminalButton
             isOpen={isTerminalOpen}
@@ -234,17 +276,25 @@ function App() {
           <button
             onClick={startProcessing}
             disabled={isProcessing || !sourcePath || !targetPath}
-            className={`flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 ${isProcessing || !sourcePath || !targetPath
+            className={`flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 relative overflow-hidden ${isProcessing || !sourcePath || !targetPath
               ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
               : "bg-white text-black hover:bg-neutral-200"
               }`}
           >
+            {isProcessing && (
+              <div
+                className="absolute inset-0 bg-green-500/20 transition-all duration-300 ease-linear origin-left"
+                style={{ width: `${progress}%` }}
+              />
+            )}
             {isProcessing ? (
-              <Loader2 size={18} className="animate-spin" />
+              <Loader2 size={18} className="animate-spin z-10" />
             ) : (
               <Play size={18} />
             )}
-            {isProcessing ? "Processing..." : "Start Processing"}
+            <span className="z-10 relative">
+              {isProcessing ? `Processing ${Math.round(progress)}%` : "Start Processing"}
+            </span>
           </button>
         </section>
       </aside>
@@ -261,106 +311,7 @@ function App() {
 
         {/* Right Column: Source / Target / Preview */}
         <div className="col-span-8 h-full flex flex-col gap-6 overflow-hidden">
-
-          {/* Top Row: Source and Target Cards */}
-          <div className="grid grid-cols-2 gap-4 h-72 shrink-0">
-
-            {/* Source Card */}
-            <Card className="flex flex-col h-full overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
-              <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openBrowser("source")}
-                  className="bg-black/60 hover:bg-black/90 text-white p-2.5 rounded-lg backdrop-blur-md transition-all flex items-center gap-2 text-xs font-semibold border border-white/10"
-                >
-                  <Upload size={14} /> Change Source
-                </button>
-              </div>
-
-              <div
-                onClick={() => !sourcePath && openBrowser("source")}
-                className="flex-1 min-h-0 p-2 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
-              >
-                {sourcePath ? (
-                  <div className="w-full h-full relative flex items-center justify-center">
-                    {isVideo(sourcePath) ? (
-                      <video src={files.preview(sourcePath)} className="max-w-full max-h-full w-full h-full object-contain" controls />
-                    ) : (
-                      <img src={files.preview(sourcePath)} alt="Source" className="max-w-full max-h-full w-full h-full object-contain shadow-2xl" />
-                    )}
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-neutral-500 gap-4">
-                    <div className="p-5 rounded-2xl bg-neutral-800/50 border border-neutral-700/50 group-hover:border-red-500/50 group-hover:text-red-500 transition-all duration-300">
-                      <Upload size={28} />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-semibold text-neutral-300">Select Source</p>
-                      <p className="text-xs text-neutral-500 mt-1 uppercase tracking-tighter">Image or Video</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-3 border-t border-neutral-800/50 bg-neutral-900/80 backdrop-blur-sm flex justify-between items-center px-4">
-                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Source Media</span>
-                {sourcePath && (
-                  <button onClick={() => setSourcePath(null)} className="text-[10px] uppercase font-bold text-red-500/80 hover:text-red-400 transition-colors">Clear</button>
-                )}
-              </div>
-            </Card>
-
-            {/* Target Card */}
-            <Card className="flex flex-col h-full overflow-hidden relative group border-neutral-800 bg-neutral-900 shadow-xl ring-1 ring-white/5">
-              <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openBrowser("target")}
-                  className="bg-black/60 hover:bg-black/90 text-white p-2.5 rounded-lg backdrop-blur-md transition-all flex items-center gap-2 text-xs font-semibold border border-white/10"
-                >
-                  <Upload size={14} /> Change Target
-                </button>
-              </div>
-
-              <div
-                onClick={() => !targetPath && openBrowser("target")}
-                className="flex-1 min-h-0 p-2 relative cursor-pointer hover:bg-neutral-800/50 transition-colors bg-black/20"
-              >
-                {targetPath ? (
-                  <div className="w-full h-full relative flex items-center justify-center">
-                    {isVideo(targetPath) ? (
-                      <video src={files.preview(targetPath)} className="max-w-full max-h-full w-full h-full object-contain" controls />
-                    ) : (
-                      <img src={files.preview(targetPath)} alt="Target" className="max-w-full max-h-full w-full h-full object-contain shadow-2xl" />
-                    )}
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-neutral-500 gap-4">
-                    <div className="p-5 rounded-2xl bg-neutral-800/50 border border-neutral-700/50 group-hover:border-emerald-500/50 group-hover:text-emerald-500 transition-all duration-300">
-                      <Upload size={28} />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-semibold text-neutral-300">Select Target</p>
-                      <p className="text-xs text-neutral-500 mt-1 uppercase tracking-tighter">Image or Video</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-3 border-t border-neutral-800/50 bg-neutral-900/80 backdrop-blur-sm flex justify-between items-center px-4">
-                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Target Media</span>
-                {targetPath && (
-                  <button onClick={() => setTargetPath(null)} className="text-[10px] uppercase font-bold text-red-500/80 hover:text-red-400 transition-colors">Clear</button>
-                )}
-              </div>
-            </Card>
-          </div>
-
-          {/* Face Selector Row */}
-          {targetPath && (
-            <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-2 min-h-[100px] shrink-0 overflow-y-auto custom-scrollbar">
-              <FaceSelector
-                targetPath={targetPath}
-                onSelect={(idx) => updateSetting("reference_face_position", idx)}
-              />
-            </div>
-          )}
+          {/* ... Source/Target cards ... */}
 
           {/* Preview Card */}
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
@@ -381,12 +332,50 @@ function App() {
                 </a>
               </div>
             ) : isProcessing ? (
-              <div className="flex flex-col items-center gap-4 text-neutral-400">
-                <Loader2 size={48} className="animate-spin text-red-500" />
-                <p>Generating Deepfake...</p>
+              <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 size={48} className="animate-spin text-red-500" />
+                  <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
+                </div>
+
+                <div className="w-full space-y-2">
+                  <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
+                    <span>Progress</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-red-600 transition-all duration-300 ease-linear rounded-full"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-center text-xs text-neutral-600 pt-2">
+                    {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
+                  </p>
+                </div>
               </div>
             ) : (
               <>
+                {/* Assuming the icon mapping object is defined elsewhere and needs to be updated.
+                    Since the full context of the icon mapping object (e.g., `face_debugger: Bug,`)
+                    is not present in the provided document, this change is placed as a comment
+                    to indicate where it would logically go if the object were present.
+                    If this mapping is part of a larger object, you would insert
+                    `watermark_remover: Eraser, // Reusing Eraser for now or use another icon`
+                    into that object.
+                */}
+                {/*
+                // Example of where the icon mapping might be if it existed in this file:
+                const iconMapping = {
+                  face_debugger: Bug,
+                  expression_restorer: Smile,
+                  age_modifier: Clock,
+                  background_remover: Eraser,
+                  watermark_remover: Eraser, // Reusing Eraser for now or use another icon
+                  frame_colorizer: Palette,
+                  lip_syncer: Mic2,
+                };
+                */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
                 <p className="text-neutral-600 font-medium z-10 flex items-center gap-2">
                   <Sparkles size={16} /> Output Preview

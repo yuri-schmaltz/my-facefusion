@@ -93,6 +93,12 @@ def process_video() -> ErrorCode:
 					if not future.cancelled():
 						future.result()
 						progress.update()
+						
+						# Update API progress
+						progress_callback = state_manager.get_item('current_job_progress_callback')
+						if progress_callback:
+							current_progress = (progress.n / progress.total)
+							progress_callback(current_progress)
 
 		for processor_module in get_processors_modules(state_manager.get_item('processors')):
 			processor_module.post_process()

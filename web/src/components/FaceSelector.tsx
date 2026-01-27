@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@/services/api';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { User, Loader2 } from 'lucide-react';
+import { User, Loader2, ScanEye, RotateCw } from 'lucide-react';
 
 interface DetectedFace {
     index: number;
@@ -15,47 +14,80 @@ interface DetectedFace {
 
 interface FaceSelectorProps {
     targetPath: string | null;
+    currentTime?: number;
     onSelect?: (faceIndex: number) => void;
 }
 
-const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, onSelect }) => {
+const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0, onSelect }) => {
     const [faces, setFaces] = useState<DetectedFace[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [autoScan, setAutoScan] = useState(false);
 
-    useEffect(() => {
-        if (!targetPath) {
-            setFaces([]);
-            return;
+    const fetchFaces = async (time: number) => {
+        if (!targetPath) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await api.post('/faces/detect', {
+                path: targetPath,
+                time_seconds: time
+            });
+            setFaces(res.data.faces);
+        } catch (err) {
+            console.error("Failed to detect faces:", err);
+            setError("Could not detect faces");
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const fetchFaces = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // Assuming frame 0 for now for videos
-                const res = await api.post('/faces/detect', { path: targetPath, frame_number: 0 });
-                setFaces(res.data.faces);
-            } catch (err) {
-                console.error("Failed to detect faces:", err);
-                setError("Could not detect faces");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const timer = setTimeout(fetchFaces, 500); // Debounce
-        return () => clearTimeout(timer);
+    // Initial load
+    useEffect(() => {
+        if (targetPath) {
+            fetchFaces(0);
+        } else {
+            setFaces([]);
+        }
     }, [targetPath]);
+
+    // Update on scrub if auto-scan is enabled
+    useEffect(() => {
+        if (autoScan && targetPath && currentTime !== undefined) {
+            const timer = setTimeout(() => fetchFaces(currentTime), 500);
+            return () => clearTimeout(timer);
+        }
+    }, [currentTime, autoScan, targetPath]);
 
     if (!targetPath) return null;
 
     return (
         <div className="mt-4 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 mb-2 text-neutral-400">
-                <User size={14} />
-                <span className="text-xs font-bold uppercase tracking-wider">Detected Faces</span>
-                {loading && <Loader2 size={12} className="animate-spin ml-2" />}
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-neutral-400">
+                    <User size={14} />
+                    <span className="text-xs font-bold uppercase tracking-wider">Detected Faces</span>
+                    {loading && <Loader2 size={12} className="animate-spin ml-2" />}
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setAutoScan(!autoScan)}
+                        className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 transition-all ${autoScan
+                                ? "bg-red-500/20 border-red-500 text-red-500"
+                                : "bg-neutral-800 border-neutral-700 text-neutral-500 hover:text-neutral-300"
+                            }`}
+                        title="Auto-scan faces while scrubbing video"
+                    >
+                        <ScanEye size={12} /> Auto
+                    </button>
+                    <button
+                        onClick={() => fetchFaces(currentTime || 0)}
+                        className="text-[10px] bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 text-neutral-300 px-2 py-1 rounded flex items-center gap-1 transition-all"
+                        title="Scan current frame"
+                    >
+                        <RotateCw size={12} className={loading ? "animate-spin" : ""} /> Scan
+                    </button>
+                </div>
             </div>
 
             {error ? (
