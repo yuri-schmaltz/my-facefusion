@@ -1,6 +1,6 @@
 from typing import List, Tuple
 import cv2
-import numpy
+# import numpy
 from facefusion.vision import get_video_capture, count_video_frame_total
 from facefusion.thread_helper import thread_semaphore
 

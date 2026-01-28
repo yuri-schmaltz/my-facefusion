@@ -14,7 +14,6 @@ import os
 import signal
 import sys
 import shutil
-import platform
 
 # Suppress Google API/GCM registration errors in Chromium-based browsers
 # This fixes the DEPRECATED_ENDPOINT warnings in terminal
