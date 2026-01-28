@@ -295,10 +295,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     onChange={(e) => handleChange("face_selector_order", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
                                 >
-                                    {(choices?.face_selector_orders || ["large-small"]).map((o: string) => (
-                                        <option key={o} value={o}>{o.replace(/-/g, ' ')}</option>
-                                    ))}
-                                </select>
+                                    {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
+                                        <option key={order} value={order}>
+                                            {order.replace(/-/g, ' ').toUpperCase()}
+                                        </option>
+                                    ))}</select>
                             </div>
 
                             <div className="space-y-1.5">
@@ -313,9 +314,34 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     onChange={(e) => handleChange("face_detector_model", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
                                 >
-                                    {(choices?.face_detector_models || ["yolo_face"]).map((m: string) => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
+                                    {(() => {
+                                        const modelHints: Record<string, string> = {
+                                            "yolo": "Standard • Reliable",
+                                            "scrfd": "Ultra Fast",
+                                            "retinaface": "Maximum Precision",
+                                            "yunet": "Lightweight",
+                                            "many": "Universal Detector"
+                                        };
+                                        const getHint = (n: string) => {
+                                            const lower = n.toLowerCase();
+                                            for (const [k, h] of Object.entries(modelHints)) {
+                                                if (lower.includes(k)) return ` [${h}]`;
+                                            }
+                                            return "";
+                                        };
+                                        const format = (n: string) => n.replace(/_/g, ' ').toUpperCase() + getHint(n);
+                                        const items = choices?.face_detector_models || ["yolo_face"];
+                                        const groups: Record<string, string[]> = { "Main Detectors": [], "Special": [] };
+                                        items.forEach(m => {
+                                            if (m === 'many') groups["Special"].push(m);
+                                            else groups["Main Detectors"].push(m);
+                                        });
+                                        return Object.entries(groups).map(([label, models]) => models.length > 0 && (
+                                            <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase">
+                                                {models.map(m => <option key={m} value={m} className="bg-neutral-950 text-neutral-200">{format(m)}</option>)}
+                                            </optgroup>
+                                        ));
+                                    })()}
                                 </select>
                             </div>
                         </div>
@@ -340,9 +366,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     onChange={(e) => handleChange("face_landmarker_model", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
                                 >
-                                    {(choices?.face_landmarker_models || ["2dfan4"]).map((m: string) => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
+                                    {(() => {
+                                        const format = (n: string) => {
+                                            const name = n.replace(/2dfan4/i, '2D-FAN (4pts)').replace(/2dfan2/i, '2D-FAN (2pts)').toUpperCase();
+                                            const hint = n.includes('peppa') ? ' [Funny • Experimental]' : n.includes('many') ? ' [High Precision]' : ' [Standard]';
+                                            return name + hint;
+                                        };
+                                        const items = choices?.face_landmarker_models || ["2dfan4"];
+                                        return items.map(m => <option key={m} value={m}>{format(m)}</option>);
+                                    })()}
                                 </select>
                             </div>
                         </div>
@@ -546,9 +578,32 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     onChange={(e) => handleChange("face_occluder_model", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs"
                                 >
-                                    {(choices?.face_occluder_models || ["xseg_1"]).map((m: string) => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
+                                    {(() => {
+                                        const modelHints: Record<string, string> = {
+                                            "xseg_1": "Balanced • Fast",
+                                            "xseg_2": "Higher Quality",
+                                            "xseg_3": "Maximum Precision",
+                                            "many": "Universal Coverage"
+                                        };
+                                        const getHint = (n: string) => {
+                                            const lower = n.toLowerCase();
+                                            for (const [k, h] of Object.entries(modelHints)) {
+                                                if (lower.includes(k)) return ` [${h}]`;
+                                            }
+                                            return "";
+                                        };
+                                        const items = choices?.face_occluder_models || ["xseg_1"];
+                                        const groups: Record<string, string[]> = { "XSeg Models": [], "Special": [] };
+                                        items.forEach(m => {
+                                            if (m === 'many') groups["Special"].push(m);
+                                            else groups["XSeg Models"].push(m);
+                                        });
+                                        return Object.entries(groups).map(([label, models]) => models.length > 0 && (
+                                            <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase">
+                                                {models.map(m => <option key={m} value={m} className="bg-neutral-950 text-neutral-200">{m.replace(/_/g, ' ').toUpperCase() + getHint(m)}</option>)}
+                                            </optgroup>
+                                        ));
+                                    })()}
                                 </select>
                             </div>
                             <div className="space-y-3">
@@ -558,9 +613,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     onChange={(e) => handleChange("face_parser_model", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs"
                                 >
-                                    {(choices?.face_parser_models || ["bisenet_resnet_34"]).map((m: string) => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
+                                    {(choices?.face_parser_models || ["bisenet_resnet_34"]).map((m: string) => {
+                                        const hint = m.includes('34') ? ' [High Precision • Slow]' : ' [Fast • Balanced]';
+                                        return (
+                                            <option key={m} value={m}>
+                                                {m.replace(/bisenet_resnet_/i, 'BiseNet ').replace(/_/g, ' ').toUpperCase() + hint}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
                         </div>
@@ -679,6 +739,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
                                     />
                                 </div>
+                                {/* Voice Extractor */}
+                                <div className="space-y-3 pt-2">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Voice Extractor</label>
+                                    <select
+                                        value={settings.voice_extractor_model || "kim_vocal_2"}
+                                        onChange={(e) => handleChange("voice_extractor_model", e.target.value)}
+                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                    >
+                                        {(choices?.voice_extractor_models || ["kim_vocal_1", "kim_vocal_2", "uwr_mdxnet"]).map((m: string) => {
+                                            const hint = m.includes('kim_vocal_2') ? ' [Best Separation]' : m.includes('uwr') ? ' [Fast • Lightweight]' : ' [Legacy]';
+                                            const label = m.replace(/_vocal_/i, ' Vocal v').replace(/uwr_mdxnet/i, 'MDX-Net (UWR)').toUpperCase();
+                                            return (
+                                                <option key={m} value={m}>
+                                                    {label + hint}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -699,9 +778,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             onChange={(e) => handleChange("output_video_encoder", e.target.value)}
                                             className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
                                         >
-                                            {(choices?.output_video_encoders || ["libx264", "libx265", "hevc_nvenc"]).map((enc: string) => (
-                                                <option key={enc} value={enc}>{enc}</option>
-                                            ))}
+                                            {(() => {
+                                                const items = choices?.output_video_encoders || ["libx264"];
+                                                const groups: Record<string, string[]> = { "Software (CPU)": [], "Hardware (GPU)": [] };
+                                                items.forEach(m => {
+                                                    if (m.startsWith('lib')) groups["Software (CPU)"].push(m);
+                                                    else groups["Hardware (GPU)"].push(m);
+                                                });
+                                                const getHint = (n: string) => {
+                                                    if (n.includes('265') || n.includes('hevc')) return ' [High Efficiency]';
+                                                    if (n.includes('264')) return ' [Universally Compatible]';
+                                                    if (n.includes('nvenc')) return ' [NVIDIA Powered]';
+                                                    return "";
+                                                };
+                                                return Object.entries(groups).map(([label, models]) => models.length > 0 && (
+                                                    <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase">
+                                                        {models.map(m => <option key={m} value={m} className="bg-neutral-950 text-neutral-200">{m.replace(/lib/i, '').replace(/_/g, ' ').toUpperCase() + getHint(m)}</option>)}
+                                                    </optgroup>
+                                                ));
+                                            })()}
                                         </select>
                                     </div>
                                     <div className="space-y-3">
@@ -767,18 +862,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Voice Extractor */}
-                                <div className="space-y-3 pt-2">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Voice Extractor</label>
-                                    <select
-                                        value={settings.voice_extractor_model || "kim_vocal_2"}
-                                        onChange={(e) => handleChange("voice_extractor_model", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
-                                    >
-                                        {(choices?.voice_extractor_models || ["kim_vocal_1", "kim_vocal_2"]).map((m: string) => (
-                                            <option key={m} value={m}>{m}</option>
-                                        ))}
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1101,150 +1184,152 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 targetPath={currentTargetPath || settings.target_path || ""}
             />
 
-            {/* Job Details Modal */}
-            {selectedJobDetails && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-                        {/* Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                            <div className="flex items-center gap-3">
-                                <FileText size={20} className="text-red-500" />
-                                <div>
-                                    <h3 className="text-lg font-bold text-white">Job Details</h3>
-                                    <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={closeJobDetails}
-                                className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {/* Status & Info */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-neutral-800/50 rounded-lg p-3">
-                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                        <Info size={12} />
-                                        <span className="text-[10px] uppercase font-bold">Status</span>
-                                    </div>
-                                    <span className={cn(
-                                        "text-sm font-bold uppercase",
-                                        selectedJobDetails.status === 'drafted' && "text-yellow-500",
-                                        selectedJobDetails.status === 'queued' && "text-blue-500",
-                                        selectedJobDetails.status === 'completed' && "text-green-500",
-                                        selectedJobDetails.status === 'failed' && "text-red-500",
-                                    )}>
-                                        {selectedJobDetails.status}
-                                    </span>
-                                </div>
-                                <div className="bg-neutral-800/50 rounded-lg p-3">
-                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                        <Clock size={12} />
-                                        <span className="text-[10px] uppercase font-bold">Created</span>
-                                    </div>
-                                    <span className="text-sm text-white">
-                                        {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Steps */}
+            {/* Job Details Modal */ }
+    {
+        selectedJobDetails && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                        <div className="flex items-center gap-3">
+                            <FileText size={20} className="text-red-500" />
                             <div>
-                                <div className="flex items-center gap-2 text-neutral-400 mb-2">
-                                    <Cpu size={14} />
-                                    <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
+                                <h3 className="text-lg font-bold text-white">Job Details</h3>
+                                <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={closeJobDetails}
+                            className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {/* Status & Info */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-neutral-800/50 rounded-lg p-3">
+                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                    <Info size={12} />
+                                    <span className="text-[10px] uppercase font-bold">Status</span>
                                 </div>
-                                <div className="space-y-3">
-                                    {selectedJobDetails.steps?.map((step: any, idx: number) => (
-                                        <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-xs font-bold text-white">Step {idx + 1}</span>
-                                                <span className={cn(
-                                                    "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
-                                                    step.status === 'completed' ? "bg-green-500/20 text-green-500" :
-                                                        step.status === 'failed' ? "bg-red-500/20 text-red-500" :
-                                                            "bg-neutral-700 text-neutral-400"
-                                                )}>
-                                                    {step.status}
-                                                </span>
-                                            </div>
-
-                                            {/* Target & Output */}
-                                            <div className="space-y-1 text-[10px]">
-                                                {step.target_path && (
-                                                    <div className="flex gap-2">
-                                                        <span className="text-neutral-500 w-16">Target:</span>
-                                                        <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
-                                                            {step.target_path.split('/').pop()}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {step.output_path && (
-                                                    <div className="flex gap-2">
-                                                        <span className="text-neutral-500 w-16">Output:</span>
-                                                        <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
-                                                            {step.output_path.split('/').pop()}
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                {/* Processors */}
-                                                {step.processors?.length > 0 && (
-                                                    <div className="flex gap-2 mt-2">
-                                                        <span className="text-neutral-500 w-16">Processors:</span>
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {step.processors.map((p: string, i: number) => (
-                                                                <span key={i} className="px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded text-[9px]">
-                                                                    {p}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Source Paths */}
-                                                {step.source_paths?.length > 0 && (
-                                                    <div className="flex gap-2 mt-1">
-                                                        <span className="text-neutral-500 w-16">Sources:</span>
-                                                        <span className="text-neutral-300">
-                                                            {step.source_paths.length} file(s)
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                {/* Frame Range */}
-                                                {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
-                                                    <div className="flex gap-2 mt-1">
-                                                        <span className="text-neutral-500 w-16">Frames:</span>
-                                                        <span className="text-neutral-300">
-                                                            {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                <span className={cn(
+                                    "text-sm font-bold uppercase",
+                                    selectedJobDetails.status === 'drafted' && "text-yellow-500",
+                                    selectedJobDetails.status === 'queued' && "text-blue-500",
+                                    selectedJobDetails.status === 'completed' && "text-green-500",
+                                    selectedJobDetails.status === 'failed' && "text-red-500",
+                                )}>
+                                    {selectedJobDetails.status}
+                                </span>
+                            </div>
+                            <div className="bg-neutral-800/50 rounded-lg p-3">
+                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                    <Clock size={12} />
+                                    <span className="text-[10px] uppercase font-bold">Created</span>
                                 </div>
+                                <span className="text-sm text-white">
+                                    {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-4 border-t border-neutral-700 flex justify-end">
-                            <button
-                                onClick={closeJobDetails}
-                                className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
-                            >
-                                Close
-                            </button>
+                        {/* Steps */}
+                        <div>
+                            <div className="flex items-center gap-2 text-neutral-400 mb-2">
+                                <Cpu size={14} />
+                                <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
+                            </div>
+                            <div className="space-y-3">
+                                {selectedJobDetails.steps?.map((step: any, idx: number) => (
+                                    <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-bold text-white">Step {idx + 1}</span>
+                                            <span className={cn(
+                                                "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
+                                                step.status === 'completed' ? "bg-green-500/20 text-green-500" :
+                                                    step.status === 'failed' ? "bg-red-500/20 text-red-500" :
+                                                        "bg-neutral-700 text-neutral-400"
+                                            )}>
+                                                {step.status}
+                                            </span>
+                                        </div>
+
+                                        {/* Target & Output */}
+                                        <div className="space-y-1 text-[10px]">
+                                            {step.target_path && (
+                                                <div className="flex gap-2">
+                                                    <span className="text-neutral-500 w-16">Target:</span>
+                                                    <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
+                                                        {step.target_path.split('/').pop()}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {step.output_path && (
+                                                <div className="flex gap-2">
+                                                    <span className="text-neutral-500 w-16">Output:</span>
+                                                    <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
+                                                        {step.output_path.split('/').pop()}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* Processors */}
+                                            {step.processors?.length > 0 && (
+                                                <div className="flex gap-2 mt-2">
+                                                    <span className="text-neutral-500 w-16">Processors:</span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {step.processors.map((p: string, i: number) => (
+                                                            <span key={i} className="px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded text-[9px]">
+                                                                {p}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Source Paths */}
+                                            {step.source_paths?.length > 0 && (
+                                                <div className="flex gap-2 mt-1">
+                                                    <span className="text-neutral-500 w-16">Sources:</span>
+                                                    <span className="text-neutral-300">
+                                                        {step.source_paths.length} file(s)
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* Frame Range */}
+                                            {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
+                                                <div className="flex gap-2 mt-1">
+                                                    <span className="text-neutral-500 w-16">Frames:</span>
+                                                    <span className="text-neutral-300">
+                                                        {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
+
+                    {/* Footer */}
+                    <div className="p-4 border-t border-neutral-700 flex justify-end">
+                        <button
+                            onClick={closeJobDetails}
+                            className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
-            )}
-        </div>
+            </div>
+        )
+    }
+        </div >
     );
 };
 

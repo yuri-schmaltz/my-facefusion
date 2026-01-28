@@ -162,10 +162,10 @@ def validate_source_paths(source_paths : List[str]) -> Tuple[List[str], List[str
 
 def resolve_download_url(base_name : str, file_name : str) -> Optional[str]:
 	download_providers = state_manager.get_item('download_providers')
-	print(f'Resolve download url: {base_name}/{file_name}, providers: {download_providers}', flush=True)
+	logger.debug(translator.get('resolve_download_url').format(base_name = base_name, file_name = file_name, providers = download_providers), __name__)
 
 	if download_providers is None:
-		print("CRITICAL: download_providers is None!", flush=True)
+		logger.error(translator.get('download_providers_missing'), __name__)
 		return None
 
 	for download_provider in download_providers:

@@ -513,17 +513,46 @@ import logging
 from fastapi import WebSocket, WebSocketDisconnect
 
 # --- Logging Infrastructure ---
-log_queue = asyncio.Queue()
+import asyncio
+from typing import Set
+
+class LogBroadcaster:
+    def __init__(self):
+        self.subscribers: Set[asyncio.Queue] = set()
+        self.loop = None
+
+    def set_loop(self, loop):
+        self.loop = loop
+
+    def broadcast(self, message: str):
+        if not self.loop:
+            return
+        
+        def push():
+            for q in list(self.subscribers):
+                try:
+                    q.put_nowait(message)
+                except asyncio.QueueFull:
+                    pass
+        
+        self.loop.call_soon_threadsafe(push)
+
+    async def subscribe(self) -> asyncio.Queue:
+        q = asyncio.Queue(maxsize=100)
+        self.subscribers.add(q)
+        return q
+
+    def unsubscribe(self, q: asyncio.Queue):
+        if q in self.subscribers:
+            self.subscribers.remove(q)
+
+log_broadcaster = LogBroadcaster()
 
 class QueueHandler(logging.Handler):
     def emit(self, record):
         try:
             entry = self.format(record)
-            # Fire and forget put
-            try:
-                log_queue.put_nowait(entry)
-            except asyncio.QueueFull:
-                pass
+            log_broadcaster.broadcast(entry)
         except Exception:
             self.handleError(record)
 
@@ -531,25 +560,23 @@ class QueueHandler(logging.Handler):
 queue_handler = QueueHandler()
 queue_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logging.getLogger('facefusion').addHandler(queue_handler)
-# Also capture basic logger if needed
 logging.getLogger().addHandler(queue_handler)
 
 @app.websocket("/logs")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    log_broadcaster.set_loop(asyncio.get_running_loop())
+    q = await log_broadcaster.subscribe()
     try:
         while True:
-            # Simple polling/getting from queue with timeout or similar
-            # Ideally we want an event driven broadcast, but for one connection queue is okay.
-            # To support multiple clients, we need a BroadcastManager.
-
-            # Simplified Broadcast for single "Senior" user
-            line = await log_queue.get()
+            line = await q.get()
             await websocket.send_text(line)
     except WebSocketDisconnect:
         pass
     except Exception as e:
         print(f"WS Error: {e}")
+    finally:
+        log_broadcaster.unsubscribe(q)
 
 # --- Filesystem API ---
 

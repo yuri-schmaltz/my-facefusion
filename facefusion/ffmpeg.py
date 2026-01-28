@@ -19,7 +19,11 @@ def run_ffmpeg_with_progress(commands : List[Command], update_progress : UpdateP
 	commands.extend(ffmpeg_builder.set_progress())
 	commands.extend(ffmpeg_builder.cast_stream())
 	commands = ffmpeg_builder.run(commands)
-	process = subprocess.Popen(commands, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+	try:
+		process = subprocess.Popen(commands, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+	except TypeError:
+		logger.error(f'FFmpeg command contains invalid arguments: {commands}', __name__)
+		raise
 
 	while process_manager.is_processing():
 		try:
@@ -56,7 +60,11 @@ def update_progress(progress : tqdm, frame_number : int) -> None:
 def run_ffmpeg(commands : List[Command]) -> subprocess.Popen[bytes]:
 	log_level = state_manager.get_item('log_level')
 	commands = ffmpeg_builder.run(commands)
-	process = subprocess.Popen(commands, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+	try:
+		process = subprocess.Popen(commands, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+	except TypeError:
+		logger.error(f'FFmpeg command contains invalid arguments: {commands}', __name__)
+		raise
 
 	while process_manager.is_processing():
 		try:

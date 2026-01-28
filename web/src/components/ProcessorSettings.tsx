@@ -94,11 +94,74 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                         value={currentSettings[`${proc}_model`]}
                                         onChange={(e: any) => onUpdate(`${proc}_model`, (e.target as HTMLSelectElement).value)}
                                     >
-                                        {procChoices.models.map((m) => (
-                                            <SelectItem key={m} value={m}>
-                                                {m}
-                                            </SelectItem>
-                                        ))}
+                                        {(() => {
+                                            const modelHints: Record<string, string> = {
+                                                "realesrgan": "Balanced • Quality",
+                                                "esrgan": "High Detail",
+                                                "swinir": "Premium • Slow",
+                                                "lsdir": "Sharp • Modern",
+                                                "clear_reality": "Clean • Recommended",
+                                                "ultra_sharp": "Precision Sharp",
+                                                "codeformer": "Best Restoration",
+                                                "gfpgan": "Fast • Natural",
+                                                "restoreformer": "High Fidelity",
+                                                "yolo": "Standard • Reliable",
+                                                "scrfd": "Ultra Fast",
+                                                "retinaface": "Maximum Precision",
+                                                "inswapper": "Pro Swapper",
+                                                "simswap": "Fast Swapper"
+                                            };
+
+                                            const getHint = (name: string) => {
+                                                const lower = name.toLowerCase();
+                                                for (const [key, hint] of Object.entries(modelHints)) {
+                                                    if (lower.includes(key)) return ` [${hint}]`;
+                                                }
+                                                return "";
+                                            };
+
+                                            const formatName = (name: string) => {
+                                                const formatted = name
+                                                    .replace(/_/g, ' ')
+                                                    .replace(/\sfp16/i, '')
+                                                    .replace(/\sx(\d+)/i, ' ($1x)')
+                                                    .split(' ')
+                                                    .map(w => w.length > 2 ? w.charAt(0).toUpperCase() + w.slice(1) : w.toUpperCase())
+                                                    .join(' ');
+
+                                                return formatted + getHint(name);
+                                            };
+
+                                            const groups: Record<string, string[]> = {
+                                                "Upscalers": [],
+                                                "Face Restore": [],
+                                                "Detectors & Swappers": [],
+                                                "Other": []
+                                            };
+
+                                            procChoices.models.forEach(m => {
+                                                const lower = m.toLowerCase();
+                                                if (lower.includes('esrgan') || lower.includes('swin') || lower.includes('dir') || lower.includes('sharp') || lower.includes('dat') || lower.includes('realistic') || lower.includes('nomos')) {
+                                                    groups["Upscalers"].push(m);
+                                                } else if (lower.includes('codeformer') || lower.includes('gfpgan') || lower.includes('restoreformer')) {
+                                                    groups["Face Restore"].push(m);
+                                                } else if (lower.includes('yolo') || lower.includes('scrfd') || lower.includes('inswapper') || lower.includes('simswap') || lower.includes('retina')) {
+                                                    groups["Detectors & Swappers"].push(m);
+                                                } else {
+                                                    groups["Other"].push(m);
+                                                }
+                                            });
+
+                                            return Object.entries(groups).map(([label, items]) => items.length > 0 && (
+                                                <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase tracking-wider">
+                                                    {items.map(m => (
+                                                        <option key={m} value={m} className="bg-neutral-950 text-neutral-200 normal-case font-normal text-xs">
+                                                            {formatName(m)}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            ));
+                                        })()}
                                     </Select>
                                 </div>
                             )}

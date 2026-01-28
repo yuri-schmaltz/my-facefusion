@@ -239,7 +239,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                     </div>
 
                     {/* File Label */}
-                    <div className="z-10 absolute bottom-3 left-3 pointer-events-none">
+                    <div className="z-10 absolute top-3 left-3 pointer-events-none">
                         <div
                             className="flex items-center gap-2 bg-black/40 px-2 py-1 rounded backdrop-blur-sm border border-white/5"
                         >

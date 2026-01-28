@@ -30,4 +30,16 @@ const SelectItem = ({ children, value, ...props }: any) => (
     </option>
 )
 
-export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem }
+const SelectGroup = ({ children, label, ...props }: any) => (
+    <optgroup label={label} {...props}>
+        {children}
+    </optgroup>
+)
+
+const SelectLabel = ({ children }: any) => (
+    <h3 className="px-2 py-1.5 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+        {children}
+    </h3>
+)
+
+export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup, SelectLabel }

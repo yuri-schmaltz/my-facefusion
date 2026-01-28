@@ -207,50 +207,68 @@ function App() {
   };
 
   return (
-    <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3" style={{ gridTemplateColumns: '25% 1fr 30%' }}>
+    <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3" style={{ gridTemplateColumns: '30% 1fr 30%' }}>
       <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} />
 
       {/* Column 1: Processors & Execution */}
       <aside className="flex flex-col h-full overflow-hidden">
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
           <div className="p-3 space-y-4 flex flex-col h-full overflow-hidden">
-            <section className="shrink-0">
-              <div className="grid grid-cols-2 gap-2">
-                {processors.map((proc) => {
-                  const Icon = {
-                    face_swapper: Replace,
-                    face_enhancer: Sparkles,
-                    frame_enhancer: AppWindow,
-                    face_debugger: Bug,
-                    expression_restorer: Smile,
-                    age_modifier: Clock,
-                    background_remover: Eraser,
-                    watermark_remover: Eraser,
-                    frame_colorizer: Palette,
-                    lip_syncer: Mic2
-                  }[proc] || Box;
+            <section className="shrink-0 space-y-4">
+              {[
+                {
+                  label: "Face & Portrait",
+                  items: processors.filter(p => !['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
+                },
+                {
+                  label: "Frame & Scene",
+                  items: processors.filter(p => ['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
+                }
+              ].map((cat) => cat.items.length > 0 && (
+                <div key={cat.label} className="space-y-2">
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="h-px flex-1 bg-neutral-800" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-500 whitespace-nowrap">{cat.label}</span>
+                    <div className="h-px flex-1 bg-neutral-800" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {cat.items.map((proc) => {
+                      const Icon = {
+                        face_swapper: Replace,
+                        face_enhancer: Sparkles,
+                        frame_enhancer: AppWindow,
+                        face_debugger: Bug,
+                        expression_restorer: Smile,
+                        age_modifier: Clock,
+                        background_remover: Eraser,
+                        watermark_remover: Eraser,
+                        frame_colorizer: Palette,
+                        lip_syncer: Mic2
+                      }[proc] || Box;
 
-                  return (
-                    <Tooltip key={proc} content={helpTexts[proc]}>
-                      <button
-                        onClick={() => toggleProcessor(proc)}
-                        className={`h-10 px-2 text-xs font-medium rounded-md border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                          ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
-                          : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
-                          }`}
-                      >
-                        <Icon size={14} />
-                        <span className="truncate">
-                          {proc
-                            .split("_")
-                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(" ")}
-                        </span>
-                      </button>
-                    </Tooltip>
-                  );
-                })}
-              </div>
+                      return (
+                        <Tooltip key={proc} content={helpTexts[proc]}>
+                          <button
+                            onClick={() => toggleProcessor(proc)}
+                            className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
+                              ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
+                              : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                              }`}
+                          >
+                            <Icon size={14} />
+                            <span className="truncate">
+                              {proc
+                                .split("_")
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(" ")}
+                            </span>
+                          </button>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </section>
 
             <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
@@ -270,24 +288,25 @@ function App() {
       </aside>
 
       {/* Column 2: Settings */}
-      <div className="h-full flex flex-col overflow-hidden">
-        <SettingsPanel
-          settings={allSettings}
-          choices={globalChoices}
-          helpTexts={helpTexts}
-          systemInfo={systemInfo}
-          onChange={updateSetting}
-          currentTargetPath={targetPath}
-        />
+      <div className="h-full flex flex-col gap-3 overflow-hidden">
+        <div className="flex-1 min-h-0">
+          <SettingsPanel
+            settings={allSettings}
+            choices={globalChoices}
+            helpTexts={helpTexts}
+            systemInfo={systemInfo}
+            onChange={updateSetting}
+            currentTargetPath={targetPath}
+          />
+        </div>
 
         {/* Execution Controls - Common to all tabs */}
-        {/* Execution Controls - Common to all tabs */}
-        <div className="p-2 bg-neutral-900/50 border-t border-neutral-800 flex items-center gap-2 shrink-0">
+        <div className="p-2 bg-neutral-900/50 border border-neutral-800 rounded-xl flex items-center gap-2 shrink-0 shadow-lg shadow-black/20">
           <TerminalButton
             isOpen={isTerminalOpen}
             onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
             isProcessing={isProcessing}
-            className="w-10 h-10 rounded-md"
+            className="w-10 h-10 rounded-lg"
           />
           {showStopConfirm ? (
             <div className="flex-1 flex gap-2 animate-in fade-in zoom-in-95 duration-200">
@@ -296,13 +315,13 @@ function App() {
                   await execute.stop();
                   setShowStopConfirm(false);
                 }}
-                className="flex-1 py-2.5 font-bold rounded-md bg-red-600/90 text-white hover:bg-red-600 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 backdrop-blur-sm text-sm"
+                className="flex-1 py-2.5 font-bold rounded-lg bg-red-600/90 text-white hover:bg-red-600 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 backdrop-blur-sm text-sm"
               >
                 <X size={14} /> Confirm
               </button>
               <button
                 onClick={() => setShowStopConfirm(false)}
-                className="px-4 py-2.5 font-bold rounded-md bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition text-sm"
+                className="px-4 py-2.5 font-bold rounded-lg bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition text-sm"
               >
                 Cancel
               </button>
@@ -316,12 +335,12 @@ function App() {
                   startProcessing();
                 }
               }}
-              disabled={!isProcessing && (!sourcePath || !targetPath)}
+              disabled={!isProcessing && (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath))}
               className={cn(
-                "flex-1 py-2.5 font-bold rounded-md transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden shadow-sm text-sm",
+                "flex-1 py-2.5 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden shadow-sm text-sm",
                 isProcessing
                   ? "bg-red-600/10 border border-red-500/50 text-red-500 hover:bg-red-600/20 shadow-red-500/10"
-                  : (!sourcePath || !targetPath
+                  : (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath)
                     ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-transparent"
                     : "bg-white text-black hover:bg-neutral-100 border border-transparent shadow-white/5 hover:shadow-white/10")
               )}

@@ -9,7 +9,10 @@ from facefusion.types import AudioEncoder, Command, CommandSet, Duration, Fps, S
 
 
 def run(commands : List[Command]) -> List[Command]:
-	return [ shutil.which('ffmpeg'), '-loglevel', 'error' ] + commands
+	ffmpeg_path = shutil.which('ffmpeg')
+	if not ffmpeg_path:
+		raise FileNotFoundError('ffmpeg not found')
+	return [ ffmpeg_path, '-loglevel', 'error' ] + commands
 
 
 def chain(*commands : List[Command]) -> List[Command]:
@@ -209,11 +212,17 @@ def set_video_preset(video_encoder : VideoEncoder, video_preset : VideoPreset) -
 	if video_encoder in [ 'libx264', 'libx264rgb', 'libx265' ]:
 		return [ '-preset', video_preset ]
 	if video_encoder in [ 'h264_nvenc', 'hevc_nvenc' ]:
-		return [ '-preset', map_nvenc_preset(video_preset) ]
+		nvenc_preset = map_nvenc_preset(video_preset)
+		if nvenc_preset:
+			return [ '-preset', nvenc_preset ]
 	if video_encoder in [ 'h264_amf', 'hevc_amf' ]:
-		return [ '-quality', map_amf_preset(video_preset) ]
+		amf_preset = map_amf_preset(video_preset)
+		if amf_preset:
+			return [ '-quality', amf_preset ]
 	if video_encoder in [ 'h264_qsv', 'hevc_qsv' ]:
-		return [ '-preset', map_qsv_preset(video_preset) ]
+		qsv_preset = map_qsv_preset(video_preset)
+		if qsv_preset:
+			return [ '-preset', qsv_preset ]
 	return []
 
 
