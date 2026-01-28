@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+import pickle
 from typing import List, Optional
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
     # Startup
     jobs_path = os.path.join(get_temp_path(), "jobs")
     job_manager.init_jobs(jobs_path)
+    load_wizard_state()
 
     
     # Initialize default state items
@@ -890,6 +892,42 @@ class WizardAnalyzeRequest(BaseModel):
 
 wizard_tasks = {}
 wizard_suggestions = {}
+analyzed_videos = {}
+
+def get_wizard_state_path() -> str:
+    from facefusion.state_manager import get_item
+    jobs_path = get_item('jobs_path') or os.path.join(get_temp_path(), "jobs")
+    return os.path.join(jobs_path, "wizard_state.pkl")
+
+def save_wizard_state():
+    try:
+        state_path = get_wizard_state_path()
+        os.makedirs(os.path.dirname(state_path), exist_ok=True)
+        with open(state_path, 'wb') as f:
+            pickle.dump({
+                "wizard_tasks": wizard_tasks,
+                "wizard_suggestions": wizard_suggestions,
+                "analyzed_videos": analyzed_videos
+            }, f)
+        print(f"[WIZARD] State saved to {state_path}")
+    except Exception as e:
+        print(f"[WIZARD] Failed to save state: {e}")
+
+def load_wizard_state():
+    global wizard_tasks, wizard_suggestions, analyzed_videos
+    try:
+        state_path = get_wizard_state_path()
+        if os.path.exists(state_path):
+            with open(state_path, 'rb') as f:
+                data = pickle.load(f)
+                wizard_tasks = data.get("wizard_tasks", {})
+                wizard_suggestions = data.get("wizard_suggestions", {})
+                analyzed_videos = data.get("analyzed_videos", {})
+            print(f"[WIZARD] State loaded from {state_path} ({len(wizard_tasks)} tasks)")
+        else:
+            print("[WIZARD] No saved state found.")
+    except Exception as e:
+        print(f"[WIZARD] Failed to load state: {e}")
 
 def process_wizard_analysis(job_id: str, video_path: str):
     from facefusion.vision import read_video_frame
@@ -898,6 +936,7 @@ def process_wizard_analysis(job_id: str, video_path: str):
     print(f"[WIZARD] Starting analysis for job {job_id} on {video_path}")
     try:
         wizard_tasks[job_id]["status"] = "detecting_scenes"
+        save_wizard_state()
         print(f"[WIZARD] Job {job_id} set to detecting_scenes")
         
         def on_scenes_progress(progress):
@@ -909,6 +948,7 @@ def process_wizard_analysis(job_id: str, video_path: str):
         print(f"[WIZARD] Scenes detected: {len(scenes)}")
         
         wizard_tasks[job_id]["status"] = "analyzing_faces"
+        save_wizard_state()
         print(f"[WIZARD] Job {job_id} set to analyzing_faces")
         scene_faces = {}
         total_scenes = len(scenes)
@@ -928,10 +968,12 @@ def process_wizard_analysis(job_id: str, video_path: str):
         }
         wizard_tasks[job_id]["status"] = "completed"
         wizard_tasks[job_id]["progress"] = 1.0
+        save_wizard_state()
     except Exception as e:
         print(f"Wizard analysis failed: {e}")
         wizard_tasks[job_id]["status"] = "failed"
         wizard_tasks[job_id]["error"] = str(e)
+        save_wizard_state()
 
 @app.post("/api/v1/wizard/analyze")
 async def wizard_analyze(req: WizardAnalyzeRequest, background_tasks: BackgroundTasks):
@@ -945,6 +987,7 @@ async def wizard_analyze(req: WizardAnalyzeRequest, background_tasks: Background
         "progress": 0.0
     }
     
+    save_wizard_state()
     background_tasks.add_task(process_wizard_analysis, job_id, video_path)
     
     return {"job_id": job_id}
@@ -1013,6 +1056,8 @@ async def wizard_suggest(req: WizardClusterRequest):
         all_faces.extend(faces)
         
     settings = suggest_settings(data["video_path"], all_faces)
+    wizard_suggestions[req.job_id] = settings
+    save_wizard_state()
     return {"suggestions": settings}
 
 
@@ -1072,4 +1117,4 @@ async def wizard_generate(req: WizardGenerateRequest):
     return {"created_jobs": created_jobs, "count": len(created_jobs)}
 
 # Global cache
-analyzed_videos = {}
+# analyzed_videos is now declared above with persistence helpers
