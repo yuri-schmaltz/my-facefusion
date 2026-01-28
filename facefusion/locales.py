@@ -198,9 +198,8 @@ LOCALES : Locales =\
 			'benchmark_cycle_count': 'specify the amount of cycles per benchmark',
 			'execution_device_ids': 'specify the devices used for processing',
 			'execution_providers': 'inference using different providers (choices: {choices}, ...)',
-            'resolve_download_url': 'resolving download url for {base_name} and {file_name} from {providers}',
-            'download_providers_missing': 'download providers are missing'
-,
+			'resolve_download_url': 'resolving download url for {base_name} and {file_name} from {providers}',
+			'download_providers_missing': 'download providers are missing',
 			'execution_thread_count': 'specify the amount of parallel threads while processing',
 			'video_memory_strategy': 'balance fast processing and low VRAM usage',
 			'system_memory_limit': 'limit the available RAM that can be used while processing',

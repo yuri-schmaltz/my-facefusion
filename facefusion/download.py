@@ -162,10 +162,14 @@ def validate_source_paths(source_paths : List[str]) -> Tuple[List[str], List[str
 
 def resolve_download_url(base_name : str, file_name : str) -> Optional[str]:
 	download_providers = state_manager.get_item('download_providers')
-	logger.debug(translator.get('resolve_download_url').format(base_name = base_name, file_name = file_name, providers = download_providers), __name__)
+	resolve_download_url_text = translator.get('resolve_download_url')
+	if resolve_download_url_text:
+		logger.debug(resolve_download_url_text.format(base_name = base_name, file_name = file_name, providers = download_providers), __name__)
 
 	if download_providers is None:
-		logger.error(translator.get('download_providers_missing'), __name__)
+		download_providers_missing_text = translator.get('download_providers_missing')
+		if download_providers_missing_text:
+			logger.error(download_providers_missing_text, __name__)
 		return None
 
 	for download_provider in download_providers:

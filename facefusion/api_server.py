@@ -484,8 +484,10 @@ def process_job_background(job_id: str, output_path: str):
         else:
             job_progress[job_id]["status"] = "failed"
     except Exception as e:
-        print(f"Background Job Failed: {e}")
+        import traceback
         job_progress[job_id]["status"] = "failed"
+        print(f"Background Job Failed: {e}")
+        traceback.print_exc()
 
 @app.get("/files/preview")
 def get_preview(path: str):
