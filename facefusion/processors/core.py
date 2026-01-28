@@ -3,7 +3,7 @@ from types import ModuleType
 from typing import Any, List
 
 from facefusion import logger, translator
-from facefusion.exit_helper import hard_exit
+# from facefusion.exit_helper import hard_exit
 
 
 PROCESSORS_METHODS =\
@@ -28,10 +28,10 @@ def load_processor_module(processor : str) -> Any:
 	except ModuleNotFoundError as exception:
 		logger.error(translator.get('processor_not_loaded').format(processor = processor), __name__)
 		logger.debug(exception.msg, __name__)
-		hard_exit(1)
+		return None
 	except NotImplementedError:
 		logger.error(translator.get('processor_not_implemented').format(processor = processor), __name__)
-		hard_exit(1)
+		return None
 	return processor_module
 
 
@@ -40,5 +40,6 @@ def get_processors_modules(processors : List[str]) -> List[ModuleType]:
 
 	for processor in processors:
 		processor_module = load_processor_module(processor)
-		processor_modules.append(processor_module)
+		if processor_module:
+			processor_modules.append(processor_module)
 	return processor_modules

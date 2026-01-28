@@ -76,8 +76,18 @@ def create_inference_session(model_path : str, execution_device_id : int, execut
 		inference_session = InferenceSession(model_path, providers = inference_session_providers)
 		logger.debug(translator.get('loading_model_succeeded').format(model_name = model_file_name, seconds = calculate_end_time(start_time)), __name__)
 		return inference_session
+	except Exception as exception:
+		if 'cuda' in execution_providers:
+			logger.warn(f"Failed to load user providers for {model_file_name}, creating fallback to CPU. Reason: {exception}", __name__)
+			fallback_providers = [ 'cpu' ]
+			try:
+				inference_session_providers = create_inference_session_providers(execution_device_id, fallback_providers)
+				inference_session = InferenceSession(model_path, providers = inference_session_providers)
+				logger.debug(translator.get('loading_model_succeeded').format(model_name = model_file_name, seconds = calculate_end_time(start_time)), __name__)
+				return inference_session
+			except Exception:
+				pass
 
-	except Exception:
 		logger.error(translator.get('loading_model_failed').format(model_name = model_file_name), __name__)
 		fatal_exit(1)
 

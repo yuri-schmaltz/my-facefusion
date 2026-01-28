@@ -16,6 +16,7 @@ FACE_MASK_AREAS_CHECKBOX_GROUP : Optional[gradio.CheckboxGroup] = None
 FACE_MASK_REGIONS_CHECKBOX_GROUP : Optional[gradio.CheckboxGroup] = None
 FACE_MASK_BOX_WRAPPER : Optional[gradio.Group] = None
 FACE_MASK_BLUR_SLIDER : Optional[gradio.Slider] = None
+FACE_MASK_EROSION_SLIDER : Optional[gradio.Slider] = None
 FACE_MASK_PADDING_TOP_SLIDER : Optional[gradio.Slider] = None
 FACE_MASK_PADDING_RIGHT_SLIDER : Optional[gradio.Slider] = None
 FACE_MASK_PADDING_BOTTOM_SLIDER : Optional[gradio.Slider] = None
@@ -30,6 +31,7 @@ def render() -> None:
 	global FACE_MASK_REGIONS_CHECKBOX_GROUP
 	global FACE_MASK_BOX_WRAPPER
 	global FACE_MASK_BLUR_SLIDER
+	global FACE_MASK_EROSION_SLIDER
 	global FACE_MASK_PADDING_TOP_SLIDER
 	global FACE_MASK_PADDING_RIGHT_SLIDER
 	global FACE_MASK_PADDING_BOTTOM_SLIDER
@@ -74,6 +76,13 @@ def render() -> None:
 		value = state_manager.get_item('face_mask_blur'),
 		visible = has_box_mask
 	)
+	FACE_MASK_EROSION_SLIDER = gradio.Slider(
+		label = translator.get('uis.face_mask_erosion_slider'),
+		step = calculate_float_step(facefusion.choices.face_mask_erosion_range),
+		minimum = facefusion.choices.face_mask_erosion_range[0],
+		maximum = facefusion.choices.face_mask_erosion_range[-1],
+		value = state_manager.get_item('face_mask_erosion')
+	)
 	with gradio.Group(visible = has_box_mask) as FACE_MASK_BOX_WRAPPER:
 		with gradio.Row():
 			FACE_MASK_PADDING_TOP_SLIDER = gradio.Slider(
@@ -111,6 +120,7 @@ def render() -> None:
 	register_ui_component('face_mask_areas_checkbox_group', FACE_MASK_AREAS_CHECKBOX_GROUP)
 	register_ui_component('face_mask_regions_checkbox_group', FACE_MASK_REGIONS_CHECKBOX_GROUP)
 	register_ui_component('face_mask_blur_slider', FACE_MASK_BLUR_SLIDER)
+	register_ui_component('face_mask_erosion_slider', FACE_MASK_EROSION_SLIDER)
 	register_ui_component('face_mask_padding_top_slider', FACE_MASK_PADDING_TOP_SLIDER)
 	register_ui_component('face_mask_padding_right_slider', FACE_MASK_PADDING_RIGHT_SLIDER)
 	register_ui_component('face_mask_padding_bottom_slider', FACE_MASK_PADDING_BOTTOM_SLIDER)
@@ -124,6 +134,7 @@ def listen() -> None:
 	FACE_MASK_AREAS_CHECKBOX_GROUP.change(update_face_mask_areas, inputs = FACE_MASK_AREAS_CHECKBOX_GROUP, outputs = FACE_MASK_AREAS_CHECKBOX_GROUP)
 	FACE_MASK_REGIONS_CHECKBOX_GROUP.change(update_face_mask_regions, inputs = FACE_MASK_REGIONS_CHECKBOX_GROUP, outputs = FACE_MASK_REGIONS_CHECKBOX_GROUP)
 	FACE_MASK_BLUR_SLIDER.release(update_face_mask_blur, inputs = FACE_MASK_BLUR_SLIDER)
+	FACE_MASK_EROSION_SLIDER.release(update_face_mask_erosion, inputs = FACE_MASK_EROSION_SLIDER)
 
 	face_mask_padding_sliders = [ FACE_MASK_PADDING_TOP_SLIDER, FACE_MASK_PADDING_RIGHT_SLIDER, FACE_MASK_PADDING_BOTTOM_SLIDER, FACE_MASK_PADDING_LEFT_SLIDER ]
 	for face_mask_padding_slider in face_mask_padding_sliders:
@@ -171,6 +182,10 @@ def update_face_mask_regions(face_mask_regions : List[FaceMaskRegion]) -> gradio
 
 def update_face_mask_blur(face_mask_blur : float) -> None:
 	state_manager.set_item('face_mask_blur', face_mask_blur)
+
+
+def update_face_mask_erosion(face_mask_erosion : float) -> None:
+	state_manager.set_item('face_mask_erosion', face_mask_erosion)
 
 
 def update_face_mask_padding(face_mask_padding_top : float, face_mask_padding_right : float, face_mask_padding_bottom : float, face_mask_padding_left : float) -> None:

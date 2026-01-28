@@ -16,7 +16,7 @@ from facefusion.jobs.job_list import compose_job_list
 from facefusion.memory import limit_system_memory
 from facefusion.processors.core import get_processors_modules
 from facefusion.program import create_program
-from facefusion.program_helper import validate_args
+from facefusion.program_helper import validate_args, validate_paths
 from facefusion.types import Args, ErrorCode
 from facefusion.workflows import image_to_image, image_to_video
 
@@ -27,14 +27,19 @@ def cli() -> None:
 		program = create_program()
 
 		if validate_args(program):
-			args = vars(program.parse_args())
-			apply_args(args, state_manager.init_item)
+			args = program.parse_args()
+			args_dict = vars(args)
+			if validate_paths(args_dict):
+				apply_args(args_dict, state_manager.init_item)
 
-			if state_manager.get_item('command'):
-				logger.init(state_manager.get_item('log_level'))
-				route(args)
+				if state_manager.get_item('command'):
+					logger.init(state_manager.get_item('log_level'))
+					route(args_dict)
+				else:
+					program.print_help()
 			else:
 				program.print_help()
+				hard_exit(2)
 		else:
 			hard_exit(2)
 	else:

@@ -9,33 +9,38 @@ from facefusion.types import Face, FaceSelectorOrder, Gender, Race, Score, Visio
 
 def select_faces(reference_vision_frame : VisionFrame, target_vision_frame : VisionFrame) -> List[Face]:
 	target_faces = get_many_faces([ target_vision_frame ])
+	width, height = target_vision_frame.shape[1], target_vision_frame.shape[0]
 
 	if state_manager.get_item('face_selector_mode') == 'many':
-		return sort_and_filter_faces(target_faces)
+		return sort_and_filter_faces(target_faces, width, height)
 
 	if state_manager.get_item('face_selector_mode') == 'one':
-		target_face = get_one_face(sort_and_filter_faces(target_faces))
+		target_face = get_one_face(sort_and_filter_faces(target_faces, width, height))
 		if target_face:
 			return [ target_face ]
 
 	if state_manager.get_item('face_selector_mode') == 'reference':
 		reference_faces = get_many_faces([ reference_vision_frame ])
-		reference_faces = sort_and_filter_faces(reference_faces)
+		reference_faces = sort_and_filter_faces(reference_faces, reference_vision_frame.shape[1], reference_vision_frame.shape[0])
 		reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
 		if reference_face:
 			match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
+			if state_manager.get_item('face_selector_region'):
+				match_faces = filter_faces_by_region(match_faces, state_manager.get_item('face_selector_region'), width, height)
 			return match_faces
 
 	if state_manager.get_item('face_selector_mode') == 'automatic':
 		reference_faces = get_many_faces([ reference_vision_frame ])
-		reference_faces = sort_and_filter_faces(reference_faces)
+		reference_faces = sort_and_filter_faces(reference_faces, reference_vision_frame.shape[1], reference_vision_frame.shape[0])
 		reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
 		if reference_face:
 			match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
 			if match_faces:
+				if state_manager.get_item('face_selector_region'):
+					match_faces = filter_faces_by_region(match_faces, state_manager.get_item('face_selector_region'), width, height)
 				return match_faces
 		# Fallback to 'one' if reference matching fails or no reference face
-		target_face = get_one_face(sort_and_filter_faces(target_faces))
+		target_face = get_one_face(sort_and_filter_faces(target_faces, width, height))
 		if target_face:
 			return [ target_face ]
 
@@ -66,7 +71,8 @@ def calculate_face_distance(face : Face, reference_face : Face) -> float:
 	return 0
 
 
-def sort_and_filter_faces(faces : List[Face]) -> List[Face]:
+
+def sort_and_filter_faces(faces : List[Face], width : int, height : int) -> List[Face]:
 	if faces:
 		if state_manager.get_item('face_selector_order'):
 			faces = sort_faces_by_order(faces, state_manager.get_item('face_selector_order'))
@@ -76,6 +82,8 @@ def sort_and_filter_faces(faces : List[Face]) -> List[Face]:
 			faces = filter_faces_by_race(faces, state_manager.get_item('face_selector_race'))
 		if state_manager.get_item('face_selector_age_start') or state_manager.get_item('face_selector_age_end'):
 			faces = filter_faces_by_age(faces, state_manager.get_item('face_selector_age_start'), state_manager.get_item('face_selector_age_end'))
+		if state_manager.get_item('face_selector_region'):
+			faces = filter_faces_by_region(faces, state_manager.get_item('face_selector_region'), width, height)
 	return faces
 
 
@@ -139,5 +147,26 @@ def filter_faces_by_race(faces : List[Face], race : Race) -> List[Face]:
 
 	for face in faces:
 		if face.race == race:
+			filter_faces.append(face)
+	return filter_faces
+
+
+def filter_faces_by_region(faces : List[Face], face_selector_region : List[int], width : int, height : int) -> List[Face]:
+	filter_faces = []
+	x_min, y_min, x_max, y_max = face_selector_region
+
+	if x_min == 0 and y_min == 0 and x_max == 0 and y_max == 0:
+		return faces
+
+	for face in faces:
+		center_x = (face.bounding_box[0] + face.bounding_box[2]) / 2.0
+		center_y = (face.bounding_box[1] + face.bounding_box[3]) / 2.0
+		# Convert percent to pixels
+		region_x_min = (x_min / 100.0) * width
+		region_y_min = (y_min / 100.0) * height
+		region_x_max = (x_max / 100.0) * width
+		region_y_max = (y_max / 100.0) * height
+
+		if region_x_min <= center_x <= region_x_max and region_y_min <= center_y <= region_y_max:
 			filter_faces.append(face)
 	return filter_faces

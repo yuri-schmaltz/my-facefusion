@@ -200,6 +200,21 @@ def create_box_mask(crop_vision_frame : VisionFrame, face_mask_blur : float, fac
 	return box_mask
 
 
+def erode_mask(mask : Mask, erosion : float) -> Mask:
+	if erosion == 0:
+		return mask
+	crop_size = mask.shape[:2][::-1]
+	erosion_amount = int(crop_size[0] * 0.5 * abs(erosion))
+	kernel_size = max(1, erosion_amount)
+	kernel = numpy.ones((kernel_size, kernel_size), numpy.uint8)
+
+	if erosion > 0:
+		mask = cv2.erode(mask, kernel, iterations = 1)
+	else:
+		mask = cv2.dilate(mask, kernel, iterations = 1)
+	return mask
+
+
 def create_occlusion_mask(crop_vision_frame : VisionFrame) -> Mask:
 	temp_masks = []
 
@@ -219,6 +234,7 @@ def create_occlusion_mask(crop_vision_frame : VisionFrame) -> Mask:
 		temp_masks.append(temp_mask)
 
 	occlusion_mask = numpy.minimum.reduce(temp_masks)
+	occlusion_mask = erode_mask(occlusion_mask, state_manager.get_item('face_mask_erosion'))
 	occlusion_mask = (cv2.GaussianBlur(occlusion_mask.clip(0, 1), (0, 0), 5).clip(0.5, 1) - 0.5) * 2
 	return occlusion_mask
 
@@ -234,6 +250,7 @@ def create_area_mask(crop_vision_frame : VisionFrame, face_landmark_68 : FaceLan
 	convex_hull = cv2.convexHull(face_landmark_68[landmark_points].astype(numpy.int32))
 	area_mask = numpy.zeros(crop_size).astype(numpy.float32)
 	cv2.fillConvexPoly(area_mask, convex_hull, 1.0) # type: ignore[call-overload]
+	area_mask = erode_mask(area_mask, state_manager.get_item('face_mask_erosion'))
 	area_mask = (cv2.GaussianBlur(area_mask.clip(0, 1), (0, 0), 5).clip(0.5, 1) - 0.5) * 2
 	return area_mask
 
@@ -250,6 +267,7 @@ def create_region_mask(crop_vision_frame : VisionFrame, face_mask_regions : List
 	region_mask = forward_parse_face(prepare_vision_frame)
 	region_mask = numpy.isin(region_mask.argmax(0), [ facefusion.choices.face_mask_region_set.get(face_mask_region) for face_mask_region in face_mask_regions ])
 	region_mask = cv2.resize(region_mask.astype(numpy.float32), crop_vision_frame.shape[:2][::-1])
+	region_mask = erode_mask(region_mask, state_manager.get_item('face_mask_erosion'))
 	region_mask = (cv2.GaussianBlur(region_mask.clip(0, 1), (0, 0), 5).clip(0.5, 1) - 0.5) * 2
 	return region_mask
 

@@ -218,13 +218,14 @@ def extract_gallery_frames(target_vision_frame : VisionFrame) -> List[VisionFram
 
 	for face in faces:
 		start_x, start_y, end_x, end_y = map(int, face.bounding_box)
-		padding_x = int((end_x - start_x) * 0.25)
-		padding_y = int((end_y - start_y) * 0.25)
-		start_x = max(0, start_x - padding_x)
-		start_y = max(0, start_y - padding_y)
-		end_x = max(0, end_x + padding_x)
-		end_y = max(0, end_y + padding_y)
-		crop_vision_frame = target_vision_frame[start_y:end_y, start_x:end_x]
+		padding_x = int((end_x - start_x) * 0.5)
+		padding_y = int((end_y - start_y) * 0.5)
+		start_x_pad = max(0, start_x - padding_x)
+		start_y_pad = max(0, start_y - padding_y)
+		end_x_pad = max(0, end_x + padding_x)
+		end_y_pad = max(0, end_y + padding_y)
+		crop_vision_frame = target_vision_frame[start_y_pad:end_y_pad, start_x_pad:end_x_pad].copy()
+		cv2.rectangle(crop_vision_frame, (start_x - start_x_pad, start_y - start_y_pad), (end_x - start_x_pad, end_y - start_y_pad), (0, 255, 0), 2)
 		crop_vision_frame = fit_cover_frame(crop_vision_frame, (128, 128))
 		crop_vision_frame = cv2.cvtColor(crop_vision_frame, cv2.COLOR_BGR2RGB)
 		gallery_vision_frames.append(crop_vision_frame)

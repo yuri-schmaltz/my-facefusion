@@ -29,7 +29,11 @@ def test_validate_args() -> None:
 		if action.dest == 'test_2':
 			action.default = 'test_3'
 
-	assert validate_args(program) is False
+	# Soft validation now returns True but corrects the value
+	assert validate_args(program) is True
+	for action in sub_program._actions:
+		if action.dest == 'test_2':
+			assert action.default == 'test_1'
 
 
 def test_validate_actions() -> None:
@@ -41,7 +45,7 @@ def test_validate_actions() -> None:
 
 	args =\
 	{
-		'test_1': 'test_2',
+		'test_1': 'test_3',
 		'test_2': [ 'test_1', 'test_3' ]
 	}
 
@@ -49,4 +53,10 @@ def test_validate_actions() -> None:
 		if action.dest in args:
 			action.default = args[action.dest]
 
-	assert validate_actions(program) is False
+	# Soft validation now returns True but corrects the values
+	assert validate_actions(program) is True
+	for action in program._actions:
+		if action.dest == 'test_1':
+			assert action.default == 'test_1'
+		if action.dest == 'test_2':
+			assert action.default == [ 'test_1' ]

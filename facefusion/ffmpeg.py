@@ -130,8 +130,12 @@ def extract_frames(target_path : str, temp_video_resolution : Resolution, temp_v
 	)
 
 	with tqdm(total = extract_frame_total, desc = translator.get('extracting'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
-		process = run_ffmpeg_with_progress(commands, partial(update_progress, progress))
-		return process.returncode == 0
+		for _ in range(3): # Retry up to 3 times
+			process = run_ffmpeg_with_progress(commands, partial(update_progress, progress))
+			if process.returncode == 0:
+				return True
+			# If failed, maybe clean temp and retry?
+		return False
 
 
 def copy_image(target_path : str, temp_image_resolution : Resolution) -> bool:
@@ -248,8 +252,11 @@ def merge_video(target_path : str, temp_video_fps : Fps, output_video_resolution
 	)
 
 	with tqdm(total = merge_frame_total, desc = translator.get('merging'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
-		process = run_ffmpeg_with_progress(commands, partial(update_progress, progress))
-		return process.returncode == 0
+		for _ in range(3):
+			process = run_ffmpeg_with_progress(commands, partial(update_progress, progress))
+			if process.returncode == 0:
+				return True
+		return False
 
 
 def concat_video(output_path : str, temp_output_paths : List[str]) -> bool:

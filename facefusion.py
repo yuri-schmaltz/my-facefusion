@@ -17,4 +17,8 @@ os.environ['OMP_NUM_THREADS'] = '1'
 from facefusion import core
 
 if __name__ == '__main__':
-	core.cli()
+	try:
+		core.cli()
+	except Exception as exception:
+		print(f"FaceFusion Critical Error: {exception}")
+		exit(1)
