@@ -167,6 +167,9 @@ async def lifespan(app: FastAPI):
         if state_manager.get_item('expression_restorer_factor') is None:
             state_manager.init_item('expression_restorer_factor', 80)
         
+        # Global Progress Phase
+        state_manager.init_item('current_job_phase', None)
+        
         yield  # Application runs here
         
         # Shutdown - cleanup if needed
@@ -466,7 +469,19 @@ def process_job_background(job_id: str, output_path: str):
     
     # Define a progress callback helper
     def progress_callback(progress_float):
-        update_job_progress(job_id, progress_float * 100)
+        phase = state_manager.get_item('current_job_phase')
+        if phase == 'analysing':
+             global_progress = progress_float * 5
+        elif phase == 'extracting':
+             global_progress = 5 + progress_float * 10
+        elif phase == 'processing':
+             global_progress = 15 + progress_float * 75
+        elif phase == 'merging':
+             global_progress = 90 + progress_float * 10
+        else:
+             global_progress = progress_float * 100 # Fallback
+        
+        update_job_progress(job_id, global_progress)
 
     # Attach to state_manager so workflow can find it? 
     # Hack for now: We will attach it to state_manager temporarily for the workflow to discover
@@ -488,6 +503,8 @@ def process_job_background(job_id: str, output_path: str):
         job_progress[job_id]["status"] = "failed"
         print(f"Background Job Failed: {e}")
         traceback.print_exc()
+    finally:
+        state_manager.set_item('current_job_phase', None)
 
 @app.get("/files/preview")
 def get_preview(path: str):

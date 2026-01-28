@@ -21,16 +21,18 @@ from facefusion.workflows.core import is_process_stopping
 def process(start_time : float) -> ErrorCode:
 	tasks =\
 	[
-		setup,
-		extract_frames,
-		process_video,
-		merge_frames,
-		restore_audio,
-		partial(finalize_video, start_time)
+		(setup, 'analysing'),
+		(extract_frames, 'extracting'),
+		(process_video, 'processing'),
+		(merge_frames, 'merging'),
+		(restore_audio, None),
+		(partial(finalize_video, start_time), None)
 	]
 	process_manager.start()
 
-	for task in tasks:
+	for task, phase in tasks:
+		if phase:
+			state_manager.set_item('current_job_phase', phase)
 		error_code = task() # type:ignore[operator]
 
 		if error_code > 0:

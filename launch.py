@@ -24,22 +24,32 @@ os.environ['GOOGLE_DEFAULT_CLIENT_SECRET'] = 'no'
 os.environ['CHROME_LOG_FILE'] = '/dev/null'
 
 def configure_cuda_env():
-    """Add all discovered nvidia library paths to LD_LIBRARY_PATH."""
+    """Add all discovered nvidia and tensorrt library paths to LD_LIBRARY_PATH."""
     try:
         import site
         site_packages = site.getsitepackages()[0]
-        nvidia_path = os.path.join(site_packages, 'nvidia')
         
-        if not os.path.isdir(nvidia_path):
-            return
-
         paths_to_add = []
-        # Find all 'lib' directories under site-packages/nvidia
-        for root, dirs, files in os.walk(nvidia_path):
-            if 'lib' in dirs:
-                lib_path = os.path.join(root, 'lib')
-                if os.path.isdir(lib_path):
-                    paths_to_add.append(lib_path)
+        
+        # 1. Find all 'lib' directories under site-packages/nvidia
+        nvidia_path = os.path.join(site_packages, 'nvidia')
+        if os.path.isdir(nvidia_path):
+            for root, dirs, files in os.walk(nvidia_path):
+                if 'lib' in dirs:
+                    lib_path = os.path.join(root, 'lib')
+                    if os.path.isdir(lib_path):
+                        paths_to_add.append(lib_path)
+        
+        # 2. Find all 'lib' directories under site-packages/tensorrt* (TensorRT 10+)
+        for entry in os.listdir(site_packages):
+            if entry.startswith('tensorrt'):
+                tensorrt_path = os.path.join(site_packages, entry)
+                if os.path.isdir(tensorrt_path):
+                    for root, dirs, files in os.walk(tensorrt_path):
+                        if 'lib' in dirs:
+                            lib_path = os.path.join(root, 'lib')
+                            if os.path.isdir(lib_path):
+                                paths_to_add.append(lib_path)
         
         if paths_to_add:
             current_ld = os.environ.get('LD_LIBRARY_PATH', '')
@@ -51,10 +61,10 @@ def configure_cuda_env():
             else:
                 os.environ['LD_LIBRARY_PATH'] = new_paths
                 
-            print(f"Configured CUDA environment with {len(paths_to_add)} library paths.")
+            print(f"Configured CUDA/TensorRT environment with {len(paths_to_add)} library paths.")
             
     except Exception as e:
-        print(f"Warning: Could not configure CUDA environment: {e}")
+        print(f"Warning: Could not configure CUDA/TensorRT environment: {e}")
 
 # Global references for cleanup
 backend = None
