@@ -8,6 +8,8 @@ interface TerminalProps {
     jobId?: string | null;
 }
 
+import { jobService } from '../services/JobService';
+
 export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
     const [logs, setLogs] = useState<string[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -19,18 +21,17 @@ export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
         // Subscribe to job events mostly for logs
         // We need to import jobService here or pass logs from parent?
         // Let's import jobService.
-        import('../services/JobService').then(({ jobService }) => {
-            const unsubscribe = jobService.subscribe(jobId, (event) => {
-                if (event.event_type === 'log') {
-                    // log event data format: { level: 'info', message: '...' }
-                    // or just string? Models suggest log event has data.
-                    // Let's assume data is the message or { message }
-                    const msg = typeof event.data === 'string' ? event.data : event.data.message || JSON.stringify(event.data);
-                    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-100));
-                }
-            });
-            return unsubscribe;
+
+        const unsubscribe = jobService.subscribe(jobId, (event) => {
+            if (event.event_type === 'log') {
+                // log event data format: { level: 'info', message: '...' }
+                // or just string? Models suggest log event has data.
+                // Let's assume data is the message or { message }
+                const msg = typeof event.data === 'string' ? event.data : event.data.message || JSON.stringify(event.data);
+                setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-100));
+            }
         });
+        return unsubscribe;
 
     }, [isOpen, jobId]);
 

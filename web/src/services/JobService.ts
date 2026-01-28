@@ -47,7 +47,8 @@ class JobService {
         // Construct SSE URL
         // Note: EventSource doesn't support custom headers easily for auth, 
         // but our API is open for now or uses cookie auth if configured.
-        const url = `/jobs/${jobId}/events`;
+        // Proxy requires /api prefix which is stripped by Vite
+        const url = `/api/jobs/${jobId}/events`;
 
         console.log(`[JobService] Connecting to SSE: ${url}`);
         this.eventSource = new EventSource(url);

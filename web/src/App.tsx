@@ -21,6 +21,7 @@ const isVideo = (path: string) => {
 };
 
 function App() {
+  console.log("App Rendering...");
   const [processors, setProcessors] = useState<string[]>([]);
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [allSettings, setAllSettings] = useState<any>({});

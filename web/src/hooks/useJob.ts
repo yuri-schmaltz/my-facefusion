@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { jobService, JobEvent } from '../services/JobService';
+import { jobService } from '../services/JobService';
+import type { JobEvent } from '../services/JobService';
 import { execute } from '../services/api';
 
 export interface JobState {
