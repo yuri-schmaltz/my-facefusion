@@ -56,3 +56,69 @@ def group_faces_by_scene(scene_faces: Dict[int, List[Face]], threshold: float = 
     for scene_idx, faces in scene_faces.items():
         grouped_scenes[scene_idx] = cluster_faces(faces, threshold)
     return grouped_scenes
+
+
+def refine_clusters(clusters: List[List[Face]], threshold: float = 0.35) -> List[List[Face]]:
+    """
+    Refine existing clusters by merging those with similar centroids.
+    This helps merge split groups of the same person.
+    """
+    if not clusters:
+        return []
+
+    # 1. Calculate centroids for each cluster
+    cluster_centroids = []
+    for cluster in clusters:
+        if not cluster:
+            continue
+            
+        embeddings = [face.embedding_norm for face in cluster if face.embedding_norm is not None]
+        if not embeddings:
+            continue
+            
+        # Average the embeddings
+        centroid = numpy.mean(embeddings, axis=0)
+        # Re-normalize to ensure unit vector for cosine distance
+        norm = numpy.linalg.norm(centroid)
+        if norm > 0:
+            centroid = centroid / norm
+            
+        cluster_centroids.append({
+            'faces': cluster,
+            'centroid': centroid
+        })
+
+    # 2. Cluster the centroids
+    # We use a simple greedy approach similar to cluster_faces but operating on centroids
+    new_meta_clusters = []
+
+    for item in cluster_centroids:
+        item_centroid = item['centroid']
+        found_cluster = False
+        
+        for meta_cluster in new_meta_clusters:
+            # Compare with the first cluster in the meta-cluster (representative)
+            reference_item = meta_cluster[0]
+            reference_centroid = reference_item['centroid']
+            
+            cosine_distance = 1 - numpy.dot(item_centroid, reference_centroid)
+            
+            if cosine_distance < threshold:
+                print(f"[REFINE] Merging cluster into meta_cluster (dist={cosine_distance:.4f})")
+                meta_cluster.append(item)
+                found_cluster = True
+                break
+        
+        if not found_cluster:
+            new_meta_clusters.append([item])
+
+    # 3. Flatten back to List[List[Face]]
+    refined_clusters = []
+    for meta_cluster in new_meta_clusters:
+        merged_faces = []
+        for item in meta_cluster:
+            merged_faces.extend(item['faces'])
+        refined_clusters.append(merged_faces)
+
+    print(f"[REFINE] Merged {len(clusters)} initial clusters into {len(refined_clusters)} final clusters (threshold={threshold})")
+    return refined_clusters

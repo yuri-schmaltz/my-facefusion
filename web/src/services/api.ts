@@ -53,7 +53,17 @@ export const execute = {
 
 export const wizard = {
     analyze: (videoPath: string) => api.post('/api/v1/wizard/analyze', { video_path: videoPath }),
-    cluster: (jobId: string, threshold: number = 0.6) => api.post('/api/v1/wizard/cluster', { job_id: jobId, threshold }),
+    cluster: (jobId: string, refine: boolean = false, threshold: number = 0.6) => api.post('/api/v1/wizard/cluster', { job_id: jobId, threshold, refine }),
+    mergeClusters: (jobId: string, clusterIndices: number[]) => api.post('/api/v1/wizard/merge_clusters', { job_id: jobId, cluster_indices: clusterIndices }),
+    uploadSource: (jobId: string, file: File) => {
+        const formData = new FormData();
+        formData.append('job_id', jobId);
+        formData.append('file', file);
+        return api.post('/api/v1/wizard/upload_source', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
+    assignSources: (jobId: string, assignments: Record<number, string>) => api.post('/api/v1/wizard/assignments', { job_id: jobId, assignments }),
     suggest: (jobId: string) => api.post('/api/v1/wizard/suggest', { job_id: jobId }),
     generate: (jobId: string) => api.post('/api/v1/wizard/generate', { job_id: jobId }),
     getProgress: (jobId: string) => api.get(`/api/v1/wizard/progress/${jobId}`),
