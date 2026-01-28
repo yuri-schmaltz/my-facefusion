@@ -20,6 +20,12 @@ def select_faces(reference_vision_frame : VisionFrame, target_vision_frame : Vis
 			return [ target_face ]
 
 	if state_manager.get_item('face_selector_mode') == 'reference':
+		if reference_vision_frame is None:
+			# Fallback to 'one' mode when no reference frame is provided
+			target_face = get_one_face(sort_and_filter_faces(target_faces, width, height))
+			if target_face:
+				return [ target_face ]
+			return []
 		reference_faces = get_many_faces([ reference_vision_frame ])
 		reference_faces = sort_and_filter_faces(reference_faces, reference_vision_frame.shape[1], reference_vision_frame.shape[0])
 		reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
@@ -30,16 +36,17 @@ def select_faces(reference_vision_frame : VisionFrame, target_vision_frame : Vis
 			return match_faces
 
 	if state_manager.get_item('face_selector_mode') == 'automatic':
-		reference_faces = get_many_faces([ reference_vision_frame ])
-		reference_faces = sort_and_filter_faces(reference_faces, reference_vision_frame.shape[1], reference_vision_frame.shape[0])
-		reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
-		if reference_face:
-			match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
-			if match_faces:
-				if state_manager.get_item('face_selector_region'):
-					match_faces = filter_faces_by_region(match_faces, state_manager.get_item('face_selector_region'), width, height)
-				return match_faces
-		# Fallback to 'one' if reference matching fails or no reference face
+		if reference_vision_frame is not None:
+			reference_faces = get_many_faces([ reference_vision_frame ])
+			reference_faces = sort_and_filter_faces(reference_faces, reference_vision_frame.shape[1], reference_vision_frame.shape[0])
+			reference_face = get_one_face(reference_faces, state_manager.get_item('reference_face_position'))
+			if reference_face:
+				match_faces = find_match_faces([ reference_face ], target_faces, state_manager.get_item('reference_face_distance'))
+				if match_faces:
+					if state_manager.get_item('face_selector_region'):
+						match_faces = filter_faces_by_region(match_faces, state_manager.get_item('face_selector_region'), width, height)
+					return match_faces
+		# Fallback to 'one' if no reference frame, reference matching fails, or no reference face
 		target_face = get_one_face(sort_and_filter_faces(target_faces, width, height))
 		if target_face:
 			return [ target_face ]
