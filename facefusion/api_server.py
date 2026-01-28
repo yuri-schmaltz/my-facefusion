@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     jobs_path = os.path.join(get_temp_path(), "jobs")
     job_manager.init_jobs(jobs_path)
     load_wizard_state()
-
+    
     
     # Initialize default state items
     if state_manager.get_item('download_providers') is None:
@@ -48,8 +48,8 @@ async def lifespan(app: FastAPI):
         if state_manager.get_item('execution_providers') is None:
             state_manager.init_item('execution_providers', ['cpu'])
             
-        if state_manager.get_item('execution_device_ids') is None:
-            state_manager.init_item('execution_device_ids', [0])
+            if state_manager.get_item('execution_device_ids') is None:
+                state_manager.init_item('execution_device_ids', [0])
     
         if state_manager.get_item('execution_thread_count') is None:
             state_manager.init_item('execution_thread_count', 4)
@@ -167,14 +167,15 @@ async def lifespan(app: FastAPI):
             state_manager.init_item('expression_restorer_model', 'live_portrait')
         if state_manager.get_item('expression_restorer_factor') is None:
             state_manager.init_item('expression_restorer_factor', 80)
-        
-        # Global Progress Phase
-        state_manager.init_item('current_job_phase', None)
-        
-        yield  # Application runs here
-        
-        # Shutdown - cleanup if needed
-        pass
+    
+    # Global Progress Phase
+    state_manager.init_item('current_job_phase', None)
+    
+    yield  # Application runs here
+    
+    # Shutdown - cleanup if needed
+    pass
+
 
 
 

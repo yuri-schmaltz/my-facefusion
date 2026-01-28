@@ -330,7 +330,18 @@ def process_headless(args : Args) -> ErrorCode:
 	job_id = orch.submit(request)
 	
 	if orch.run_job(job_id):
-		return 0
+		from time import sleep
+		from facefusion.orchestrator.models import JobStatus
+		
+		while True:
+			job = orch.get_job(job_id)
+			if job.status in [ JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELED ]:
+				if job.status == JobStatus.COMPLETED:
+					return 0
+				print(f"Job failed with status {job.status}: {job.error_message}", flush=True)
+				print(f"Metadata: {job.metadata}", flush=True)
+				return 1
+			sleep(0.5)
 	return 1
 
 

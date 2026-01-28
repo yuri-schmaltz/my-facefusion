@@ -1,3 +1,8 @@
+import sys
+print("MODULE LOADED: INFERENCE MANAGER", file=sys.stderr, flush=True)
+import inspect
+# Defined later, so moved print to bottom? No, can't reference it before def.
+# Will add print at BOTTOM of file.
 import importlib
 import random
 from time import sleep, time
@@ -24,7 +29,11 @@ INFERENCE_POOL_SET : InferencePoolSet =\
 def get_inference_pool(module_name : str, model_names : List[str], model_source_set : DownloadSet) -> InferencePool:
 	while process_manager.is_checking():
 		sleep(0.5)
-	execution_device_ids = state_manager.get_item('execution_device_ids')
+	import sys
+	print("NUCLEAR DEBUG: ENTERING POOL", flush=True)
+	sys.exit(42)
+	execution_device_ids = state_manager.get_item('execution_device_ids') or [ 0 ]
+	print(f"DEBUG: execution_device_ids={execution_device_ids}", flush=True)
 	execution_providers = resolve_execution_providers(module_name)
 	app_context = detect_app_context()
 
@@ -54,7 +63,7 @@ def create_inference_pool(model_source_set : DownloadSet, execution_device_id : 
 
 
 def clear_inference_pool(module_name : str, model_names : List[str]) -> None:
-	execution_device_ids = state_manager.get_item('execution_device_ids')
+	execution_device_ids = state_manager.get_item('execution_device_ids') or [ 0 ]
 	execution_providers = resolve_execution_providers(module_name)
 	app_context = detect_app_context()
 
@@ -103,3 +112,7 @@ def resolve_execution_providers(module_name : str) -> List[ExecutionProvider]:
 	if hasattr(module, 'resolve_execution_providers'):
 		return getattr(module, 'resolve_execution_providers')()
 	return state_manager.get_item('execution_providers')
+
+import sys
+import inspect
+print(f"SOURCE GET_INFERENCE_POOL:\n{inspect.getsource(get_inference_pool)}", file=sys.stderr, flush=True)

@@ -6,6 +6,7 @@ Handles job submission, queuing, and coordination with the runner.
 import logging
 import threading
 import queue
+import traceback
 from typing import Optional, List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor
 
@@ -177,6 +178,7 @@ class Orchestrator:
                 pass 
                 
         except Exception as e:
+            traceback.print_exc()
             logger.exception(f"Unexpected error in job {job_id}: {e}")
             job.fail(ErrorCode.INTERNAL_ERROR, str(e))
         finally:
