@@ -31,20 +31,21 @@ def configure_cuda_env():
         if os.path.isdir(nvidia_path):
             for root, dirs, files in os.walk(nvidia_path):
                 if 'lib' in dirs:
-                    lib_path = os.path.join(root, 'lib')
-                    if os.path.isdir(lib_path):
-                        paths_to_add.append(lib_path)
-        
-        # 2. Find all 'lib' directories under site-packages/tensorrt* (TensorRT 10+)
+                    paths_to_add.append(os.path.join(root, 'lib'))
+
+        # 2. Find libraries under site-packages/tensorrt*
+        # Newer pip packages (tensorrt-libs) put .so files in the package root
         for entry in os.listdir(site_packages):
             if entry.startswith('tensorrt'):
-                tensorrt_path = os.path.join(site_packages, entry)
-                if os.path.isdir(tensorrt_path):
-                    for root, dirs, files in os.walk(tensorrt_path):
+                package_path = os.path.join(site_packages, entry)
+                if os.path.isdir(package_path):
+                    # Add package root (where libnvinfer.so.10 often lives now)
+                    paths_to_add.append(package_path)
+                    
+                    # Also look for 'lib' subdir recursively
+                    for root, dirs, files in os.walk(package_path):
                         if 'lib' in dirs:
-                            lib_path = os.path.join(root, 'lib')
-                            if os.path.isdir(lib_path):
-                                paths_to_add.append(lib_path)
+                            paths_to_add.append(os.path.join(root, 'lib'))
         
         if paths_to_add:
             current_ld = os.environ.get('LD_LIBRARY_PATH', '')
@@ -56,7 +57,7 @@ def configure_cuda_env():
             else:
                 os.environ['LD_LIBRARY_PATH'] = new_paths
                 
-            print(f"Configured CUDA/TensorRT environment with {len(paths_to_add)} library paths.")
+            print(f"Configured CUDA/TensorRT environment with {len(set(paths_to_add))} library paths.")
             
     except Exception as e:
         print(f"Warning: Could not configure CUDA/TensorRT environment: {e}")
