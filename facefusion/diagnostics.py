@@ -43,6 +43,26 @@ def collect_environment_info() -> Dict[str, Any]:
 	info['ffmpeg_available'] = shutil.which('ffmpeg') is not None
 	return info
 
+def collect_orchestrator_info() -> Dict[str, Any]:
+	try:
+		from facefusion.orchestrator import get_orchestrator, JobStatus
+		orch = get_orchestrator()
+		
+		# Basic stats
+		jobs = orch.list_jobs()
+		stats = {
+			'total_jobs': len(jobs),
+			'by_status': {}
+		}
+		
+		for status in JobStatus:
+			count = len([j for j in jobs if j.status == status])
+			stats['by_status'][status.value] = count
+			
+		return stats
+	except Exception as e:
+		return {'error': str(e)}
+
 def create_bundle(target_path : str = None) -> bool:
 	if not target_path:
 		target_path = 'facefusion_diagnostics.json'
@@ -51,7 +71,8 @@ def create_bundle(target_path : str = None) -> bool:
 		data = \
 		{
 			'environment': collect_environment_info(),
-			'logs': []
+			'logs': [],
+			'orchestrator': collect_orchestrator_info()
 		}
 		
 		# Collect last 50 lines of logs if they exist

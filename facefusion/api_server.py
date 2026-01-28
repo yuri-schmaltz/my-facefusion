@@ -20,6 +20,7 @@ from facefusion.processors.core import get_processors_modules, load_processor_mo
 from facefusion.scene_detector import get_scene_timeframes
 from facefusion.face_clusterer import cluster_faces
 from facefusion.auto_tuner import suggest_settings
+from facefusion.orchestrator import get_orchestrator, RunRequest, JobStatus
 
 
 
@@ -385,126 +386,116 @@ def update_config(config: ConfigUpdate):
 
 # --- Job Progress & Status Management ---
 # Global shared state for job progress
-job_progress = {}
-
 @app.get("/jobs/{job_id}")
 def get_job_status(job_id: str):
-    if job_id not in job_progress:
-         # Try to load from disk via job_manager if not in memory
-         status = "unknown"
-         # For now simple check
+    orch = get_orchestrator()
+    job = orch.get_job(job_id)
+    
+    if not job:
          return {"job_id": job_id, "status": "unknown", "progress": 0.0}
-    return job_progress[job_id]
-
-
-def update_job_progress(job_id: str, progress: float):
-    if job_id in job_progress:
-        job_progress[job_id]["progress"] = progress
+         
+    return job.to_dict()
 
 from fastapi import BackgroundTasks
 
 @app.post("/run")
 async def run_job(background_tasks: BackgroundTasks):
     print("--- RUN JOB REQUEST RECEIVED ---")
-    # 1. Prepare Job ID e Output Path
-    job_id = "job_" + str(int(time.time()))
-    print(f"Generated Job ID: {job_id}")
+    orch = get_orchestrator()
     
-    # Initialize progress tracking
-    job_progress[job_id] = {
-        "job_id": job_id,
-        "status": "queued",
-        "progress": 0.0
-    }
-
-    # Check if output path is set, else generate one
+    # 1. Prepare Output Path
     output_path = state_manager.get_item('output_path')
     target_path = state_manager.get_item('target_path')
     
     if not target_path:
         raise HTTPException(status_code=400, detail="No target media selected. Please re-select the file.")
 
-    if not output_path:
-        extension = ".mp4" # Default fallback
-        if target_path:
-            _, ext = os.path.splitext(target_path)
-            if ext:
-                extension = ext
-                
-        output_name = f"output_{job_id}{extension}"
-        output_path = os.path.join(get_temp_path(), "api_outputs", output_name)
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
     # 2. Collect Args
     from facefusion.args import collect_step_args, collect_job_args
     step_args = collect_step_args()
     step_args.update(collect_job_args())
+    
+    if not output_path:
+        # Generate temp output path if None
+        extension = ".mp4"
+        if target_path:
+            _, ext = os.path.splitext(target_path)
+            if ext:
+                extension = ext
+        # We will let RunRequest generate a job_id, but we need it for filename
+        # So we generate one here or let orchestrator handle it.
+        # RunRequest auto-generates if not provided.
+        # Let's generate a basic unique string for filename
+        req_id = str(int(time.time()))
+        output_name = f"output_{req_id}{extension}"
+        output_path = os.path.join(get_temp_path(), "api_outputs", output_name)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     step_args['output_path'] = output_path
     
-    # 3. Create Job (Synchronous setup)
-    if job_manager.create_job(job_id):
-        if job_manager.add_step(job_id, step_args):
-            if job_manager.submit_job(job_id):
-                # 4. Run Job Asynchronously
-                job_progress[job_id]["status"] = "processing"
-                background_tasks.add_task(process_job_background, job_id, output_path)
-                return {
-                    "status": "processing",
-                    "job_id": job_id,
-                    "output_path": output_path
-                }
-
-    job_progress[job_id]["status"] = "failed"
-    raise HTTPException(500, "Job creation failed")
+    # 3. Submit to Orchestrator
+    try:
+        request = RunRequest(
+            source_paths=step_args.get('source_paths', []),
+            target_path=step_args.get('target_path'),
+            output_path=output_path,
+            processors=state_manager.get_item('processors'),
+            settings=step_args
+        )
+        
+        job_id = orch.submit(request)
+        print(f"Submitted Job ID: {job_id}")
+        
+        # 4. Start execution (non-blocking)
+        if orch.run_job(job_id):
+             return {
+                "status": "queued",
+                "job_id": job_id,
+                "output_path": output_path
+            }
+        
+        raise HTTPException(500, "Failed to start job")
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, f"Job submission failed: {str(e)}")
 
 @app.post("/stop")
 def stop_processing():
-    from facefusion import process_manager
-    process_manager.stop()
-    return {"status": "stopping"}
-
-def process_job_background(job_id: str, output_path: str):
-    print(f"Starting background processing for {job_id}")
-    from facefusion.core import process_step
+    # Cancel all running jobs for now
+    orch = get_orchestrator()
+    running_jobs = orch.list_jobs(status=JobStatus.RUNNING)
+    queued_jobs = orch.list_jobs(status=JobStatus.QUEUED)
     
-    # Define a progress callback helper
-    def progress_callback(progress_float):
-        phase = state_manager.get_item('current_job_phase')
-        if phase == 'analysing':
-             global_progress = progress_float * 5
-        elif phase == 'extracting':
-             global_progress = 5 + progress_float * 10
-        elif phase == 'processing':
-             global_progress = 15 + progress_float * 75
-        elif phase == 'merging':
-             global_progress = 90 + progress_float * 10
-        else:
-             global_progress = progress_float * 100 # Fallback
-        
-        update_job_progress(job_id, global_progress)
+    count = 0
+    for job in running_jobs + queued_jobs:
+        if orch.cancel_job(job.job_id):
+            count += 1
+            
+    print(f"Stopped {count} jobs")
+    return {"status": "stopping", "count": count}
 
-    # Attach to state_manager so workflow can find it? 
-    # Hack for now: We will attach it to state_manager temporarily for the workflow to discover
-    # Force set in specific contexts to avoid detection issues
-    from facefusion.state_manager import STATE_SET
-    STATE_SET['cli']['current_job_progress_callback'] = progress_callback
-    STATE_SET['ui']['current_job_progress_callback'] = progress_callback
+
+@app.get("/jobs/{job_id}/events")
+async def stream_job_events(job_id: str):
+    from fastapi.responses import StreamingResponse
+    import json
     
-    try:
-        success = job_runner.run_job(job_id, process_step)
-        if success:
-            job_progress[job_id]["status"] = "completed"
-            job_progress[job_id]["progress"] = 100.0
-            job_progress[job_id]["preview_url"] = f"/files/preview?path={output_path}"
-        else:
-            job_progress[job_id]["status"] = "failed"
-    except Exception as e:
-        import traceback
-        job_progress[job_id]["status"] = "failed"
-        print(f"Background Job Failed: {e}")
-        traceback.print_exc()
-    finally:
-        state_manager.set_item('current_job_phase', None)
+    orch = get_orchestrator()
+    
+    async def event_generator():
+        # Subscribe to new events
+        # We need to handle client disconnects gracefully
+        try:
+             async for event in orch.event_bus.subscribe(job_id):
+                data = json.dumps(event.to_dict())
+                yield f"data: {data}\n\n"
+        except Exception:
+             pass
+            
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
 
 @app.get("/files/preview")
 def get_preview(path: str):

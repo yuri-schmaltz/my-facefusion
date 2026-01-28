@@ -255,11 +255,26 @@ def route_job_manager(args : Args) -> ErrorCode:
 
 def route_job_runner() -> ErrorCode:
 	if state_manager.get_item('command') == 'job-run':
-		logger.info(translator.get('running_job').format(job_id = state_manager.get_item('job_id')), __name__)
-		if job_runner.run_job(state_manager.get_item('job_id'), process_step):
-			logger.info(translator.get('processing_job_succeeded').format(job_id = state_manager.get_item('job_id')), __name__)
+		job_id = state_manager.get_item('job_id')
+		
+		# Try Orchestrator first
+		from facefusion.orchestrator import get_orchestrator
+		orch = get_orchestrator()
+		
+		if orch.get_job(job_id):
+			logger.info(translator.get('running_job').format(job_id = job_id), __name__)
+			if orch.run_job(job_id):
+				logger.info(translator.get('processing_job_succeeded').format(job_id = job_id), __name__)
+				return 0
+			logger.info(translator.get('processing_job_failed').format(job_id = job_id), __name__)
+			return 1
+			
+		# Fallback to legacy
+		logger.info(translator.get('running_job').format(job_id = job_id), __name__)
+		if job_runner.run_job(job_id, process_step):
+			logger.info(translator.get('processing_job_succeeded').format(job_id = job_id), __name__)
 			return 0
-		logger.info(translator.get('processing_job_failed').format(job_id = state_manager.get_item('job_id')), __name__)
+		logger.info(translator.get('processing_job_failed').format(job_id = job_id), __name__)
 		return 1
 
 	if state_manager.get_item('command') == 'job-run-all':
@@ -296,10 +311,25 @@ def route_diagnostics() -> ErrorCode:
 
 
 def process_headless(args : Args) -> ErrorCode:
-	job_id = job_helper.suggest_job_id('headless')
+	from facefusion.orchestrator import get_orchestrator, RunRequest
+	
 	step_args = reduce_step_args(args)
-
-	if job_manager.create_job(job_id) and job_manager.add_step(job_id, step_args) and job_manager.submit_job(job_id) and job_runner.run_job(job_id, process_step):
+	job_args = reduce_job_args(args)
+	
+	# Prepare request
+	# We need to extract specific fields from step_args
+	request = RunRequest(
+		source_paths=step_args.get('source_paths', []),
+		target_path=step_args.get('target_path'),
+		output_path=step_args.get('output_path'),
+		processors=state_manager.get_item('processors'),
+		settings=step_args
+	)
+	
+	orch = get_orchestrator()
+	job_id = orch.submit(request)
+	
+	if orch.run_job(job_id):
 		return 0
 	return 1
 

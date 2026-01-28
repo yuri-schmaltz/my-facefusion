@@ -46,7 +46,22 @@ class Runner:
             progress: Progress value (0.0 to 1.0)
             phase: Current processing phase (optional)
         """
-        self.job.update_progress(progress)
+        # Calculate global progress with weighting
+        from facefusion import state_manager
+        current_phase = state_manager.get_item('current_job_phase')
+        phase = current_phase or phase  # Prefer state_manager phase if available
+        
+        global_progress = progress
+        if phase == 'analysing':
+             global_progress = progress * 0.05
+        elif phase == 'extracting':
+             global_progress = 0.05 + progress * 0.10
+        elif phase == 'processing':
+             global_progress = 0.15 + progress * 0.75
+        elif phase == 'merging':
+             global_progress = 0.90 + progress * 0.10
+             
+        self.job.update_progress(global_progress)
         self.store.update_progress(self.job.job_id, self.job.progress)
         self.event_bus.publish(create_progress_event(self.job.job_id, self.job.progress, phase))
         
@@ -88,6 +103,7 @@ class Runner:
             
             # Attach progress callback to state_manager for workflows to find
             state_manager.set_item('current_job_progress_callback', self.on_progress)
+            state_manager.set_item('is_canceled_callback', self.is_canceled)
             
             # 3. Execute Pipeline
             from facefusion.core import process_step
@@ -142,6 +158,7 @@ class Runner:
             # Cleanup progress callback
             from facefusion import state_manager
             state_manager.set_item('current_job_progress_callback', None)
+            state_manager.set_item('is_canceled_callback', None)
             
     def _finalize(self):
         """Cleanup temporary files and generate reports."""

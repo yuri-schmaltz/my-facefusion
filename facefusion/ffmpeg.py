@@ -28,6 +28,11 @@ def run_ffmpeg_with_progress(commands : List[Command], update_progress : UpdateP
 	while process_manager.is_processing():
 		try:
 			while __line__ := process.stdout.readline().decode().lower():
+				# Check cancelation from orchestrator
+				is_canceled = state_manager.get_item('is_canceled_callback')
+				if is_canceled and is_canceled():
+					process_manager.stop()
+
 				if process_manager.is_stopping():
 					process.terminate()
 
@@ -68,6 +73,11 @@ def run_ffmpeg(commands : List[Command]) -> subprocess.Popen[bytes]:
 
 	while process_manager.is_processing():
 		try:
+			# Check cancelation from orchestrator
+			is_canceled = state_manager.get_item('is_canceled_callback')
+			if is_canceled and is_canceled():
+				process_manager.stop()
+
 			if log_level == 'debug':
 				log_debug(process)
 			process.wait(timeout = 0.5)
