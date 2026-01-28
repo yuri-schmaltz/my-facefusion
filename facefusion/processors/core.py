@@ -1,3 +1,4 @@
+from functools import lru_cache
 import importlib
 from types import ModuleType
 from typing import Any, List
@@ -19,6 +20,7 @@ PROCESSORS_METHODS =\
 ]
 
 
+@lru_cache(maxsize=None)
 def load_processor_module(processor : str) -> Any:
 	try:
 		processor_module = importlib.import_module('facefusion.processors.modules.' + processor + '.core')

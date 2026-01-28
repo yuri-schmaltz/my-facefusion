@@ -75,6 +75,12 @@ def process_video() -> ErrorCode:
 	temp_frame_paths = resolve_temp_frame_paths(state_manager.get_item('target_path'))
 
 	if temp_frame_paths:
+		# Pre-load static resources once
+		reference_vision_frame = read_static_video_frame(state_manager.get_item('target_path'), state_manager.get_item('reference_frame_number'))
+		source_vision_frames = read_static_images(state_manager.get_item('source_paths'))
+		source_audio_path = get_first(filter_audio_paths(state_manager.get_item('source_paths')))
+		temp_video_fps = restrict_video_fps(state_manager.get_item('target_path'), state_manager.get_item('output_video_fps'))
+
 		with tqdm(total = len(temp_frame_paths), desc = translator.get('processing'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
 			progress.set_postfix(execution_providers = state_manager.get_item('execution_providers'))
 
@@ -82,7 +88,7 @@ def process_video() -> ErrorCode:
 				futures = []
 
 				for frame_number, temp_frame_path in enumerate(temp_frame_paths):
-					future = executor.submit(process_temp_frame, temp_frame_path, frame_number)
+					future = executor.submit(process_temp_frame, temp_frame_path, frame_number, reference_vision_frame, source_vision_frames, source_audio_path, temp_video_fps)
 					futures.append(future)
 
 				for future in as_completed(futures):
@@ -158,11 +164,7 @@ def restore_audio() -> ErrorCode:
 	return 0
 
 
-def process_temp_frame(temp_frame_path : str, frame_number : int) -> bool:
-	reference_vision_frame = read_static_video_frame(state_manager.get_item('target_path'), state_manager.get_item('reference_frame_number'))
-	source_vision_frames = read_static_images(state_manager.get_item('source_paths'))
-	source_audio_path = get_first(filter_audio_paths(state_manager.get_item('source_paths')))
-	temp_video_fps = restrict_video_fps(state_manager.get_item('target_path'), state_manager.get_item('output_video_fps'))
+def process_temp_frame(temp_frame_path : str, frame_number : int, reference_vision_frame : any, source_vision_frames : list, source_audio_path : str, temp_video_fps : float) -> bool:
 	target_vision_frame = read_static_image(temp_frame_path, 'rgba')
 
 	if target_vision_frame is not None:
