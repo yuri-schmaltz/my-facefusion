@@ -261,7 +261,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         setIsGenerating(true);
         try {
             const result = await wizard.generate(jobId);
-            const count = result?.count || 0;
+            const count = result.data?.count || 0;
             alert(`✅ ${count} job(s) created successfully!\n\nCheck the Jobs panel to manage and run them.`);
             onClose();
         } catch (err) {
@@ -296,6 +296,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                 {/* Progress Bar - Clickable Steps */}
                 <div className="flex border-b border-neutral-800">
                     {[
+                        { id: 'source' as Step, label: 'Source', icon: Upload }, // Added Source Tab
                         { id: 'analyze' as Step, label: 'Analysis', icon: Search },
                         { id: 'cluster' as Step, label: 'Grouping', icon: Users },
                         { id: 'optimize' as Step, label: 'Optimization', icon: Settings },
@@ -325,6 +326,66 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    {currentStep === 'source' && (
+                        <div className="h-full flex flex-col items-center justify-center space-y-8 py-10">
+                            <div className="text-center space-y-4">
+                                <div className="p-4 bg-blue-600/10 rounded-full inline-block">
+                                    <Upload size={48} className="text-blue-500" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white">Select Source Faces</h3>
+                                <p className="text-neutral-400 max-w-md">
+                                    Upload the face(s) you want to swap into the video. You can assign these later.
+                                </p>
+                            </div>
+
+                            {/* Upload Area */}
+                            <div className="w-full max-w-md">
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-neutral-800 border-dashed rounded-xl cursor-pointer hover:border-neutral-700 bg-neutral-900/50 transition-colors">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <UserPlus className="w-8 h-8 mb-3 text-neutral-500" />
+                                        <p className="text-sm text-neutral-500 font-bold">Click to upload images</p>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            if (e.target.files) {
+                                                setSourceFiles(prev => [...prev, ...Array.from(e.target.files || [])]);
+                                            }
+                                        }}
+                                    />
+                                </label>
+                            </div>
+
+                            {/* Preview Grid */}
+                            {sourceFiles.length > 0 && (
+                                <div className="grid grid-cols-4 gap-4 w-full max-w-md">
+                                    {sourceFiles.map((file, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-neutral-800 group">
+                                            <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => setSourceFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => setCurrentStep('analyze')}
+                                className="px-8 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+                            >
+                                Continue to Analysis
+                                <ArrowRight size={18} />
+                            </button>
+                        </div>
+                    )}
+
                     {currentStep === 'analyze' && (
                         <div className="h-full flex flex-col items-center justify-center space-y-8 py-10">
                             {status === 'idle' ? (

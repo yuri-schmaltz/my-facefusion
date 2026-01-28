@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 import pickle
-from typing import List, Optional
+from typing import List, Optional, Dict
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -1238,13 +1238,23 @@ async def wizard_assign_sources(req: WizardAssignmentRequest):
     print(f"[WIZARD] Stored {len(req.assignments)} assignments for job {req.job_id}")
     return {"status": "ok"}
 
+class WizardSuggestRequest(BaseModel):
+    job_id: str
+
+@app.post("/api/v1/wizard/suggest")
+async def wizard_suggest(req: WizardSuggestRequest):
+    if req.job_id not in analyzed_videos:
+        raise HTTPException(404, "Job not found")
         
     data = analyzed_videos[req.job_id]
     all_faces = []
-    for faces in data["scene_faces"].values():
-        all_faces.extend(faces)
-        
-    settings = suggest_settings(data["video_path"], all_faces)
+    
+    # Check if scene_faces exists
+    if "scene_faces" in data:
+        for faces in data["scene_faces"].values():
+            all_faces.extend(faces)
+            
+    settings = suggest_settings(data.get("video_path", ""), all_faces)
     wizard_suggestions[req.job_id] = settings
     save_wizard_state()
     return {"suggestions": settings}

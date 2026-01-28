@@ -11,6 +11,7 @@ def suggest_settings(video_path: str, faces: List[Face]) -> Dict[str, Any]:
     suggestions = {
         'face_swapper_model': 'inswapper_128', # Default
         'face_enhancer_model': 'gfpgan_1.4', # Default
+        'processors': ['face_swapper', 'face_enhancer'], # Default processors
         'execution_thread_count': psutil.cpu_count(),
         'execution_queue_count': 1,
         'system_memory_limit': 0, # Default to 0 (auto/unlimited)

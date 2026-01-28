@@ -39,6 +39,8 @@ def load_processor_module(processor : str) -> Any:
 
 def get_processors_modules(processors : List[str]) -> List[ModuleType]:
 	processor_modules = []
+	if not processors:
+		return []
 
 	for processor in processors:
 		processor_module = load_processor_module(processor)
