@@ -24,19 +24,13 @@ def process(start_time : float) -> ErrorCode:
 	process_manager.start()
 
 	for task in tasks:
-		logger.info(f'Running task: {task.__name__}', __name__)
-		print(f'Running task: {task.__name__}', flush=True)
 		error_code = task() # type:ignore[operator]
-		logger.info(f'Task {task.__name__} returned: {error_code}', __name__)
-		print(f'Task {task.__name__} returned: {error_code}', flush=True)
 
 		if error_code > 0:
 			process_manager.end()
 			return error_code
 
 	process_manager.end()
-	logger.info('Process finished successfully', __name__)
-	print('Process finished successfully', flush=True)
 	return 0
 
 

@@ -25,7 +25,5 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		sys.exit(1)
 	except Exception as exception:
-		print('CRITICAL ERROR OCCURRED:')
-		print(exception)
 		logger.error(str(exception), __name__)
 		sys.exit(1)

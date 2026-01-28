@@ -245,7 +245,7 @@ def create_occlusion_mask(crop_vision_frame : VisionFrame) -> Mask:
 		temp_masks.append(temp_mask)
 
 	occlusion_mask = numpy.minimum.reduce(temp_masks)
-	occlusion_mask = erode_mask(occlusion_mask, state_manager.get_item('face_mask_erosion'))
+	occlusion_mask = erode_mask(occlusion_mask, state_manager.get_item('face_mask_erosion') or 0.0)
 	occlusion_mask = (cv2.GaussianBlur(occlusion_mask.clip(0, 1), (0, 0), 5).clip(0.5, 1) - 0.5) * 2
 	return occlusion_mask
 

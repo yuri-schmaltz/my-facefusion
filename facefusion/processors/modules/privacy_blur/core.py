@@ -60,7 +60,7 @@ def process_frame(inputs : PrivacyBlurInputs) -> ProcessorOutputs:
 	amount = state_manager.get_item('privacy_blur_amount') / 100.0
 
 	# 1. Detect ALL faces in the frame
-	all_faces = get_many_faces(target_vision_frame)
+	all_faces = get_many_faces([ target_vision_frame ])
 	
 	# 2. Identify faces involved in swap (TARGETS)
 	# These are the ones we want to KEEP (or have already swapped)
@@ -72,10 +72,13 @@ def process_frame(inputs : PrivacyBlurInputs) -> ProcessorOutputs:
 		for face in all_faces:
 			is_target = False
 			if target_faces:
+				face_center = numpy.array([ (face.bounding_box[0] + face.bounding_box[2]) / 2, (face.bounding_box[1] + face.bounding_box[3]) / 2 ])
+
 				for target_face in target_faces:
+					target_face_center = numpy.array([ (target_face.bounding_box[0] + target_face.bounding_box[2]) / 2, (target_face.bounding_box[1] + target_face.bounding_box[3]) / 2 ])
 					# Compare using bounding box overlap using Distance
 					# Simple center distance check
-					dist = numpy.linalg.norm(face.center - target_face.center)
+					dist = numpy.linalg.norm(face_center - target_face_center)
 					if dist < 10: # Threshold for "same face"
 						is_target = True
 						break
