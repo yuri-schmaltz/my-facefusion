@@ -12,14 +12,19 @@ def create_hash(content : bytes) -> str:
 def validate_hash(validate_path : str) -> bool:
 	hash_path = get_hash_path(validate_path)
 
-	if is_file(hash_path):
-		with open(hash_path) as hash_file:
-			hash_content = hash_file.read()
+	if is_file(hash_path) and is_file(validate_path):
+		with open(hash_path, 'r') as hash_file:
+			hash_content = hash_file.read().strip()
 
 		with open(validate_path, 'rb') as validate_file:
-			validate_content = validate_file.read()
+			validate_hash_value = 0
+			while True:
+				chunk = validate_file.read(8192)
+				if not chunk:
+					break
+				validate_hash_value = zlib.crc32(chunk, validate_hash_value)
 
-		return create_hash(validate_content) == hash_content
+		return format(validate_hash_value & 0xFFFFFFFF, '08x') == hash_content
 	return False
 
 

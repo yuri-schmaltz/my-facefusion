@@ -50,20 +50,21 @@ def process_frame(inputs : GazeCorrectorInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	type = state_manager.get_item('gaze_corrector_type')
 	blend = state_manager.get_item('gaze_corrector_blend') / 100.0
 
 	if blend == 0:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	# Enhance eyes
 	target_face = get_one_face(temp_vision_frame)
 	if not target_face:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 	
 	landmarks = target_face.landmark_set.get('68')
 	
@@ -91,4 +92,4 @@ def process_frame(inputs : GazeCorrectorInputs) -> ProcessorOutputs:
 	except:
 		pass
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask

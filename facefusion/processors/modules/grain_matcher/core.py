@@ -45,16 +45,17 @@ def post_process() -> None:
 def process_frame(inputs : GrainMatcherInputs) -> ProcessorOutputs:
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 	
 	blend = state_manager.get_item('grain_matcher_blend') / 100.0
 	
 	if blend > 0:
 		temp_vision_frame = apply_grain(target_vision_frame, temp_vision_frame, blend)
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask
 
 
 def apply_grain(target_frame, temp_frame, blend):

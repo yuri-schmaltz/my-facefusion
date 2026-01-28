@@ -19,11 +19,13 @@ def open_curl(commands : List[Command]) -> subprocess.Popen[bytes]:
 
 
 def conditional_download(download_directory_path : str, urls : List[str]) -> None:
+	print(f"conditional_download called for {urls}", flush=True)
 	for url in urls:
 		download_file_name = os.path.basename(urlparse(url).path)
 		download_file_path = os.path.join(download_directory_path, download_file_name)
 		initial_size = get_file_size(download_file_path)
 		download_size = get_static_download_size(url)
+		print(f"File: {download_file_name}, Initial: {initial_size}, Target: {download_size}", flush=True)
 
 		if initial_size < download_size:
 			with tqdm(total = download_size, initial = initial_size, desc = translator.get('downloading'), unit = 'B', unit_scale = True, unit_divisor = 1024, ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
@@ -160,6 +162,11 @@ def validate_source_paths(source_paths : List[str]) -> Tuple[List[str], List[str
 
 def resolve_download_url(base_name : str, file_name : str) -> Optional[str]:
 	download_providers = state_manager.get_item('download_providers')
+	print(f'Resolve download url: {base_name}/{file_name}, providers: {download_providers}', flush=True)
+
+	if download_providers is None:
+		print("CRITICAL: download_providers is None!", flush=True)
+		return None
 
 	for download_provider in download_providers:
 		download_url = resolve_download_url_by_provider(download_provider, base_name, file_name)

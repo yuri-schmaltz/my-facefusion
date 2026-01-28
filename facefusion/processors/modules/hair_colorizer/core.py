@@ -49,21 +49,22 @@ def process_frame(inputs : HairColorizerInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 	
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	type = state_manager.get_item('hair_colorizer_type')
 	blend = state_manager.get_item('hair_colorizer_blend') / 100.0
 
 	if blend == 0:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	try:
 		# Use 'hair' region
 		hair_mask = create_region_mask(temp_vision_frame, [ 'hair' ])
 	except Exception:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	hair_mask = numpy.expand_dims(hair_mask, axis = 2)
 
@@ -92,4 +93,4 @@ def process_frame(inputs : HairColorizerInputs) -> ProcessorOutputs:
 	# Composite
 	temp_vision_frame = (colored_frame * hair_mask * blend + temp_vision_frame * (1 - (hair_mask * blend))).astype(numpy.uint8)
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask

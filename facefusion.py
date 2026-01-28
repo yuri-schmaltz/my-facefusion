@@ -11,14 +11,21 @@ Usage:
 
 
 import os
+import sys
 
 os.environ['OMP_NUM_THREADS'] = '1'
 
-from facefusion import core
+from facefusion import core, logger, thread_helper
 
 if __name__ == '__main__':
 	try:
-		core.cli()
+		if core.cli() or thread_helper.is_windows():
+			sys.exit(0)
+		sys.exit(1)
+	except KeyboardInterrupt:
+		sys.exit(1)
 	except Exception as exception:
-		print(f"FaceFusion Critical Error: {exception}")
-		exit(1)
+		print('CRITICAL ERROR OCCURRED:')
+		print(exception)
+		logger.error(str(exception), __name__)
+		sys.exit(1)

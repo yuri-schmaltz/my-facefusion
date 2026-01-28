@@ -51,9 +51,10 @@ def process_frame(inputs : PrivacyBlurInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	mode = state_manager.get_item('privacy_blur_mode')
 	amount = state_manager.get_item('privacy_blur_amount') / 100.0
@@ -87,7 +88,7 @@ def process_frame(inputs : PrivacyBlurInputs) -> ProcessorOutputs:
 		for bystander in bystander_faces:
 			temp_vision_frame = apply_privacy(temp_vision_frame, bystander, mode, amount)
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask
 
 
 def apply_privacy(temp_vision_frame, face, mode, amount):

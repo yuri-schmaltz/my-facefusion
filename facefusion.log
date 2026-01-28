@@ -532,3 +532,364 @@
 2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
 2026-01-28 00:32:37,708 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json
 2026-01-28 00:32:37,713 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json
+2026-01-28 02:06:58,480 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:02,081 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:05,454 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:08,833 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:12,252 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:15,584 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:07:29,482 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:08:05,945 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:08:51,011 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:12:27,048 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:12:31,421 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:12:31,537 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:12:33,152 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:12:33,267 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.83 seconds
+2026-01-28 02:13:12,780 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:13:19,296 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:13:19,412 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:13:24,359 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:13:24,368 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:13:24,483 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.5 seconds
+2026-01-28 02:13:25,654 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:13:32,369 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:13:37,692 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:13:37,923 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:13:37,924 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:13:37,924 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:13:37,924 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.
+2026-01-28 02:13:37,925 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:13:37,928 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:13:37,930 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.16 seconds
+2026-01-28 02:13:39,345 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:13:46,190 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:13:46,306 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:13:51,572 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:13:53,275 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:13:59,848 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:14:06,818 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:14:11,144 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:14:11,260 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:14:12,408 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:14:16,699 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:18:19,943 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:18:31,575 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:18:31,691 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:18:36,623 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:18:36,645 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:18:36,760 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.56 seconds
+2026-01-28 02:18:37,964 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:18:49,455 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:18:54,992 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:18:55,216 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:18:55,217 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:18:55,217 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:18:55,218 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.
+2026-01-28 02:18:55,218 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:18:55,223 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:18:55,226 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.06 seconds
+2026-01-28 02:18:56,547 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:03,263 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:19:03,380 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:19:08,754 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:19:10,542 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:16,888 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:19:23,854 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:27,983 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:19:28,099 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:19:29,237 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:33,604 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:19:34,999 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:39,166 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:19:39,311 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:19:40,509 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:44,780 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:19:46,154 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:50,254 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:19:50,370 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:19:51,479 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:19:55,678 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:19:57,042 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:20:01,299 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:20:01,417 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:20:02,590 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:20:06,852 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:20:08,206 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:21:07,135 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:21:13,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:21:13,766 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:21:19,283 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:21:19,293 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:21:19,409 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.14 seconds
+2026-01-28 02:21:20,553 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:21:26,946 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:21:32,141 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:21:32,369 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:21:32,369 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:21:32,370 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:21:32,370 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.
+2026-01-28 02:21:32,370 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:21:32,374 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:21:32,375 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.75 seconds
+2026-01-28 02:21:33,742 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:21:40,548 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:21:40,665 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:21:45,650 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:21:47,285 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:21:53,813 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:00,592 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:04,789 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:22:04,907 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:22:04,930 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:22:05,045 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.13 seconds
+2026-01-28 02:22:06,258 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:10,528 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:10,676 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:10,892 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:22:10,893 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:22:10,893 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:22:10,893 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-match-grain-video.mp4.
+2026-01-28 02:22:10,893 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:22:10,898 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:22:10,900 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.32 seconds
+2026-01-28 02:22:12,275 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:16,483 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:22:16,630 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:22:17,829 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:22,003 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:23,432 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:27,603 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:22:27,721 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:22:28,283 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:22:28,398 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.72 seconds
+2026-01-28 02:22:29,640 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:33,923 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:34,673 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:34,895 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:22:34,895 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:22:34,895 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:22:34,895 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-background-blur-video.mp4.
+2026-01-28 02:22:34,896 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:22:34,901 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:22:34,903 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.93 seconds
+2026-01-28 02:22:36,431 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:40,659 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:22:40,777 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:22:41,328 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-28 02:22:41,443 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.72 seconds
+2026-01-28 02:22:42,676 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:46,875 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:47,588 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:22:47,811 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-28 02:22:47,811 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-28 02:22:47,811 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-28 02:22:47,811 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-hair-colorizer-video.mp4.
+2026-01-28 02:22:47,812 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-28 02:22:47,817 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-28 02:22:47,818 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.87 seconds
+2026-01-28 02:22:49,283 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:53,486 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:22:53,602 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:22:54,757 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:22:58,962 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:23:00,340 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:04,497 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:23:04,613 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:23:05,705 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:10,011 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:23:11,365 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:15,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:23:15,764 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:23:16,785 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:21,020 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:23:22,329 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:26,458 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:23:26,574 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:23:27,734 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:32,120 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:23:35,022 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:39,236 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:23:39,379 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:23:40,620 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:23:45,009 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:24:22,448 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:24:26,522 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:24:26,665 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:24:27,873 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:24:32,022 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:25:19,268 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:25:23,435 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:25:23,578 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:25:24,818 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:25:28,872 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:25:41,594 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:25:45,846 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:25:45,991 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:27:20,021 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:27:24,240 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:27:24,385 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:27:25,585 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:27:29,827 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:28:44,782 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:28:49,506 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:28:49,653 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:28:50,852 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:28:55,132 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:29:15,397 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:29:17,604 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:29:19,561 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:29:19,561 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:29:19,563 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:29:19,678 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:29:19,678 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:29:19,708 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:29:20,915 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:29:25,190 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:30:39,856 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:30:44,858 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:30:46,660 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:30:46,661 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:30:46,662 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:30:46,777 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:30:46,777 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:30:46,779 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:30:51,796 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:30:53,036 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:30:57,211 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:31:23,740 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:23,740 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:31,443 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:31:33,103 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:31:33,103 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:31:33,105 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:31:33,219 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:31:33,220 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:31:33,221 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:31:38,260 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:31:39,467 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:39,467 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:45,891 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:31:51,694 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:51,695 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:31:59,311 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:32:00,976 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:32:00,976 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:32:00,978 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:32:01,093 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:32:01,093 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:32:01,094 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:32:05,920 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:32:07,096 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:32:07,096 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:32:13,323 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:33:24,264 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:33:24,265 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:33:25,582 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:33:25,582 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:10,907 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:10,908 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:18,634 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:34:20,370 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:34:20,370 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:34:20,371 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:34:20,486 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:34:20,486 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:34:20,488 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:34:25,611 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:34:26,814 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:26,814 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:33,075 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:34:53,365 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:34:53,365 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:35:00,934 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:35:02,599 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:35:02,600 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:35:02,601 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:35:02,716 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:35:02,716 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:35:02,718 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:35:07,806 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:35:08,959 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:35:08,959 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:35:14,967 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:35:46,451 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:35:46,451 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:35:52,431 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:35:54,160 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:35:54,160 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:35:54,161 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:35:54,276 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:35:54,277 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:35:54,278 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:35:59,368 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:36:00,580 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:36:00,581 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:36:05,635 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:37:15,397 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:15,397 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:21,252 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:37:22,892 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:37:22,892 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:37:22,893 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:37:23,008 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:37:23,008 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:37:23,010 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:37:28,188 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:37:29,346 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:29,346 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:34,331 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:37:52,260 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:52,260 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:37:58,144 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:37:59,735 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:37:59,735 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:37:59,736 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:37:59,851 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:37:59,851 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:37:59,853 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:38:04,847 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:38:06,048 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:38:06,049 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:38:11,237 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:38:52,843 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:38:52,844 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:38:58,668 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:39:00,338 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:39:00,338 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:39:00,340 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:39:00,455 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:39:00,455 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:39:00,457 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:39:05,500 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:39:06,685 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:39:06,686 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:39:11,738 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:39:48,271 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:39:48,271 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:39:54,226 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:39:55,934 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:39:55,934 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:39:55,935 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:39:56,050 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:39:56,051 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:39:56,053 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:40:01,409 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:40:02,605 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:02,605 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:07,667 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:40:36,586 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:36,587 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:42,889 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: setup
+2026-01-28 02:40:44,572 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task setup returned: 0
+2026-01-28 02:40:44,573 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: prepare_image
+2026-01-28 02:40:44,574 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-28 02:40:44,689 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Task prepare_image returned: 0
+2026-01-28 02:40:44,689 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] Running task: process_image
+2026-01-28 02:40:44,690 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:40:49,758 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-28 02:40:49,759 - facefusion - ERROR - [__MAIN__.__MAIN__] operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+2026-01-28 02:40:51,009 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:51,009 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-28 02:40:56,136 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-28 02:40:56,281 - facefusion - ERROR - [__MAIN__.__MAIN__] operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)

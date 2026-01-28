@@ -50,22 +50,23 @@ def process_frame(inputs : FaceRelighterInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	type = state_manager.get_item('face_relighter_type')
 	blend = state_manager.get_item('face_relighter_blend') / 100.0
 
 	if blend == 0:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	# Approximate 3D lighting by brightening T-zone (nose, forehead) and darkening cheeks?
 	# Or simple global adjustment based on mask.
 	
 	target_face = get_one_face(temp_vision_frame)
 	if not target_face:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 	
 	landmarks = target_face.landmark_set.get('68')
 
@@ -93,4 +94,4 @@ def process_frame(inputs : FaceRelighterInputs) -> ProcessorOutputs:
 	except:
 		pass
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask

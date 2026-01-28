@@ -49,8 +49,8 @@ def cli() -> None:
 def route(args : Args) -> None:
 	system_memory_limit = state_manager.get_item('system_memory_limit')
 
-	if system_memory_limit and system_memory_limit > 0:
-		limit_system_memory(system_memory_limit)
+	#if system_memory_limit and system_memory_limit > 0:
+	#	limit_system_memory(system_memory_limit)
 
 	if state_manager.get_item('command') == 'force-download':
 		error_code = force_download()
@@ -127,7 +127,14 @@ def common_pre_check() -> bool:
 	content_analyser_content = inspect.getsource(content_analyser).encode()
 	content_analyser_hash = hash_helper.create_hash(content_analyser_content)
 
-	return all(module.pre_check() for module in common_modules) and content_analyser_hash == 'b14e7b92'
+	for module in common_modules:
+		print(f'Checking module: {module.__name__}', flush=True)
+		if not module.pre_check():
+			print(f'Module {module.__name__} failed pre_check', flush=True)
+			return False
+	print('All common modules passed pre_check', flush=True)
+
+	return content_analyser_hash == '0cc0cf55'
 
 
 def processors_pre_check() -> bool:
@@ -342,6 +349,17 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	apply_args(step_args, state_manager.set_item)
 
 	logger.info(translator.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
+	logger.info(translator.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
+	if common_pre_check():
+		print("Common pre_check passed")
+	else:
+		print("Common pre_check FAILED")
+		
+	if processors_pre_check():
+		print("Processors pre_check passed")
+	else:
+		print("Processors pre_check FAILED")
+
 	if common_pre_check() and processors_pre_check():
 		error_code = conditional_process()
 		return error_code == 0

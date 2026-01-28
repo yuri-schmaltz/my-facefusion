@@ -49,15 +49,16 @@ def process_frame(inputs : BackgroundBlurInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	mode = state_manager.get_item('background_blur_mode')
 	amount = state_manager.get_item('background_blur_amount') / 100.0
 
 	if amount == 0:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	# Generate Background Mask
 	# We want the background, which is region 0.
@@ -80,7 +81,7 @@ def process_frame(inputs : BackgroundBlurInputs) -> ProcessorOutputs:
 		background_mask = create_region_mask(temp_vision_frame, [ 'background' ])
 	except Exception:
 		# Fallback if something fails, though it shouldn't
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	# Blur the whole frame
 	blurred_frame = temp_vision_frame.copy()
@@ -104,4 +105,4 @@ def process_frame(inputs : BackgroundBlurInputs) -> ProcessorOutputs:
 	# Blend
 	temp_vision_frame = (blurred_frame * background_mask + temp_vision_frame * (1 - background_mask)).astype(numpy.uint8)
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask

@@ -54,9 +54,10 @@ def process_frame(inputs : FaceStabilizerInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	type = state_manager.get_item('face_stabilizer_type')
 	# Blend here effectively means how much we "correct" towards center. 
@@ -67,7 +68,7 @@ def process_frame(inputs : FaceStabilizerInputs) -> ProcessorOutputs:
 	
 	target_face = get_one_face(temp_vision_frame)
 	if not target_face:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 	
 	center = target_face.center
 	h, w, c = temp_vision_frame.shape
@@ -92,4 +93,4 @@ def process_frame(inputs : FaceStabilizerInputs) -> ProcessorOutputs:
 		M_scale = cv2.getRotationMatrix2D((w/2, h/2), 0, zoom)
 		stabilized_frame = cv2.warpAffine(stabilized_frame, M_scale, (w, h))
 
-	return stabilized_frame, None
+	return stabilized_frame, temp_vision_mask

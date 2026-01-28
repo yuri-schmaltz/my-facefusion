@@ -50,15 +50,16 @@ def process_frame(inputs : MakeupTransferInputs) -> ProcessorOutputs:
 	reference_vision_frame = inputs.get('reference_vision_frame')
 	target_vision_frame = inputs.get('target_vision_frame')
 	temp_vision_frame = inputs.get('temp_vision_frame')
+	temp_vision_mask = inputs.get('temp_vision_mask')
 
 	if target_vision_frame is None:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	type = state_manager.get_item('makeup_transfer_type')
 	blend = state_manager.get_item('makeup_transfer_blend') / 100.0
 
 	if blend == 0:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 
 	# We need face landmarks to apply makeup to specific areas
 	# Since temp_vision_frame is the *swapped* face, we should detect landmarks on IT.
@@ -68,7 +69,7 @@ def process_frame(inputs : MakeupTransferInputs) -> ProcessorOutputs:
 	
 	target_face = get_one_face(temp_vision_frame)
 	if not target_face:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 		
 	# Create masks using landmarks
 	masks = []
@@ -107,7 +108,7 @@ def process_frame(inputs : MakeupTransferInputs) -> ProcessorOutputs:
 			pass
 
 	if not masks:
-		return temp_vision_frame, None
+		return temp_vision_frame, temp_vision_mask
 		
 	final_mask = numpy.maximum.reduce(masks)
 	final_mask = numpy.expand_dims(final_mask, axis=2)
@@ -124,4 +125,4 @@ def process_frame(inputs : MakeupTransferInputs) -> ProcessorOutputs:
 	# Composite
 	temp_vision_frame = (makeup_layer * final_mask * blend + temp_vision_frame * (1 - (final_mask * blend))).astype(numpy.uint8)
 
-	return temp_vision_frame, None
+	return temp_vision_frame, temp_vision_mask
