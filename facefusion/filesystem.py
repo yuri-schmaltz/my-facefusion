@@ -119,6 +119,8 @@ def filter_image_paths(paths : List[str]) -> List[str]:
 
 def copy_file(file_path : str, move_path : str) -> bool:
 	if is_file(file_path):
+		if not is_safe_path(move_path):
+			return False
 		shutil.copy(file_path, move_path)
 		return is_file(move_path)
 	return False
@@ -126,6 +128,8 @@ def copy_file(file_path : str, move_path : str) -> bool:
 
 def move_file(file_path : str, move_path : str) -> bool:
 	if is_file(file_path):
+		if not is_safe_path(move_path):
+			return False
 		shutil.move(file_path, move_path)
 		return not is_file(file_path) and is_file(move_path)
 	return False
@@ -174,8 +178,19 @@ def in_directory(file_path : str) -> bool:
 
 def create_directory(directory_path : str) -> bool:
 	if directory_path and not is_file(directory_path):
+		if not is_safe_path(directory_path):
+			return False
 		os.makedirs(directory_path, exist_ok = True)
 		return is_directory(directory_path)
+	return False
+
+
+def is_safe_path(file_path : str) -> bool:
+	if file_path:
+		workspace_path = os.getcwd()
+		temp_path = os.path.realpath('/tmp') # Common on Linux
+		absolute_path = os.path.abspath(file_path)
+		return absolute_path.startswith(workspace_path) or absolute_path.startswith(temp_path)
 	return False
 
 

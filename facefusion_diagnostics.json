@@ -1,0 +1,87 @@
+{
+    "environment": {
+        "timestamp": "2026-01-27T22:56:00.724185",
+        "facefusion_version": "3.5.2",
+        "python_version": "3.12.3 (main, Jan  8 2026, 11:30:50) [GCC 13.3.0]",
+        "os": "Linux",
+        "os_release": "6.8.0-90-generic",
+        "os_version": "#91-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov 18 14:14:30 UTC 2025",
+        "architecture": "x86_64",
+        "processor": "x86_64",
+        "executable": "/home/yurix/Documentos/my-facefusion/.venv/bin/python",
+        "working_directory": "/home/yurix/Documentos/my-facefusion",
+        "torch_available": false,
+        "onnxruntime_version": "1.23.2",
+        "onnxruntime_providers": [
+            "TensorrtExecutionProvider",
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+        ],
+        "ffmpeg_available": true
+    },
+    "logs": [
+        {
+            "filename": "facefusion.log",
+            "content": [
+                "2026-01-27 22:46:21,230 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:46:26,306 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:46:26,422 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.92 seconds\n",
+                "2026-01-27 22:46:27,524 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:46:34,093 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:46:34,209 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:46:39,772 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:46:39,887 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.21 seconds\n",
+                "2026-01-27 22:46:40,939 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:46:47,212 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:46:47,328 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:46:52,425 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:46:52,540 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.57 seconds\n",
+                "2026-01-27 22:46:55,041 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:46:58,116 - facefusion - ERROR - [FACEFUSION.CORE] choose an image for the source!\n",
+                "2026-01-27 22:46:59,137 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:47:05,691 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:47:05,808 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:47:11,227 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:47:11,342 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.04 seconds\n",
+                "2026-01-27 22:47:12,440 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:47:19,065 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:47:19,182 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:47:24,377 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:47:24,492 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.9 seconds\n",
+                "2026-01-27 22:47:25,568 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:47:32,020 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:47:32,138 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:47:37,238 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:47:37,353 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.76 seconds\n",
+                "2026-01-27 22:49:39,287 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:49:42,466 - facefusion - ERROR - [FACEFUSION.CORE] choose an image for the source!\n",
+                "2026-01-27 22:49:43,477 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:49:50,148 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:49:50,264 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:49:55,407 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:49:55,522 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.87 seconds\n",
+                "2026-01-27 22:49:56,582 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:50:03,257 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:50:03,374 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:50:08,533 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:50:08,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.88 seconds\n",
+                "2026-01-27 22:50:09,730 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1\n",
+                "2026-01-27 22:50:16,340 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226\n",
+                "2026-01-27 22:50:16,456 - facefusion - INFO - [FACEFUSION.CORE] processing\n",
+                "2026-01-27 22:50:21,451 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226\n",
+                "2026-01-27 22:50:21,566 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.75 seconds\n",
+                "2026-01-27 22:55:50,704 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: None\n",
+                "2026-01-27 22:55:50,706 - facefusion - ERROR - [FACEFUSION.DIAGNOSTICS] Failed to create diagnostic bundle: expected str, bytes or os.PathLike object, not NoneType\n",
+                "2026-01-27 22:56:00,723 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json\n"
+            ]
+        },
+        {
+            "filename": "facefusion.json",
+            "content": [
+                "{\"asctime\": \"2026-01-27 22:55:50,704\", \"name\": \"facefusion\", \"levelname\": \"INFO\", \"message\": \"[FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: None\", \"module\": \"logger\", \"lineno\": 49}\n",
+                "{\"asctime\": \"2026-01-27 22:55:50,706\", \"name\": \"facefusion\", \"levelname\": \"ERROR\", \"message\": \"[FACEFUSION.DIAGNOSTICS] Failed to create diagnostic bundle: expected str, bytes or os.PathLike object, not NoneType\", \"module\": \"logger\", \"lineno\": 57}\n",
+                "{\"asctime\": \"2026-01-27 22:56:00,723\", \"name\": \"facefusion\", \"levelname\": \"INFO\", \"message\": \"[FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json\", \"module\": \"logger\", \"lineno\": 49}\n"
+            ]
+        }
+    ]
+}

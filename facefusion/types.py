@@ -108,6 +108,12 @@ WarpTemplate = Literal['arcface_112_v1', 'arcface_112_v2', 'arcface_128', 'dfl_w
 WarpTemplateSet : TypeAlias = Dict[WarpTemplate, NDArray[Any]]
 ProcessMode = Literal['output', 'preview', 'stream']
 
+# ErrorCode legend: 
+# 0: Success
+# 1: General error (IO, missing files, validation failure)
+# 2: CLI/Argparse error (Invalid arguments, parser crash)
+# 3: Hardware error (CUDA/ROCM initialization failure)
+# 4: Processing error (FFmpeg failure, model inference crash)
 ErrorCode = Literal[0, 1, 2, 3, 4]
 LogLevel = Literal['error', 'warn', 'info', 'debug']
 LogLevelSet : TypeAlias = Dict[LogLevel, int]
@@ -322,6 +328,7 @@ StateKey = Literal\
 	'system_memory_limit',
 	'log_level',
 	'halt_on_error',
+	'diagnostics_path',
 	'job_id',
 	'job_status',
 	'step_index'
@@ -392,6 +399,7 @@ State = TypedDict('State',
 	'system_memory_limit' : int,
 	'log_level' : LogLevel,
 	'halt_on_error' : bool,
+	'diagnostics_path' : str,
 	'job_id' : str,
 	'job_status' : JobStatus,
 	'step_index' : int

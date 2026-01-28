@@ -416,3 +416,117 @@
 2026-01-27 22:47:32,138 - facefusion - INFO - [FACEFUSION.CORE] processing
 2026-01-27 22:47:37,238 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
 2026-01-27 22:47:37,353 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.76 seconds
+2026-01-27 22:49:39,287 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 22:49:42,466 - facefusion - ERROR - [FACEFUSION.CORE] choose an image for the source!
+2026-01-27 22:49:43,477 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 22:49:50,148 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-27 22:49:50,264 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-27 22:49:55,407 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-27 22:49:55,522 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.87 seconds
+2026-01-27 22:49:56,582 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 22:50:03,257 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-27 22:50:03,374 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-27 22:50:08,533 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-27 22:50:08,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.88 seconds
+2026-01-27 22:50:09,730 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 22:50:16,340 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-27 22:50:16,456 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-27 22:50:21,451 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-27 22:50:21,566 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.75 seconds
+2026-01-27 22:55:50,704 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: None
+2026-01-27 22:55:50,706 - facefusion - ERROR - [FACEFUSION.DIAGNOSTICS] Failed to create diagnostic bundle: expected str, bytes or os.PathLike object, not NoneType
+2026-01-27 22:56:00,723 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json
+2026-01-27 22:56:00,726 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json
+2026-01-27 23:00:40,951 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:00:54,147 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 23:01:01,403 - facefusion - ERROR - [FACEFUSION.CORE] choose an image for the source!
+2026-01-27 23:01:21,914 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 23:02:19,346 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:04:45,310 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 23:04:45,962 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:04:46,391 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-27 23:04:46,391 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-27 23:04:46,391 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-27 23:04:46,391 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file ../unsafe.mp4.
+2026-01-27 23:04:46,392 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-27 23:04:46,395 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-27 23:04:46,423 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 196.06 seconds
+2026-01-27 23:05:05,312 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:05:05,489 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5a8c03287000] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:05,489 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x5a8c03349cc0] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:05,489 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x5a8c032873c0] Error muxing a packet
+2026-01-27 23:05:05,675 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5570b40dc2c0] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:05,676 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x5570b419ef80] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:05,676 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x5570b40dc680] Error muxing a packet
+2026-01-27 23:05:05,853 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5ee517601640] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:05,854 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x5ee5176c4280] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:05,854 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x5ee517601a00] Error muxing a packet
+2026-01-27 23:05:05,855 - facefusion - ERROR - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames failed
+2026-01-27 23:05:05,861 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:05:06,035 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x573b50ae2000] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:06,035 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x573b50ba4cc0] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:06,035 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x573b50ae23c0] Error muxing a packet
+2026-01-27 23:05:06,211 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x55c6468872c0] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:06,211 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x55c646949f80] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:06,211 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x55c646887680] Error muxing a packet
+2026-01-27 23:05:06,385 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x58b295777640] Could not open file : /tmp/facefusion/target-240p/00000001.bmp
+2026-01-27 23:05:06,386 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/bmp @ 0x58b29583a280] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:06,386 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x58b295777a00] Error muxing a packet
+2026-01-27 23:05:06,386 - facefusion - ERROR - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames failed
+2026-01-27 23:05:06,387 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-27 23:05:06,387 - facefusion - CRITICAL - | target_path                      | cycle_count | average_run | fastest_run | slowest_run | relative_fps |
+2026-01-27 23:05:06,387 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-27 23:05:06,388 - facefusion - CRITICAL - | .assets/examples/target-240p.mp4 | 1           | 0.53        | 0.53        | 0.53        | 507.73       |
+2026-01-27 23:05:06,388 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-27 23:05:07,533 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:05:07,665 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5f517c458000] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:07,666 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x5f517c51acc0] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:07,666 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x5f517c4583c0] Error muxing a packet
+2026-01-27 23:05:07,791 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x630f720812c0] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:07,791 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x630f72143f80] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:07,791 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x630f72081680] Error muxing a packet
+2026-01-27 23:05:07,920 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5b92359e1640] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:07,920 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x5b9235aa4280] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:07,920 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x5b92359e1a00] Error muxing a packet
+2026-01-27 23:05:07,921 - facefusion - ERROR - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames failed
+2026-01-27 23:05:09,351 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 23:05:23,120 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:05:23,250 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x638c1a9aa000] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:23,250 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x638c1aa6ccc0] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:23,250 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x638c1a9aa3c0] Error muxing a packet
+2026-01-27 23:05:23,377 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x55bf60db42c0] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:23,378 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x55bf60e76f80] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:23,378 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x55bf60db4680] Error muxing a packet
+2026-01-27 23:05:23,515 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x62d2c0802640] Could not open file : /tmp/facefusion/target-240p/00000001.png
+2026-01-27 23:05:23,516 - facefusion - ERROR - [FACEFUSION.FFMPEG] [vost#0:0/png @ 0x62d2c08c5280] Error submitting a packet to the muxer: Input/output error
+2026-01-27 23:05:23,516 - facefusion - ERROR - [FACEFUSION.FFMPEG] [out#0/image2 @ 0x62d2c0802a00] Error muxing a packet
+2026-01-27 23:05:23,517 - facefusion - ERROR - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames failed
+2026-01-27 23:05:35,163 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-27 23:05:40,893 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:05:58,295 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:06:10,542 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:06:10,954 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] skipping audio
+2026-01-27 23:06:11,022 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 41.13 seconds
+2026-01-27 23:06:11,169 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:06:13,270 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:06:13,479 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5d7230fc4440] Could find no file with path '/tmp/facefusion/target-240p/%08d.png' and index in the range 0-4
+2026-01-27 23:06:13,479 - facefusion - ERROR - [FACEFUSION.FFMPEG] [in#0 @ 0x5d7230fc4340] Error opening input: No such file or directory
+2026-01-27 23:06:13,479 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input file /tmp/facefusion/target-240p/%08d.png.
+2026-01-27 23:06:13,479 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input files: No such file or directory
+2026-01-27 23:06:13,617 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x63e0c6555700] Could find no file with path '/tmp/facefusion/target-240p/%08d.png' and index in the range 0-4
+2026-01-27 23:06:13,618 - facefusion - ERROR - [FACEFUSION.FFMPEG] [in#0 @ 0x63e0c6555600] Error opening input: No such file or directory
+2026-01-27 23:06:13,619 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input file /tmp/facefusion/target-240p/%08d.png.
+2026-01-27 23:06:13,620 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input files: No such file or directory
+2026-01-27 23:06:13,746 - facefusion - ERROR - [FACEFUSION.FFMPEG] [image2 @ 0x5de6dda569c0] Could find no file with path '/tmp/facefusion/target-240p/%08d.png' and index in the range 0-4
+2026-01-27 23:06:13,747 - facefusion - ERROR - [FACEFUSION.FFMPEG] [in#0 @ 0x5de6dda568c0] Error opening input: No such file or directory
+2026-01-27 23:06:13,748 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input file /tmp/facefusion/target-240p/%08d.png.
+2026-01-27 23:06:13,749 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening input files: No such file or directory
+2026-01-27 23:06:13,750 - facefusion - ERROR - [FACEFUSION.IMAGE_TO_VIDEO] merging video failed
+2026-01-27 23:07:46,507 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-27 23:07:46,662 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] skipping audio
+2026-01-27 23:07:46,682 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 95.66 seconds
+2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-27 23:07:46,683 - facefusion - CRITICAL - | target_path                      | cycle_count | average_run | fastest_run | slowest_run | relative_fps |
+2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-27 23:07:46,683 - facefusion - CRITICAL - | .assets/examples/target-240p.mp4 | 1           | 95.66       | 95.66       | 95.66       | 2.82         |
+2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+

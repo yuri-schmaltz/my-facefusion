@@ -37,6 +37,7 @@ def cli() -> None:
 	program.add_argument('--onnxruntime', help = LOCALES.get('install_dependency').format(dependency = 'onnxruntime'), choices = ONNXRUNTIME_SET.keys())
 	program.add_argument('--force-reinstall', help = LOCALES.get('force_reinstall'), action = 'store_true')
 	program.add_argument('--skip-conda', help = LOCALES.get('skip_conda'), action = 'store_true')
+	program.add_argument('--force-download', help = 'pre-download all assets after installation', action = 'store_true')
 	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
 	run(program)
 
@@ -48,6 +49,14 @@ def signal_exit(signum : int, frame : FrameType) -> None:
 def run(program : ArgumentParser) -> None:
 	args = program.parse_args()
 	
+	# Prerequisite Checks
+	if sys.version_info < (3, 10):
+		print(f"Error: Python {sys.version_info.major}.{sys.version_info.minor} is not supported. Please use Python 3.10 or higher.")
+		sys.exit(1)
+	
+	if not shutil.which('ffmpeg'):
+		print("Warning: FFmpeg was not found. Some features may not work correctly.")
+
 	if args.onnxruntime is None:
 		print("Choose an ONNX Runtime provider:")
 		options = list(ONNXRUNTIME_SET.keys())
@@ -60,41 +69,50 @@ def run(program : ArgumentParser) -> None:
 			else:
 				print("Invalid selection, using default.")
 				args.onnxruntime = 'default'
-		except ValueError:
-			print("Invalid input, using default.")
+		except (ValueError, EOFError, KeyboardInterrupt):
+			print("\nInvalid input or interrupted, using default.")
 			args.onnxruntime = 'default'
 			
 	has_conda = 'CONDA_PREFIX' in os.environ
 	has_venv = sys.prefix != sys.base_prefix
-	commands = [ sys.executable, '-m', 'pip', 'install' ]
+	pip_commands = [ sys.executable, '-m', 'pip', 'install' ]
 
 	if args.force_reinstall:
-		commands.append('--force-reinstall')
+		pip_commands.append('--force-reinstall')
 
 	if not args.skip_conda and not has_conda and not has_venv:
 		sys.stdout.write(LOCALES.get('conda_not_activated') + os.linesep)
 		sys.exit(1)
 
-	with open('requirements.txt') as file:
+	try:
+		requirements_commands = list(pip_commands)
+		with open('requirements.txt') as file:
+			for line in file.readlines():
+				__line__ = line.strip()
+				if __line__ and not __line__.startswith('onnxruntime'):
+					requirements_commands.append(__line__)
+		
+		print(f"Installing requirements: {' '.join(requirements_commands)}")
+		subprocess.check_call(requirements_commands)
 
-		for line in file.readlines():
-			__line__ = line.strip()
-			if not __line__.startswith('onnxruntime'):
-				commands.append(__line__)
+		onnx_commands = list(pip_commands)
+		if args.onnxruntime == 'rocm':
+			onnxruntime_name, onnxruntime_version, rocm_version = ONNXRUNTIME_SET.get(args.onnxruntime) #type:ignore[misc]
+			python_id = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
 
-	if args.onnxruntime == 'rocm':
-		onnxruntime_name, onnxruntime_version, rocm_version = ONNXRUNTIME_SET.get(args.onnxruntime) #type:ignore[misc]
-		python_id = 'cp' + str(sys.version_info.major) + str(sys.version_info.minor)
+			if python_id in [ 'cp312' ]:
+				wheel_name = onnxruntime_name + '-' + onnxruntime_version + '-' + python_id + '-' + python_id + '-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl'
+				wheel_url = 'https://repo.radeon.com/rocm/manylinux/rocm-rel-' + rocm_version + '/' + wheel_name
+				onnx_commands.append(wheel_url)
+		else:
+			onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
+			onnx_commands.append(onnxruntime_name + '==' + onnxruntime_version)
 
-		if python_id in [ 'cp312' ]:
-			wheel_name = onnxruntime_name + '-' + onnxruntime_version + '-' + python_id + '-' + python_id + '-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl'
-			wheel_url = 'https://repo.radeon.com/rocm/manylinux/rocm-rel-' + rocm_version + '/' + wheel_name
-			commands.append(wheel_url)
-	else:
-		onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
-		commands.append(onnxruntime_name + '==' + onnxruntime_version)
-
-	subprocess.call(commands)
+		print(f"Installing ONNX Runtime: {' '.join(onnx_commands)}")
+		subprocess.check_call(onnx_commands)
+	except subprocess.CalledProcessError as e:
+		print(f"Error during installation: {e}")
+		sys.exit(1)
 
 	if args.onnxruntime == 'cuda' and has_conda:
 		library_paths = []
@@ -141,6 +159,10 @@ def run(program : ArgumentParser) -> None:
 		create_linux_desktop_file(install_path)
 	elif platform == 'windows':
 		create_windows_launcher(install_path)
+
+	if args.force_download:
+		print("Starting force-download of assets...")
+		subprocess.call([ sys.executable, 'facefusion.py', 'force-download' ])
 
 
 def get_platform() -> str:

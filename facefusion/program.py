@@ -279,6 +279,14 @@ def create_log_level_program() -> ArgumentParser:
 	return program
 
 
+def create_diagnostics_program() -> ArgumentParser:
+	program = ArgumentParser(add_help = False)
+	group_diagnostics = program.add_argument_group('diagnostics')
+	group_diagnostics.add_argument('--diagnostics-path', help = translator.get('help.diagnostics_path'), default = 'facefusion_diagnostics.json')
+	job_store.register_job_keys([ 'diagnostics_path' ])
+	return program
+
+
 def create_halt_on_error_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_misc = program.add_argument_group('misc')
@@ -317,13 +325,14 @@ def create_program() -> ArgumentParser:
 	program = ArgumentParser(formatter_class = create_help_formatter_large, add_help = False)
 	program._positionals.title = 'commands'
 	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
+	program.add_argument('--config-path', help = translator.get('help.config_path'), default = 'facefusion.ini')
 	sub_program = program.add_subparsers(dest = 'command')
 	# general
 	sub_program.add_parser('run', help = translator.get('help.run'), parents = [ create_config_path_program(), create_temp_path_program(), create_jobs_path_program(), create_source_paths_program(), create_target_path_program(), create_output_path_program(), collect_step_program(), create_uis_program(), create_benchmark_program(), collect_job_program() ], formatter_class = create_help_formatter_large)
 	sub_program.add_parser('headless-run', help = translator.get('help.headless_run'), parents = [ create_config_path_program(), create_temp_path_program(), create_jobs_path_program(), create_source_paths_program(), create_target_path_program(), create_output_path_program(), collect_step_program(), collect_job_program() ], formatter_class = create_help_formatter_large)
 	sub_program.add_parser('batch-run', help = translator.get('help.batch_run'), parents = [ create_config_path_program(), create_temp_path_program(), create_jobs_path_program(), create_source_pattern_program(), create_target_pattern_program(), create_output_pattern_program(), collect_step_program(), collect_job_program() ], formatter_class = create_help_formatter_large)
-	sub_program.add_parser('force-download', help = translator.get('help.force_download'), parents = [ create_download_providers_program(), create_download_scope_program(), create_log_level_program() ], formatter_class = create_help_formatter_large)
 	sub_program.add_parser('benchmark', help = translator.get('help.benchmark'), parents = [ create_temp_path_program(), collect_step_program(), create_benchmark_program(), collect_job_program() ], formatter_class = create_help_formatter_large)
+	sub_program.add_parser('diagnostics-run', help = translator.get('help.diagnostics_run'), parents = [ create_diagnostics_program(), create_log_level_program() ], formatter_class = create_help_formatter_large)
 	# job manager
 	sub_program.add_parser('job-list', help = translator.get('help.job_list'), parents = [ create_job_status_program(), create_jobs_path_program(), create_log_level_program() ], formatter_class = create_help_formatter_large)
 	sub_program.add_parser('job-create', help = translator.get('help.job_create'), parents = [ create_job_id_program(), create_jobs_path_program(), create_log_level_program() ], formatter_class = create_help_formatter_large)

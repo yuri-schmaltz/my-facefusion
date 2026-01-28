@@ -164,8 +164,12 @@ def process_temp_frame(temp_frame_path : str, frame_number : int) -> bool:
 	source_audio_path = get_first(filter_audio_paths(state_manager.get_item('source_paths')))
 	temp_video_fps = restrict_video_fps(state_manager.get_item('target_path'), state_manager.get_item('output_video_fps'))
 	target_vision_frame = read_static_image(temp_frame_path, 'rgba')
-	temp_vision_frame = target_vision_frame.copy()
-	temp_vision_mask = extract_vision_mask(temp_vision_frame)
+
+	if target_vision_frame is not None:
+		temp_vision_frame = target_vision_frame.copy()
+		temp_vision_mask = extract_vision_mask(temp_vision_frame)
+	else:
+		return False
 
 	source_audio_frame = get_audio_frame(source_audio_path, temp_video_fps, frame_number)
 	source_voice_frame = get_voice_frame(source_audio_path, temp_video_fps, frame_number)

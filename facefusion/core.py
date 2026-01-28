@@ -61,6 +61,10 @@ def route(args : Args) -> None:
 			hard_exit(2)
 		benchmarker.render()
 
+	if state_manager.get_item('command') == 'diagnostics-run':
+		error_code = route_diagnostics()
+		hard_exit(error_code)
+
 	if state_manager.get_item('command') in [ 'job-list', 'job-create', 'job-submit', 'job-submit-all', 'job-delete', 'job-delete-all', 'job-add-step', 'job-remix-step', 'job-insert-step', 'job-remove-step' ]:
 		if not job_manager.init_jobs(state_manager.get_item('jobs_path')):
 			hard_exit(1)
@@ -272,7 +276,14 @@ def route_job_runner() -> ErrorCode:
 			return 0
 		logger.info(translator.get('processing_jobs_failed'), __name__)
 		return 1
-	return 2
+	return 1
+
+
+def route_diagnostics() -> ErrorCode:
+	from facefusion import diagnostics
+	if diagnostics.create_bundle(state_manager.get_item('diagnostics_path')):
+		return 0
+	return 1
 
 
 def process_headless(args : Args) -> ErrorCode:
