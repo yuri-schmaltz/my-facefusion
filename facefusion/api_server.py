@@ -1267,140 +1267,70 @@ async def wizard_generate(req: WizardGenerateRequest):
     # Check if we have suggestions
     settings = wizard_suggestions.get(req.job_id, {})
     
-    # Create jobs for each scene
-    scenes = data.get("scenes", [])
-    created_jobs = []
-    
-    for i, (start_frame, end_frame) in enumerate(scenes):
-        # Create a job for this scene
-        # We'll use the suggested settings + clip trimming
+    # --- Prepare Assignments & Overrides (Once per Job) ---
+    overrides = {}
+    assignments = data.get('assignments', {})
+    if assignments:
+        print(f"[WIZARD_GENERATE] Using {len(assignments)} explicit face assignments")
         
-        # Determine output path
-        dir_name = os.path.dirname(video_path)
-        base_name = os.path.basename(video_path)
-        name, ext = os.path.splitext(base_name)
-        output_path = os.path.join(dir_name, f"{name}_scene_{i+1}{ext}")
+        # Prepare Reference Mode: Map Cluster Representative -> Source
+        sorted_pairs = sorted(assignments.items(), key=lambda x: int(x[0]))
         
-        # Generate unique job ID (create_job takes the ID, not a display name)
-        job_id = f"wizard_{int(time.time() * 1000)}_{i}"
+        source_paths = []
+        reference_face_paths = []
+        clusters = data.get('clusters', [])
         
-        if not job_manager.create_job(job_id):
-            raise HTTPException(500, f"Failed to create job {job_id}")
+        import cv2
+        from facefusion.vision import read_video_frame
         
-        # Apply suggested settings to the job
-        # Note: job_manager doesn't support applying a dict directly yet in this mock,
-        # but normally we would update the job's config.
-        # For now, we'll just queue it with the trim arguments.
+        # Helper to save reference face
+        # We need a predictable path for references
+        ref_dir = f"/tmp/facefusion/wizard/{req.job_id}/references"
+        os.makedirs(ref_dir, exist_ok=True)
         
-        # Ideally, we would clone the current global settings AND applied wizard settings
-        # to this specific job. 
-        # For this implementation, we will assume global state is used for execution 
-        # but we set the specific trim arguments.
+        scene_faces = data.get("scene_faces", {})
+        scenes = data.get("scenes", [])
         
-                "output_path": output_path,
-                **settings # Apply optimized settings
-            }
-        
-        # Apply Assignments if present
-        assignments = data.get('assignments', {})
-        if assignments:
-            print(f"[WIZARD_GENERATE] Using {len(assignments)} explicit face assignments")
+        for cluster_idx_str, source_path in sorted_pairs:
+            cluster_idx = int(cluster_idx_str)
+            if cluster_idx >= len(clusters):
+                continue
+                
+            cluster = clusters[cluster_idx]
+            if not cluster:
+                continue
+                
+            # Use representative face from cluster
+            rep_face = cluster[0]
             
-            # Prepare Reference Mode
-            # We map: Cluster Representative -> Source
+            # Find a frame containing this face to extract usage reference
+            # Optimally, we would have stored this, but we can search or trust the thumbnail logic.
+            # Re-implementation of searching logic:
+            target_frame_nr = 0
+            found = False
             
-            # 1. Sort by cluster index to ensure deterministic order
-            sorted_pairs = sorted(assignments.items(), key=lambda x: int(x[0]))
+            # Search in the scene faces map
+            for s_idx, faces in scene_faces.items():
+                for f in faces:
+                    # Identity check: assumption is that face objects (or their properties) match
+                    if f is rep_face: 
+                         start, end = scenes[s_idx]
+                         target_frame_nr = start + (end - start) // 2
+                         found = True
+                         break
+                if found: break
             
-            source_paths = []
-            reference_face_paths = []
-            
-            clusters = data.get('clusters', [])
-            
-            import cv2
-            from facefusion.vision import read_video_frame
-            
-            # Helper to save reference face
-            ref_dir = f"/tmp/facefusion/wizard/{req.job_id}/references"
-            os.makedirs(ref_dir, exist_ok=True)
-            
-            for cluster_idx_str, source_path in sorted_pairs:
-                cluster_idx = int(cluster_idx_str)
-                if cluster_idx >= len(clusters):
-                    continue
-                    
-                cluster = clusters[cluster_idx]
-                if not cluster:
-                    continue
-                    
-                # Use representative face
-                rep_face = cluster[0]
-                
-                # We need to extract this face image to use as reference
-                # Re-read frame? Or maybe we can rely on face_selector_mode='one' + reference?
-                # Actually, FaceFusion --reference-face-paths expects image files containing the face.
-                
-                # Read frame
-                # Ideally we cached face_to_scene or similar.
-                # Let's try to get a frame for this face.
-                video_path = data.get("video_path")
-                # Need scene for this face
-                # This is expensive inside the request loop but reliable.
-                # Since generation is heavy anyway, a few reads are OK.
-                
-                # Simplified: just iterate scenes to find one that contains this frame?
-                # No, we don't have frame_number in Face object easily unless we kept it?
-                # Face object has 'frame_number' attribute? No, it's usually detached.
-                # But we have map in wizard_cluster.
-                # We didn't persist face_to_scene map.
-                
-                # Fallback: Just use the middle frame of the FIRST scene this cluster appears in?
-                # That's hard to know without the map.
-                
-                # Alternative: We saved thumbnails!
-                # But thumbnails are data URLs.
-                # We can save the thumbnail base64 back to a file.
-                # But we didn't save thumbnails in 'clusters' structure in data dict,
-                # we only returned them to UI.
-                
-                # Re-scanning logic:
-                scenes = data.get("scenes", [])
-                scene_faces = data.get("scene_faces", {})
-                
-                target_face = None
-                target_frame_nr = 0
-                
-                found = False
-                for s_idx, faces in scene_faces.items():
-                    for f in faces:
-                        # Comparing faces is hard. Use id? ID is transient.
-                        # Use bounding box + closeness?
-                        # Or just trust that we can find a similar face.
-                        # Actually, we can just use the Cluster's face_id or something if we had it.
-                        
-                        # Let's use the first face in the cluster.
-                        # Wait, 'cluster' contains Face objects.
-                        # We can try to match it reference-wise.
-                        if f is rep_face: 
-                             # This exact object check works if objects are persistent in memory
-                             target_face = f
-                             start, end = scenes[s_idx]
-                             target_frame_nr = start + (end - start) // 2
-                             found = True
-                             break
-                    if found: break
-                
-                if not found:
-                    # Fallback: Searching by equality might fail if copied.
-                    # Let's hope objects persists. If not, we might need a robust way.
-                    # Current `analyzed_videos` holds the `scene_faces` objects.
-                    # And `clusters` holds references to those objects.
-                    pass 
-                
-                # Extract reference image
+            # Fallback if object identity fails (e.g. if objects were recreated/copied)
+            if not found:
+                 # Just take the middle frame of the first scene this cluster is known to be in?
+                 # Since we don't have that map easily avail here, we skip.
+                 # Actually, we can rely on the fact that existing logic works if identity is preserved.
+                 # If not, this reference extraction might fail.
+                 pass
+
+            if found:
                 vision_frame = read_video_frame(video_path, target_frame_nr)
                 if vision_frame is not None:
-                     # Crop
                      box = rep_face.bounding_box
                      margin = 32
                      top = max(0, int(box[1]) - margin)
@@ -1414,25 +1344,32 @@ async def wizard_generate(req: WizardGenerateRequest):
                      
                      source_paths.append(source_path)
                      reference_face_paths.append(ref_path)
-            
-            if source_paths:
-                # Override settings
-                job_steps = job_manager.read_job_file(job_id).get('steps', [])
-                if job_steps:
-                    args = job_step_args = job_steps[0]['args']
-                    args['source_paths'] = source_paths
-                    args['reference_face_paths'] = reference_face_paths
-                    args['face_selector_mode'] = 'reference'
-                    
-                    # Update the job file
-                    job_manager.add_step(job_id, job_steps[0]) # Overwrite? 
-                    # create_job writes initial. add_step appends.
-                    # We need to UPDATE. job_manager might simpler.
-                    # Actually `create_job` creates file. `add_step` updates.
-                    # The code above calls `add_step` at line 1270.
-                    # So we should modify the args dict BEFORE calling add_step.
-                    pass
 
+        if source_paths:
+            overrides = {
+                "source_paths": source_paths,
+                "reference_face_paths": reference_face_paths,
+                "face_selector_mode": "reference"
+            }
+
+    # --- Create Jobs for Each Scene ---
+    scenes = data.get("scenes", [])
+    created_jobs = []
+    
+    for i, (start_frame, end_frame) in enumerate(scenes):
+        # Determine output path
+        dir_name = os.path.dirname(video_path)
+        base_name = os.path.basename(video_path)
+        name, ext = os.path.splitext(base_name)
+        output_path = os.path.join(dir_name, f"{name}_scene_{i+1}{ext}")
+        
+        # Generate unique job ID
+        job_id = f"wizard_{int(time.time() * 1000)}_{i}"
+        
+        if not job_manager.create_job(job_id):
+            raise HTTPException(500, f"Failed to create job {job_id}")
+        
+        # Apply settings and overrides
         job_manager.add_step(job_id, {
             "name": "process",
             "args": {
@@ -1440,19 +1377,14 @@ async def wizard_generate(req: WizardGenerateRequest):
                 "trim_frame_end": end_frame,
                 "target_path": video_path,
                 "output_path": output_path,
-                **settings, # Apply optimized settings
-                # Apply overrides if assignments exist
-                **({"source_paths": source_paths, 
-                    "reference_face_paths": reference_face_paths, 
-                    "face_selector_mode": "reference"} if assignments and source_paths else {})
+                **settings, 
+                **overrides
             }
         })
         
         created_jobs.append(job_id)
         
     return {"created_jobs": created_jobs, "count": len(created_jobs)}
-
-
 # ========================================
 # JOB MANAGEMENT API
 # ========================================

@@ -527,202 +527,203 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                             </div>
                                         ))}
                                     </div>
+                                </>
                             )}
 
-                                    {/* Floating Action Bar for Merge */}
-                                    {selectedClusters.size > 1 && (
-                                        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-                                            <button
-                                                onClick={handleMergeSelected}
-                                                disabled={isMerging}
-                                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed animate-in fade-in slide-in-from-bottom-4"
-                                            >
-                                                {isMerging ? (
-                                                    <Loader2 size={18} className="animate-spin" />
-                                                ) : (
-                                                    <Merge size={18} />
-                                                )}
-                                                Merge {selectedClusters.size} Groups
-                                            </button>
-                                        </div>
-                                    )}
-
+                            {/* Floating Action Bar for Merge */}
+                            {selectedClusters.size > 1 && (
+                                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                                    <button
+                                        onClick={handleMergeSelected}
+                                        disabled={isMerging}
+                                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed animate-in fade-in slide-in-from-bottom-4"
+                                    >
+                                        {isMerging ? (
+                                            <Loader2 size={18} className="animate-spin" />
+                                        ) : (
+                                            <Merge size={18} />
+                                        )}
+                                        Merge {selectedClusters.size} Groups
+                                    </button>
                                 </div>
+                            )}
+
+                        </div>
                     )}
 
-                            {currentStep === 'optimize' && suggestions && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="bg-red-600/10 border border-red-600/20 rounded-xl p-6 flex items-start gap-4">
-                                        <Settings className="text-red-500 shrink-0" size={24} />
-                                        <div>
-                                            <h4 className="font-bold text-white mb-1">Recommended Optimization</h4>
-                                            <p className="text-sm text-neutral-400 leading-relaxed">
-                                                Our smart logic analyzed your system and the video content. We've selected models and thread configurations that balance quality and speed.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Recommended Processor</label>
-                                            <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                                                <p className="text-sm font-bold text-white">{suggestions?.face_swapper_model || 'Standard'}</p>
-                                                <p className="text-[10px] text-neutral-500">Optimized for detected face resolution</p>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Enhancement Strategy</label>
-                                            <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                                                <p className="text-sm font-bold text-white">{suggestions?.face_enhancer_model || 'Enabled'}</p>
-                                                <p className="text-[10px] text-neutral-500">Based on scene lighting/compression</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700 relative group">
-                                            <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
-                                                <Target size={14} className="text-blue-400" /> Face Detector
-                                                <div className="relative ml-auto">
-                                                    <Info size={12} className="text-neutral-600 cursor-help" />
-                                                    {/* Tooltip */}
-                                                    <div className="absolute right-0 top-6 w-48 p-2 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl text-[10px] text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                                                        These settings control how faces are detected in the initial analysis phase. Models like 'yoloface' are faster, while 'retinaface' is more accurate.
-                                                    </div>
-                                                </div>
-                                            </h4>
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Model</span>
-                                                    <span className="text-white font-mono">{suggestions.face_detector_model}</span>
-                                                </div>
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Size</span>
-                                                    <span className="text-white font-mono">{suggestions.face_detector_size}</span>
-                                                </div>
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Score</span>
-                                                    <span className="text-white font-mono">{suggestions.face_detector_score}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
-                                            <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
-                                                <HardDrive size={14} className="text-green-400" /> System Resources
-                                            </h4>
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Providers</span>
-                                                    <span className="text-white font-mono text-right max-w-[100px] truncate" title={suggestions.execution_providers?.join(', ')}>
-                                                        {suggestions.execution_providers?.map((p: string) =>
-                                                            p === 'cuda' ? 'NVIDIA GPU' :
-                                                                p === 'coreml' ? 'Apple Neural' :
-                                                                    p === 'rocm' ? 'AMD GPU' :
-                                                                        p.toUpperCase()
-                                                        ).join(', ') || 'CPU'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Memory Limit</span>
-                                                    <span className="text-white font-mono">{suggestions.system_memory_limit > 0 ? `${suggestions.system_memory_limit} GB` : 'Auto'}</span>
-                                                </div>
-                                                <div className="flex justify-between text-xs">
-                                                    <span className="text-neutral-500">Execution Threads</span>
-                                                    <span className="text-white font-mono">{suggestions.execution_thread_count}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3">
-                                        <Info className="text-blue-400 shrink-0 mt-0.5" size={16} />
-                                        <p className="text-xs text-blue-200">
-                                            These settings have been optimized based on the resolution of your video and your available system memory.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {currentStep === 'generate' && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center py-10">
-                                    <div className="flex justify-center">
-                                        <div className="p-4 bg-green-500/10 rounded-full mb-4">
-                                            <Wand2 size={48} className="text-green-500" />
-                                        </div>
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white">Ready to Generate</h3>
-                                    <p className="text-neutral-400 max-w-md mx-auto">
-                                        We will create <strong>{clusters.length} usage jobs</strong> based on the scenes and face groups we identified.
+                    {currentStep === 'optimize' && suggestions && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="bg-red-600/10 border border-red-600/20 rounded-xl p-6 flex items-start gap-4">
+                                <Settings className="text-red-500 shrink-0" size={24} />
+                                <div>
+                                    <h4 className="font-bold text-white mb-1">Recommended Optimization</h4>
+                                    <p className="text-sm text-neutral-400 leading-relaxed">
+                                        Our smart logic analyzed your system and the video content. We've selected models and thread configurations that balance quality and speed.
                                     </p>
+                                </div>
+                            </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-                                        <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
-                                            <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Scenes</span>
-                                            <span className="text-xl font-mono text-white">{Object.keys(analysisResult?.scenes || {}).length}</span>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Recommended Processor</label>
+                                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                                        <p className="text-sm font-bold text-white">{suggestions?.face_swapper_model || 'Standard'}</p>
+                                        <p className="text-[10px] text-neutral-500">Optimized for detected face resolution</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Enhancement Strategy</label>
+                                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                                        <p className="text-sm font-bold text-white">{suggestions?.face_enhancer_model || 'Enabled'}</p>
+                                        <p className="text-[10px] text-neutral-500">Based on scene lighting/compression</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700 relative group">
+                                    <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
+                                        <Target size={14} className="text-blue-400" /> Face Detector
+                                        <div className="relative ml-auto">
+                                            <Info size={12} className="text-neutral-600 cursor-help" />
+                                            {/* Tooltip */}
+                                            <div className="absolute right-0 top-6 w-48 p-2 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl text-[10px] text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                                                These settings control how faces are detected in the initial analysis phase. Models like 'yoloface' are faster, while 'retinaface' is more accurate.
+                                            </div>
                                         </div>
-                                        <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
-                                            <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Face Groups</span>
-                                            <span className="text-xl font-mono text-white">{clusters.length}</span>
+                                    </h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Model</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_model}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Size</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_size}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Score</span>
+                                            <span className="text-white font-mono">{suggestions.face_detector_score}</span>
                                         </div>
                                     </div>
                                 </div>
-                            )}
+
+                                <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
+                                    <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
+                                        <HardDrive size={14} className="text-green-400" /> System Resources
+                                    </h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Providers</span>
+                                            <span className="text-white font-mono text-right max-w-[100px] truncate" title={suggestions.execution_providers?.join(', ')}>
+                                                {suggestions.execution_providers?.map((p: string) =>
+                                                    p === 'cuda' ? 'NVIDIA GPU' :
+                                                        p === 'coreml' ? 'Apple Neural' :
+                                                            p === 'rocm' ? 'AMD GPU' :
+                                                                p.toUpperCase()
+                                                ).join(', ') || 'CPU'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Memory Limit</span>
+                                            <span className="text-white font-mono">{suggestions.system_memory_limit > 0 ? `${suggestions.system_memory_limit} GB` : 'Auto'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-neutral-500">Execution Threads</span>
+                                            <span className="text-white font-mono">{suggestions.execution_thread_count}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-3">
+                                <Info className="text-blue-400 shrink-0 mt-0.5" size={16} />
+                                <p className="text-xs text-blue-200">
+                                    These settings have been optimized based on the resolution of your video and your available system memory.
+                                </p>
+                            </div>
                         </div>
+                    )}
+
+                    {currentStep === 'generate' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center py-10">
+                            <div className="flex justify-center">
+                                <div className="p-4 bg-green-500/10 rounded-full mb-4">
+                                    <Wand2 size={48} className="text-green-500" />
+                                </div>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Ready to Generate</h3>
+                            <p className="text-neutral-400 max-w-md mx-auto">
+                                We will create <strong>{clusters.length} usage jobs</strong> based on the scenes and face groups we identified.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
+                                <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Scenes</span>
+                                    <span className="text-xl font-mono text-white">{Object.keys(analysisResult?.scenes || {}).length}</span>
+                                </div>
+                                <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Face Groups</span>
+                                    <span className="text-xl font-mono text-white">{clusters.length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {/* Footer / Actions */}
-                    <div className="p-6 border-t border-neutral-800 flex justify-between bg-neutral-950/50">
+                <div className="p-6 border-t border-neutral-800 flex justify-between bg-neutral-950/50">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2 rounded-xl text-neutral-400 hover:bg-neutral-800 transition-colors font-medium text-sm"
+                    >
+                        Cancel
+                    </button>
+
+
+
+                    {currentStep === 'cluster' && (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleRefineGroups}
+                                disabled={status === 'loading' || isRefining}
+                                className="bg-neutral-800 text-white px-4 py-2 rounded-xl border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center gap-2 text-sm"
+                            >
+                                {isRefining ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
+                                Refine Groups
+                            </button>
+                            <button
+                                onClick={runOptimization}
+                                disabled={status === 'loading'}
+                                className="bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-neutral-200 transition-colors flex items-center gap-2"
+                            >
+                                {status === 'loading' && <Loader2 size={16} className="animate-spin" />}
+                                Next: Optimization
+                            </button>
+                        </div>
+                    )}
+
+                    {currentStep === 'optimize' && (
                         <button
-                            onClick={onClose}
-                            className="px-6 py-2 rounded-xl text-neutral-400 hover:bg-neutral-800 transition-colors font-medium text-sm"
+                            onClick={() => setCurrentStep('generate')}
+                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
                         >
-                            Cancel
+                            Next: Generation
                         </button>
+                    )}
 
-
-
-                        {currentStep === 'cluster' && (
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handleRefineGroups}
-                                    disabled={status === 'loading' || isRefining}
-                                    className="bg-neutral-800 text-white px-4 py-2 rounded-xl border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center gap-2 text-sm"
-                                >
-                                    {isRefining ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
-                                    Refine Groups
-                                </button>
-                                <button
-                                    onClick={runOptimization}
-                                    disabled={status === 'loading'}
-                                    className="bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-neutral-200 transition-colors flex items-center gap-2"
-                                >
-                                    {status === 'loading' && <Loader2 size={16} className="animate-spin" />}
-                                    Next: Optimization
-                                </button>
-                            </div>
-                        )}
-
-                        {currentStep === 'optimize' && (
-                            <button
-                                onClick={() => setCurrentStep('generate')}
-                                className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
-                            >
-                                Next: Generation
-                            </button>
-                        )}
-
-                        {currentStep === 'generate' && (
-                            <button
-                                onClick={handleGenerateJobs}
-                                disabled={isGenerating}
-                                className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
-                            >
-                                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-                                Generate Jobs
-                            </button>
-                        )}
-                    </div>
+                    {currentStep === 'generate' && (
+                        <button
+                            onClick={handleGenerateJobs}
+                            disabled={isGenerating}
+                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
+                        >
+                            {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                            Generate Jobs
+                        </button>
+                    )}
                 </div>
-            </div >
-            );
+            </div>
+        </div >
+    );
 };
