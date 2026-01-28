@@ -102,13 +102,13 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 "lsdir": "Sharp • Modern",
                                                 "clear_reality": "Clean • Recommended",
                                                 "ultra_sharp": "Precision Sharp",
-                                                "codeformer": "Best Restoration",
+                                                "codeformer": "Best • Recommended",
                                                 "gfpgan": "Fast • Natural",
                                                 "restoreformer": "High Fidelity",
-                                                "yolo": "Standard • Reliable",
+                                                "yolo": "Standard • Recommended",
                                                 "scrfd": "Ultra Fast",
                                                 "retinaface": "Maximum Precision",
-                                                "inswapper": "Pro Swapper",
+                                                "inswapper": "Pro • Recommended",
                                                 "simswap": "Fast Swapper"
                                             };
 

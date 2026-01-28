@@ -185,7 +185,8 @@ function App() {
   }, [isProcessing, jobId]);
 
   const startProcessing = async () => {
-    if (!sourcePath || !targetPath) return;
+    const needsSource = activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "face_accessory_manager", "makeup_transfer"].includes(p));
+    if (!targetPath || (needsSource && !sourcePath)) return;
     setIsProcessing(true);
     setProgress(0);
     setJobStatus("processing");

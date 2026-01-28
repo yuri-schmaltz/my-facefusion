@@ -143,14 +143,14 @@ async def lifespan(app: FastAPI):
             state_manager.init_item('face_swapper_weight', 0.5)
             
         if state_manager.get_item('face_enhancer_model') is None:
-            state_manager.init_item('face_enhancer_model', 'gfpgan_1.4')
+            state_manager.init_item('face_enhancer_model', 'codeformer')
         if state_manager.get_item('face_enhancer_blend') is None:
             state_manager.init_item('face_enhancer_blend', 80)
         if state_manager.get_item('face_enhancer_weight') is None:
             state_manager.init_item('face_enhancer_weight', 1.0)
     
         if state_manager.get_item('frame_enhancer_model') is None:
-            state_manager.init_item('frame_enhancer_model', 'realsr_x2_clear')
+            state_manager.init_item('frame_enhancer_model', 'clear_reality_x4')
         if state_manager.get_item('frame_enhancer_blend') is None:
             state_manager.init_item('frame_enhancer_blend', 80)
             

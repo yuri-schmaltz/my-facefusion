@@ -295,6 +295,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
                                         <option key={order} value={order}>
                                             {order.replace(/-/g, ' ').toUpperCase()}
+                                            {order === 'large-small' ? ' [Recommended]' : ''}
                                         </option>
                                     ))}</select>
                             </div>
@@ -313,7 +314,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 >
                                     {(() => {
                                         const modelHints: Record<string, string> = {
-                                            "yolo": "Standard • Reliable",
+                                            "yolo": "Standard • Recommended",
                                             "scrfd": "Ultra Fast",
                                             "retinaface": "Maximum Precision",
                                             "yunet": "Lightweight",
@@ -1204,6 +1205,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </select>
                                 </div>
                             </div>
+
 
                             <div className="pt-2 border-t border-neutral-800/50">
                                 <button
