@@ -80,6 +80,7 @@ def process_video() -> ErrorCode:
 		source_vision_frames = read_static_images(state_manager.get_item('source_paths'))
 		source_audio_path = get_first(filter_audio_paths(state_manager.get_item('source_paths')))
 		temp_video_fps = restrict_video_fps(state_manager.get_item('target_path'), state_manager.get_item('output_video_fps'))
+		processors = state_manager.get_item('processors')
 
 		with tqdm(total = len(temp_frame_paths), desc = translator.get('processing'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
 			progress.set_postfix(execution_providers = state_manager.get_item('execution_providers'))
@@ -88,7 +89,7 @@ def process_video() -> ErrorCode:
 				futures = []
 
 				for frame_number, temp_frame_path in enumerate(temp_frame_paths):
-					future = executor.submit(process_temp_frame, temp_frame_path, frame_number, reference_vision_frame, source_vision_frames, source_audio_path, temp_video_fps)
+					future = executor.submit(process_temp_frame, temp_frame_path, frame_number, reference_vision_frame, source_vision_frames, source_audio_path, temp_video_fps, processors)
 					futures.append(future)
 
 				for future in as_completed(futures):
@@ -164,7 +165,7 @@ def restore_audio() -> ErrorCode:
 	return 0
 
 
-def process_temp_frame(temp_frame_path : str, frame_number : int, reference_vision_frame : any, source_vision_frames : list, source_audio_path : str, temp_video_fps : float) -> bool:
+def process_temp_frame(temp_frame_path : str, frame_number : int, reference_vision_frame : any, source_vision_frames : list, source_audio_path : str, temp_video_fps : float, processors : list) -> bool:
 	target_vision_frame = read_static_image(temp_frame_path, 'rgba')
 
 	if target_vision_frame is not None:
@@ -181,7 +182,7 @@ def process_temp_frame(temp_frame_path : str, frame_number : int, reference_visi
 	if not numpy.any(source_voice_frame):
 		source_voice_frame = create_empty_audio_frame()
 
-	for processor_module in get_processors_modules(state_manager.get_item('processors')):
+	for processor_module in get_processors_modules(processors):
 		temp_vision_frame, temp_vision_mask = processor_module.process_frame(
 		{
 			'reference_vision_frame': reference_vision_frame,
