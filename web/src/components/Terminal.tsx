@@ -5,31 +5,46 @@ import { cn } from "@/lib/utils";
 interface TerminalProps {
     isOpen: boolean;
     onToggle: () => void;
+    jobId?: string | null;
 }
 
-export function Terminal({ isOpen, onToggle }: TerminalProps) {
+export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
     const [logs, setLogs] = useState<string[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // Effect for SSE logs from specific Job
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen || !jobId) return;
 
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const currentHost = window.location.host;
-        const wsHost = import.meta.env.VITE_WS_HOST ||
-            (currentHost.includes(':5173') ? currentHost.replace(':5173', ':8002') : currentHost);
-        const ws = new WebSocket(`${wsProtocol}//${wsHost}/logs`);
+        // Subscribe to job events mostly for logs
+        // We need to import jobService here or pass logs from parent?
+        // Let's import jobService.
+        import('../services/JobService').then(({ jobService }) => {
+            const unsubscribe = jobService.subscribe(jobId, (event) => {
+                if (event.event_type === 'log') {
+                    // log event data format: { level: 'info', message: '...' }
+                    // or just string? Models suggest log event has data.
+                    // Let's assume data is the message or { message }
+                    const msg = typeof event.data === 'string' ? event.data : event.data.message || JSON.stringify(event.data);
+                    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-100));
+                }
+            });
+            return unsubscribe;
+        });
 
-        ws.onmessage = (event) => {
-            setLogs((prev) => [...prev, event.data].slice(-100));
-        };
+    }, [isOpen, jobId]);
 
-        ws.onclose = () => console.log("WS Closed");
+    // Legacy WS support or generic logs? 
+    // If no jobId, maybe we want system logs? 
+    // The previous WS /logs streamed ALL logs.
+    // If we want to maintain that for general debugging when no job is running, we can keep it.
+    // But user asked to "Add Log Viewer component (streaming logs from event bus)".
+    // So prioritizing Job logs is correct.
 
-        return () => {
-            ws.close();
-        };
-    }, [isOpen]);
+    // Let's keep the WS as fallback if no Job ID or if we want system logs? 
+    // Actually, let's replace WS with SSE for the active Job, as it's cleaner.
+    // However, if the user opens terminal WITHOUT a running job, they might expect system logs.
+    // For now, let's stick to Job Logs as requested.
 
     useEffect(() => {
         if (scrollRef.current) {

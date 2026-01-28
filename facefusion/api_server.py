@@ -394,7 +394,17 @@ def get_job_status(job_id: str):
     if not job:
          return {"job_id": job_id, "status": "unknown", "progress": 0.0}
          
-    return job.to_dict()
+    job_dict = job.to_dict()
+    
+    # Inject preview_url for UI backward compatibility
+    if job.config and 'output_path' in job.config:
+         from facefusion.api_server import get_preview
+         import urllib.parse
+         path = job.config['output_path']
+         encoded_path = urllib.parse.quote(path)
+         job_dict["preview_url"] = f"/files/preview?path={encoded_path}"
+         
+    return job_dict
 
 from fastapi import BackgroundTasks
 

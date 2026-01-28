@@ -47,7 +47,7 @@ export const filesystem = {
 export const execute = {
     run: () => api.post('/run'),
     stop: () => api.post('/stop'),
-    getStatus: (jobId: string) => api.get(`/jobs/${jobId}`), // Fixed URL match with api_server
+    getStatus: (jobId: string) => api.get(`/jobs/${jobId}`),
     preview: (payload: { path: string, time_seconds?: number, frame_number?: number }) => api.post('/preview', payload),
 };
 

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { files, execute, system, config } from "@/services/api";
-import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, Info, X } from "lucide-react";
+import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
@@ -9,6 +9,7 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import ProcessorSettings from "@/components/ProcessorSettings";
 import FaceSelector from "@/components/FaceSelector";
 import { MediaPreview } from "@/components/MediaPreview";
+import { useJob } from "@/hooks/useJob";
 // ... imports
 
 // ... inside App component
@@ -34,7 +35,7 @@ function App() {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [lastSourceDir, setLastSourceDir] = useState<string>(() => localStorage.getItem("lastSourceDir") || "");
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
-  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
+  const [currentVideoTime] = useState<number>(0);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [previewResolution, setPreviewResolution] = useState("512x512");
   const [globalChoices, setGlobalChoices] = useState<any>({});
@@ -112,20 +113,44 @@ function App() {
     config.update({ [key]: value });
   };
 
-  const toggleArrayItem = (key: string, item: string) => {
-    const current = (allSettings[key] || []);
-    const newer = current.includes(item)
-      ? current.filter((i: string) => i !== item)
-      : [...current, item];
-
-    updateSetting(key, newer);
-  };
 
   const [jobId, setJobId] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [jobStatus, setJobStatus] = useState<string>("idle");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
+  const { job, stop } = useJob(jobId);
+
+  // Derived state from useJob
+  // We keep local 'isProcessing' for UI toggle, syncing it with job status
+  useEffect(() => {
+    if (job.status === 'queued' || job.status === 'running') {
+      setIsProcessing(true);
+      setJobStatus(job.status);
+      setProgress(job.progress * 100); // job.progress is 0.0-1.0, UI expects 0-100
+    } else if (job.status === 'completed') {
+      setIsProcessing(false);
+      setJobStatus('completed');
+      setProgress(100);
+      // Fetch final details to get preview URL if needed, 
+      // or we can rely on what useJob fetched (it fetches status on init/update)
+      // useJob updates 'job' state. 
+      // We need preview_url. 'job' state in useJob currently doesn't expose raw data easily 
+      // unless we expand JobState.
+      // Let's refetch status one last time or expand useJob.
+      // For now, let's fetch to be safe and simple.
+      execute.getStatus(jobId!).then(res => {
+        if (res.data.preview_url) {
+          setOutputUrl(res.data.preview_url);
+        }
+      });
+    } else if (job.status === 'failed' || job.status === 'canceled') {
+      setIsProcessing(false);
+      setJobStatus(job.status);
+      if (job.status === 'failed') alert("Job failed.");
+    }
+  }, [job.status, job.progress, jobId]);
 
   // Live Preview Logic
   useEffect(() => {
@@ -155,52 +180,22 @@ function App() {
   }, [sourcePath, targetPath, currentVideoTime, isProcessing, activeProcessors, allSettings]);
 
 
-  useEffect(() => {
-    let interval: any;
-
-    if (isProcessing && jobId) {
-      interval = setInterval(async () => {
-        try {
-          const res = await execute.getStatus(jobId);
-          const status = res.data.status;
-          const currentProgress = res.data.progress || 0;
-
-          setProgress(currentProgress);
-          setJobStatus(status);
-
-          if (status === "completed") {
-            setIsProcessing(false);
-            setOutputUrl(res.data.preview_url);
-            clearInterval(interval);
-          } else if (status === "failed") {
-            setIsProcessing(false);
-            alert("Job failed during processing.");
-            clearInterval(interval);
-          }
-        } catch (err) {
-          console.error("Failed to poll job status:", err);
-          clearInterval(interval);
-        }
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isProcessing, jobId]);
-
   const startProcessing = async () => {
     const needsSource = activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "face_accessory_manager", "makeup_transfer"].includes(p));
     if (!targetPath || (needsSource && !sourcePath)) return;
+
     setIsProcessing(true);
     setProgress(0);
-    setJobStatus("processing");
-    setOutputUrl(null); // Clear previous output
+    setJobStatus("queued");
+    setOutputUrl(null);
+
     try {
       const res = await execute.run();
-      if (res.data.status === "processing") {
+      // Orchestrator returns 'queued' normally
+      if (["queued", "processing", "running"].includes(res.data.status)) {
         setJobId(res.data.job_id);
       } else {
-        // Fallback for sync
-        alert("Job finished immediately (sync mode?)");
+        alert("Unexpected job status: " + res.data.status);
         setIsProcessing(false);
       }
     } catch (err: any) {
@@ -212,7 +207,7 @@ function App() {
 
   return (
     <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3" style={{ gridTemplateColumns: '30% 1fr 30%' }}>
-      <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} />
+      <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} jobId={jobId} />
 
       {/* Column 1: Processors & Execution */}
       <aside className="flex flex-col h-full overflow-hidden">
@@ -316,7 +311,7 @@ function App() {
             <div className="flex-1 flex gap-2 animate-in fade-in zoom-in-95 duration-200">
               <button
                 onClick={async () => {
-                  await execute.stop();
+                  await stop();
                   setShowStopConfirm(false);
                 }}
                 className="flex-1 py-2.5 font-bold rounded-lg bg-red-600/90 text-white hover:bg-red-600 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 backdrop-blur-sm text-sm"
