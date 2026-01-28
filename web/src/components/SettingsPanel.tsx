@@ -548,21 +548,31 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <Info size={14} className="text-neutral-500 cursor-help" />
                                 </Tooltip>
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                                {(choices?.face_mask_types || ['box', 'occlusion', 'area', 'region']).map((type: string) => (
-                                    <button
-                                        key={type}
-                                        onClick={() => toggleArrayItem("face_mask_types", type)}
-                                        className={cn(
-                                            "flex-1 px-3 py-1.5 text-xs font-medium rounded-md border transition-all truncate text-center",
-                                            (settings.face_mask_types || []).includes(type)
-                                                ? "bg-red-600 border-red-500 text-white"
-                                                : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
-                                        )}
-                                    >
-                                        {type}
-                                    </button>
-                                ))}
+                            <div className="flex flex-wrap gap-1.5">
+                                {(() => {
+                                    const getHint = (n: string) => {
+                                        if (n === 'box') return 'Simple Rect';
+                                        if (n === 'occlusion') return 'Auto-Mask';
+                                        if (n === 'area') return 'Manual Sel.';
+                                        if (n === 'region') return 'Semantic';
+                                        return "";
+                                    };
+                                    return (choices?.face_mask_types || ['box', 'occlusion', 'area', 'region']).map((type: string) => (
+                                        <button
+                                            key={type}
+                                            onClick={() => toggleArrayItem("face_mask_types", type)}
+                                            className={cn(
+                                                "flex-1 p-2 rounded-lg border transition-all flex flex-col items-center gap-0.5",
+                                                (settings.face_mask_types || []).includes(type)
+                                                    ? "bg-red-600 border-red-500 text-white shadow-lg shadow-red-900/20"
+                                                    : "bg-neutral-800/50 border-neutral-700/50 text-neutral-400 hover:border-neutral-600"
+                                            )}
+                                        >
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">{type}</span>
+                                            <span className="text-[8px] opacity-60 font-medium">{getHint(type)}</span>
+                                        </button>
+                                    ));
+                                })()}
                             </div>
                         </div>
 
@@ -1046,11 +1056,30 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </Tooltip>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {["cpu", "cuda", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
+                                    {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
                                         const current = settings.execution_providers || [];
                                         const isSelected = current.includes(provider);
                                         const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
 
+                                        const labels: Record<string, string> = {
+                                            cpu: "CPU Standard",
+                                            cuda: "NVIDIA CUDA",
+                                            tensorrt: "NVIDIA TensorRT",
+                                            rocm: "AMD ROCm",
+                                            directml: "DirectML (Windows)",
+                                            openvino: "Intel OpenVINO",
+                                            coreml: "Apple CoreML"
+                                        };
+
+                                        const hints: Record<string, string> = {
+                                            cpu: "Slowest • Universal",
+                                            cuda: "Recommended for NVIDIA",
+                                            tensorrt: "Fastest • Long Load",
+                                            rocm: "Best for AMD Linux",
+                                            directml: "Standard for Windows GPUs",
+                                            openvino: "Best for Intel Arc/CPUs",
+                                            coreml: "Best for Silicon Mac"
+                                        };
                                         return (
                                             <button
                                                 key={provider}
@@ -1069,7 +1098,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
                                                 )}
                                             >
-                                                {provider.toUpperCase()}
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[10px] font-bold">{labels[provider]}</span>
+                                                    <span className="text-[8px] opacity-60 font-medium">{hints[provider]}</span>
+                                                </div>
                                                 {!isAvailable && <span className="block text-[8px] opacity-50">N/A</span>}
                                             </button>
                                         )
@@ -1149,6 +1181,26 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         {(choices?.log_levels || ["error", "warn", "info", "debug"]).map((l: string) => (
                                             <option key={l} value={l}>{l.toUpperCase()}</option>
                                         ))}
+                                    </select>
+                                </div>
+                                {/* Face Parser Model */}
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Face Parser Model</label>
+                                    <select
+                                        value={settings.face_parser_model || "bisenet_resnet_18"}
+                                        onChange={(e) => handleChange("face_parser_model", e.target.value)}
+                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                    >
+                                        {(() => {
+                                            const getHint = (n: string) => {
+                                                if (n.includes('resnet_18')) return ' [Balanced • Fast]';
+                                                if (n.includes('resnet_34')) return ' [High Precision]';
+                                                return "";
+                                            };
+                                            return (choices?.face_parser_models || ["bisenet_resnet_18"]).map((m: string) => (
+                                                <option key={m} value={m}>{m.replace(/_/g, ' ').toUpperCase() + getHint(m)}</option>
+                                            ));
+                                        })()}
                                     </select>
                                 </div>
                             </div>

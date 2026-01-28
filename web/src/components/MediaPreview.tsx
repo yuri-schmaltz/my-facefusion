@@ -204,14 +204,14 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                         {isVideo ? (
                             <video
                                 ref={mediaRef as any}
-                                src={api.defaults.baseURL ? `${api.defaults.baseURL}/file?path=${encodeURIComponent(file)}` : file} // Rough fix for preview url, assumes context
+                                src={api.defaults.baseURL ? `${api.defaults.baseURL}/files/preview?path=${encodeURIComponent(file)}` : file} // Rough fix for preview url, assumes context
                                 className="w-full h-full object-contain pointer-events-none"
                                 controls={!isMasking}
                             />
                         ) : (
                             <img
                                 ref={mediaRef as any}
-                                src={api.defaults.baseURL ? `${api.defaults.baseURL}/file?path=${encodeURIComponent(file)}` : file}
+                                src={api.defaults.baseURL ? `${api.defaults.baseURL}/files/preview?path=${encodeURIComponent(file)}` : file}
                                 className="w-full h-full object-contain pointer-events-none"
                             />
                         )}
