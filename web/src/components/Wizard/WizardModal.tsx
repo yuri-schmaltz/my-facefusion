@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, ChevronRight, Wand2, Search, Users, Settings, Loader2, Target, HardDrive, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { wizard } from "@/services/api";
@@ -22,6 +22,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     const [progress, setProgress] = useState(0);
     const [currentStatus, setCurrentStatus] = useState("queued");
     const [statusMessage, setStatusMessage] = useState("Initializing...");
+    
+    const pollInterval = useRef<any>(null);
 
     const statusLabels: Record<string, string> = {
         'detecting_scenes': 'Detecting scenes...',
@@ -31,12 +33,22 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         'queued': 'Waiting in queue...'
     };
 
+    // Cleanup on unmount or when closed
+    useEffect(() => {
+        return () => {
+            if (pollInterval.current) clearInterval(pollInterval.current);
+        };
+    }, []);
+
     // Initial Trigger
     useEffect(() => {
         if (isOpen && currentStep === 'analyze' && !jobId && status === 'idle') {
             startAnalysis();
+        } else if (!isOpen) {
+             // Stop polling if closed
+             if (pollInterval.current) clearInterval(pollInterval.current);
         }
-    }, [isOpen]); // Only trigger on open
+    }, [isOpen]); 
 
     const startAnalysis = async () => {
         if (!targetPath) {
@@ -49,13 +61,17 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         setProgress(0);
         setCurrentStatus("queued");
         setStatusMessage("Initializing...");
+        
+        // Clear any existing interval
+        if (pollInterval.current) clearInterval(pollInterval.current);
+
         try {
             const res = await wizard.analyze(targetPath);
             const id = res.data.job_id;
             setJobId(id);
 
             // Poll for progress
-            const interval = setInterval(async () => {
+            pollInterval.current = setInterval(async () => {
                 try {
                     const pRes = await wizard.getProgress(id);
                     const { status: jobStatus, progress: p, result, error } = pRes.data;
@@ -65,19 +81,19 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     setStatusMessage(statusLabels[jobStatus] || jobStatus);
 
                     if (jobStatus === 'completed') {
-                        clearInterval(interval);
+                        if (pollInterval.current) clearInterval(pollInterval.current);
                         setAnalysisResult(result);
                         setStatus('completed');
                         setCurrentStep('cluster');
                         fetchClusters(id);
                     } else if (jobStatus === 'failed') {
-                        clearInterval(interval);
+                        if (pollInterval.current) clearInterval(pollInterval.current);
                         setStatus('failed');
                         alert("Analysis failed: " + error);
                     }
                 } catch (err) {
                     console.error("Polling failed", err);
-                    clearInterval(interval);
+                    if (pollInterval.current) clearInterval(pollInterval.current);
                     setStatus('failed');
                 }
             }, 1000);
