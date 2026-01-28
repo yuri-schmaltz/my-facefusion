@@ -130,7 +130,9 @@ function App() {
   // Live Preview Logic
   useEffect(() => {
     const fetchPreview = async () => {
-      if (sourcePath && targetPath && !isProcessing) {
+      // Only require targetPath and at least one processor
+      // sourcePath is optional (not needed for frame-only processors like age_modifier)
+      if (targetPath && activeProcessors.length > 0 && !isProcessing) {
         setIsPreviewLoading(true);
         try {
           const res = await execute.preview({
@@ -151,6 +153,7 @@ function App() {
     const debounce = setTimeout(fetchPreview, 500);
     return () => clearTimeout(debounce);
   }, [sourcePath, targetPath, currentVideoTime, isProcessing, activeProcessors, allSettings]);
+
 
   useEffect(() => {
     let interval: any;

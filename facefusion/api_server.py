@@ -803,7 +803,8 @@ class FaceDetectRequest(BaseModel):
 def get_preview_endpoint(req: FaceDetectRequest):
     import cv2
     import base64
-    from facefusion import face_analyser, state_manager, audio
+    import traceback
+    from facefusion import face_analyser, state_manager, audio, logger
     from facefusion.processors.core import get_processors_modules
     from facefusion.vision import read_static_image, read_video_frame, detect_video_fps, read_static_images, extract_vision_mask, conditional_merge_vision_mask
     
@@ -822,45 +823,73 @@ def get_preview_endpoint(req: FaceDetectRequest):
     if vision_frame is None:
         raise HTTPException(400, "Could not read target frame")
 
-    # 2. Get Source and Reference
-    source_paths = state_manager.get_item('source_paths')
-    processors = state_manager.get_item('processors')
-    
-    # If no source or no processors, return the original target frame
-    if not source_paths or not processors:
-         _, buffer = cv2.imencode('.jpg', vision_frame)
-         b64 = base64.b64encode(buffer).decode('utf-8')
-         return {"preview": f"data:image/jpeg;base64,{b64}"}
+    # Helper function to encode frame
+    def encode_frame(frame):
+        _, buffer = cv2.imencode('.jpg', frame)
+        b64 = base64.b64encode(buffer).decode('utf-8')
+        return {"preview": f"data:image/jpeg;base64,{b64}"}
 
-    source_vision_frames = read_static_images(source_paths)
-    reference_frame_number = state_manager.get_item('reference_frame_number')
-    reference_vision_frame = read_video_frame(path, reference_frame_number)
+    # 2. Get Processors and Source
+    processors = state_manager.get_item('processors')
+    source_paths = state_manager.get_item('source_paths') or []
     
-    # 3. Process
+    # If no processors selected, return the original target frame
+    if not processors:
+        return encode_frame(vision_frame)
+    
+    # Load source frames (empty list if no sources - frame-only processors still work)
+    source_vision_frames = read_static_images(source_paths) if source_paths else []
+    
+    # For images, use the target image as reference; for videos, use the reference frame
+    if is_image(path):
+        reference_vision_frame = vision_frame
+    else:
+        reference_frame_number = state_manager.get_item('reference_frame_number') or 0
+        reference_vision_frame = read_video_frame(path, reference_frame_number)
+    
+    # 3. Process each processor with error handling
     temp_vision_frame = vision_frame.copy()
     temp_vision_mask = extract_vision_mask(temp_vision_frame)
     
-    for processor_module in get_processors_modules(processors):
-        # Ensure model is loaded for preview
-        processor_module.pre_process('preview')
+    # Define processors that require source faces
+    SOURCE_REQUIRED_PROCESSORS = ['face_swapper', 'deep_swapper', 'lip_syncer', 'makeup_transfer']
+    
+    for processor_name in processors:
+        # Skip source-requiring processors if no source is provided
+        if processor_name in SOURCE_REQUIRED_PROCESSORS and not source_vision_frames:
+            continue
         
-        temp_vision_frame, temp_vision_mask = processor_module.process_frame(
-        {
-            'reference_vision_frame': reference_vision_frame,
-            'source_vision_frames': source_vision_frames,
-            'source_audio_frame': audio.create_empty_audio_frame(),
-            'source_voice_frame': audio.create_empty_audio_frame(),
-            'target_vision_frame': vision_frame[:, :, :3],
-            'temp_vision_frame': temp_vision_frame[:, :, :3],
-            'temp_vision_mask': temp_vision_mask
-        })
+        try:
+            processor_modules = get_processors_modules([processor_name])
+            if not processor_modules:
+                continue
+                
+            processor_module = processor_modules[0]
+            
+            # Ensure model is loaded for preview
+            if not processor_module.pre_process('preview'):
+                continue
+            
+            temp_vision_frame, temp_vision_mask = processor_module.process_frame({
+                'reference_vision_frame': reference_vision_frame,
+                'source_vision_frames': source_vision_frames,
+                'source_audio_frame': audio.create_empty_audio_frame(),
+                'source_voice_frame': audio.create_empty_audio_frame(),
+                'target_vision_frame': vision_frame[:, :, :3],
+                'temp_vision_frame': temp_vision_frame[:, :, :3],
+                'temp_vision_mask': temp_vision_mask
+            })
+        except Exception as e:
+            # Log error but continue with other processors
+            logger.error(f'Preview processing error in {processor_name}: {str(e)}', __name__)
+            traceback.print_exc()
+            continue
 
     temp_vision_frame = conditional_merge_vision_mask(temp_vision_frame, temp_vision_mask)
     
-    # 4. Return
-    _, buffer = cv2.imencode('.jpg', temp_vision_frame)
-    b64 = base64.b64encode(buffer).decode('utf-8')
-    return {"preview": f"data:image/jpeg;base64,{b64}"}
+    # 4. Return processed frame
+    return encode_frame(temp_vision_frame)
+
 
 @app.post("/faces/detect")
 def detect_faces_endpoint(req: FaceDetectRequest):
