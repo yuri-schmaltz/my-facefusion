@@ -261,43 +261,7 @@ function App() {
               />
             </section>
 
-            <section className="space-y-2 pt-3 border-t border-neutral-800 shrink-0">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider block">
-                  Execution Provider
-                </label>
-                <Tooltip content={helpTexts['execution_providers']}>
-                  <Info size={12} className="text-neutral-500 cursor-help" />
-                </Tooltip>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {["cpu", "cuda", "rocm", "directml", "openvino", "coreml"].map((provider) => {
-                  const current = allSettings.execution_providers || [];
-                  const isSelected = current.includes(provider);
-                  const isAvailable = (systemInfo.execution_providers || ['cpu']).includes(provider);
 
-                  return (
-                    <button
-                      key={provider}
-                      disabled={!isAvailable}
-                      onClick={() => {
-                        toggleArrayItem("execution_providers", provider);
-                      }}
-                      className={cn(
-                        "px-2 py-1.5 text-[10px] font-bold rounded border text-center transition-all",
-                        isSelected
-                          ? "bg-red-600/20 border-red-500 text-red-500"
-                          : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
-                        !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
-                      )}
-                    >
-                      {provider.toUpperCase()}
-                      {!isAvailable && <span className="block text-[8px] opacity-50">N/A</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
           </div>
 
           <section className="p-4 bg-neutral-900/50 border-t border-neutral-800 flex items-center gap-2 shrink-0">

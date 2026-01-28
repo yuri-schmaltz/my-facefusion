@@ -1,9 +1,9 @@
 import React from "react";
-import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles } from "lucide-react";
+import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { WizardModal } from "./Wizard/WizardModal";
-import { system } from "@/services/api";
+import { system, jobs as jobsApi } from "@/services/api";
 
 
 interface SettingsPanelProps {
@@ -36,8 +36,111 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         { id: "faces", label: "Faces", icon: User },
         { id: "masks", label: "Masks", icon: Filter },
         { id: "output", label: "Output", icon: Volume2 },
+        { id: "jobs", label: "Jobs", icon: Briefcase },
         { id: "system", label: "System", icon: HardDrive },
     ];
+
+    // Jobs tab state
+    const [jobsList, setJobsList] = React.useState<any[]>([]);
+    const [selectedJobs, setSelectedJobs] = React.useState<Set<string>>(new Set());
+    const [isLoadingJobs, setIsLoadingJobs] = React.useState(false);
+
+    const loadJobs = React.useCallback(async () => {
+        setIsLoadingJobs(true);
+        try {
+            const res = await jobsApi.list();
+            setJobsList(res.data.jobs || []);
+        } catch (err) {
+            console.error("Failed to load jobs", err);
+        } finally {
+            setIsLoadingJobs(false);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (activeTab === "jobs") {
+            loadJobs();
+        }
+    }, [activeTab, loadJobs]);
+
+    const toggleJobSelection = (jobId: string) => {
+        setSelectedJobs(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(jobId)) {
+                newSet.delete(jobId);
+            } else {
+                newSet.add(jobId);
+            }
+            return newSet;
+        });
+    };
+
+    const selectAllJobs = () => {
+        setSelectedJobs(new Set(jobsList.filter(j => j.status === 'drafted' || j.status === 'queued').map(j => j.id)));
+    };
+
+    const deselectAllJobs = () => {
+        setSelectedJobs(new Set());
+    };
+
+    const unqueueSelectedJobs = async () => {
+        const queuedSelected = Array.from(selectedJobs).filter(id =>
+            jobsList.find(j => j.id === id && j.status === 'queued')
+        );
+        if (queuedSelected.length === 0) return;
+        try {
+            await jobsApi.unqueue(queuedSelected);
+            alert(`↩️ ${queuedSelected.length} job(s) returned to drafted!`);
+            setSelectedJobs(new Set());
+            loadJobs();
+        } catch (err) {
+            console.error("Failed to unqueue jobs", err);
+            alert("❌ Failed to unqueue jobs");
+        }
+    };
+
+    const submitSelectedJobs = async () => {
+        if (selectedJobs.size === 0) return;
+        try {
+            await jobsApi.submit(Array.from(selectedJobs));
+            alert(`✅ ${selectedJobs.size} job(s) submitted to queue!`);
+            setSelectedJobs(new Set());
+            loadJobs();
+        } catch (err) {
+            console.error("Failed to submit jobs", err);
+            alert("❌ Failed to submit jobs");
+        }
+    };
+
+    const deleteSelectedJobs = async () => {
+        if (selectedJobs.size === 0) return;
+        if (!confirm(`Delete ${selectedJobs.size} job(s)?`)) return;
+        try {
+            await jobsApi.delete(Array.from(selectedJobs));
+            alert(`🗑️ ${selectedJobs.size} job(s) deleted!`);
+            setSelectedJobs(new Set());
+            loadJobs();
+        } catch (err) {
+            console.error("Failed to delete jobs", err);
+            alert("❌ Failed to delete jobs");
+        }
+    };
+
+    const runQueuedJobs = async () => {
+        const queuedCount = jobsList.filter(j => j.status === 'queued').length;
+        if (queuedCount === 0) {
+            alert("No queued jobs to run");
+            return;
+        }
+        try {
+            const res = await jobsApi.run();
+            alert(`🚀 Started processing ${res.data.jobs_started || queuedCount} job(s)!\n\nCheck the console for progress.`);
+            loadJobs();
+        } catch (err) {
+            console.error("Failed to run queue", err);
+            alert("❌ Failed to start queue processing");
+        }
+    };
 
     const toggleArrayItem = (key: string, item: string) => {
         const current = (settings[key] || []);
@@ -451,13 +554,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <Info size={14} className="text-neutral-500 cursor-help" />
                                 </Tooltip>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-5 gap-2">
                                 {(choices?.face_mask_regions || ['skin', 'left-eyebrow', 'right-eyebrow', 'left-eye', 'right-eye', 'glasses', 'nose', 'mouth', 'upper-lip', 'lower-lip']).map((region: string) => (
                                     <button
                                         key={region}
                                         onClick={() => toggleArrayItem("face_mask_regions", region)}
                                         className={cn(
-                                            "px-3 py-1.5 text-[10px] font-medium rounded-md border transition-all truncate min-w-[80px] text-center",
+                                            "px-2 py-1.5 text-[10px] font-medium rounded-md border transition-all truncate text-center w-full",
                                             (settings.face_mask_regions || []).includes(region)
                                                 ? "bg-red-600 border-red-500 text-white"
                                                 : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
@@ -647,6 +750,158 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </div>
                 )}
 
+                {activeTab === "jobs" && (
+                    <div className="flex flex-col h-full animate-in fade-in slide-in-from-left-2 duration-300">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <Briefcase size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Job Queue</span>
+                                <span className="text-[10px] bg-neutral-800 px-2 py-0.5 rounded-full">{jobsList.length} jobs</span>
+                            </div>
+                            <button
+                                onClick={loadJobs}
+                                disabled={isLoadingJobs}
+                                className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
+                            >
+                                <RefreshCw size={14} className={isLoadingJobs ? "animate-spin" : ""} />
+                            </button>
+                        </div>
+
+                        {/* Actions Bar */}
+                        <div className="flex items-center gap-2 p-2 bg-neutral-800/50 rounded-lg mb-4 shrink-0">
+                            <button
+                                onClick={selectAllJobs}
+                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5"
+                            >
+                                <CheckSquare size={12} /> Select All
+                            </button>
+                            <button
+                                onClick={deselectAllJobs}
+                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5"
+                            >
+                                <Square size={12} /> Deselect
+                            </button>
+                            <div className="flex-1" />
+                            <button
+                                onClick={submitSelectedJobs}
+                                disabled={selectedJobs.size === 0}
+                                className={cn(
+                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    selectedJobs.size > 0
+                                        ? "bg-green-600 hover:bg-green-500 text-white"
+                                        : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
+                                )}
+                            >
+                                <Play size={12} /> Submit ({selectedJobs.size})
+                            </button>
+                            <button
+                                onClick={unqueueSelectedJobs}
+                                disabled={Array.from(selectedJobs).filter(id => jobsList.find(j => j.id === id && j.status === 'queued')).length === 0}
+                                className={cn(
+                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    Array.from(selectedJobs).filter(id => jobsList.find(j => j.id === id && j.status === 'queued')).length > 0
+                                        ? "bg-yellow-600 hover:bg-yellow-500 text-white"
+                                        : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
+                                )}
+                            >
+                                <Undo2 size={12} /> Unqueue
+                            </button>
+                            <button
+                                onClick={deleteSelectedJobs}
+                                disabled={selectedJobs.size === 0}
+                                className={cn(
+                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    selectedJobs.size > 0
+                                        ? "bg-red-600 hover:bg-red-500 text-white"
+                                        : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
+                                )}
+                            >
+                                <Trash2 size={12} /> Delete
+                            </button>
+                            <button
+                                onClick={runQueuedJobs}
+                                disabled={jobsList.filter(j => j.status === 'queued').length === 0}
+                                className={cn(
+                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    jobsList.filter(j => j.status === 'queued').length > 0
+                                        ? "bg-purple-600 hover:bg-purple-500 text-white"
+                                        : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
+                                )}
+                            >
+                                <Rocket size={12} /> Run Queue ({jobsList.filter(j => j.status === 'queued').length})
+                            </button>
+                        </div>
+
+                        {/* Job List - fills remaining height */}
+                        <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
+                            {isLoadingJobs ? (
+                                <div className="text-center py-8 text-neutral-500">Loading jobs...</div>
+                            ) : jobsList.length === 0 ? (
+                                <div className="text-center py-8 text-neutral-500">
+                                    <Briefcase size={32} className="mx-auto mb-2 opacity-30" />
+                                    <p>No jobs in queue</p>
+                                    <p className="text-xs mt-1">Use the Wizard to create jobs</p>
+                                </div>
+                            ) : (
+                                jobsList.map((job) => {
+                                    const isSelected = selectedJobs.has(job.id);
+                                    const statusColors: Record<string, string> = {
+                                        drafted: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+                                        queued: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+                                        completed: "bg-green-500/20 text-green-500 border-green-500/30",
+                                        failed: "bg-red-500/20 text-red-500 border-red-500/30",
+                                    };
+                                    return (
+                                        <div
+                                            key={job.id}
+                                            onClick={() => (job.status === 'drafted' || job.status === 'queued') && toggleJobSelection(job.id)}
+                                            className={cn(
+                                                "p-3 rounded-lg border transition-all cursor-pointer",
+                                                isSelected
+                                                    ? "bg-red-600/10 border-red-500/50"
+                                                    : "bg-neutral-800/50 border-neutral-700 hover:border-neutral-600",
+                                                (job.status !== 'drafted' && job.status !== 'queued') && "opacity-60 cursor-default"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {/* Checkbox */}
+                                                <div className={cn(
+                                                    "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors",
+                                                    isSelected ? "bg-red-600 border-red-600" : "border-neutral-600",
+                                                    (job.status !== 'drafted' && job.status !== 'queued') && "invisible"
+                                                )}>
+                                                    {isSelected && <CheckSquare size={10} className="text-white" />}
+                                                </div>
+
+                                                {/* Job Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-mono text-white truncate">{job.id}</span>
+                                                        <span className={cn("text-[9px] px-2 py-0.5 rounded border font-bold uppercase", statusColors[job.status] || "bg-neutral-700")}>
+                                                            {job.status}
+                                                        </span>
+                                                    </div>
+                                                    {job.target_path && (
+                                                        <p className="text-[10px] text-neutral-500 truncate mt-1">
+                                                            {job.target_path.split('/').pop()}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {/* Steps count */}
+                                                <div className="text-[10px] text-neutral-500">
+                                                    {job.step_count} step{job.step_count !== 1 ? 's' : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {activeTab === "system" && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
                         <div className="flex items-center gap-2 text-neutral-400">
@@ -655,6 +910,48 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         <div className="grid grid-cols-1 gap-6">
+                            {/* Execution Provider */}
+                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
+                                <div className="flex items-center gap-2">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase block">
+                                        Execution Provider
+                                    </label>
+                                    <Tooltip content={helpTexts['execution_providers']}>
+                                        <Info size={12} className="text-neutral-500 cursor-help" />
+                                    </Tooltip>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {["cpu", "cuda", "rocm", "directml", "openvino", "coreml"].map((provider) => {
+                                        const current = settings.execution_providers || [];
+                                        const isSelected = current.includes(provider);
+                                        const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
+
+                                        return (
+                                            <button
+                                                key={provider}
+                                                disabled={!isAvailable}
+                                                onClick={() => {
+                                                    const newValue = current.includes(provider)
+                                                        ? current.filter((p: string) => p !== provider)
+                                                        : [...current, provider];
+                                                    onChange("execution_providers", newValue);
+                                                }}
+                                                className={cn(
+                                                    "px-2 py-2 text-[10px] font-bold rounded-lg border text-center transition-all",
+                                                    isSelected
+                                                        ? "bg-red-600/20 border-red-500 text-red-500"
+                                                        : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
+                                                    !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
+                                                )}
+                                            >
+                                                {provider.toUpperCase()}
+                                                {!isAvailable && <span className="block text-[8px] opacity-50">N/A</span>}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Execution Threads */}
                                 <div className="space-y-3">

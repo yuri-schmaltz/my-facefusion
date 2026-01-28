@@ -610,3 +610,4 @@
 {"asctime": "2026-01-28 02:50:08,047", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.15 seconds", "module": "logger", "lineno": 49}
 {"asctime": "2026-01-28 03:01:38,579", "name": "facefusion", "levelname": "ERROR", "message": "[__MAIN__.__MAIN__] [Errno 5] Input/output error", "module": "logger", "lineno": 57}
 {"asctime": "2026-01-28 11:47:57,025", "name": "facefusion", "levelname": "ERROR", "message": "[__MAIN__.__MAIN__] [Errno 5] Input/output error", "module": "logger", "lineno": 57}
+{"asctime": "2026-01-28 11:54:19,707", "name": "facefusion", "levelname": "ERROR", "message": "[__MAIN__.__MAIN__] [Errno 5] Input/output error", "module": "logger", "lineno": 57}

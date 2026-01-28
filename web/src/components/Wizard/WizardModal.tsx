@@ -40,15 +40,35 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         };
     }, []);
 
-    // Initial Trigger
+    // Stop polling when modal closes
     useEffect(() => {
-        if (isOpen && currentStep === 'analyze' && !jobId && status === 'idle') {
-            startAnalysis();
-        } else if (!isOpen) {
-            // Stop polling if closed
+        if (!isOpen) {
             if (pollInterval.current) clearInterval(pollInterval.current);
         }
     }, [isOpen]);
+
+    // Step navigation logic - determines which steps are accessible
+    const canNavigateToStep = (stepId: Step): boolean => {
+        const stepOrder: Step[] = ['analyze', 'cluster', 'optimize', 'generate'];
+        const currentIndex = stepOrder.indexOf(currentStep);
+        const targetIndex = stepOrder.indexOf(stepId);
+
+        // Can always go back
+        if (targetIndex < currentIndex) return true;
+
+        // Can only go forward if current step is completed
+        if (stepId === 'cluster' && status === 'completed' && analysisResult) return true;
+        if (stepId === 'optimize' && clusters.length > 0) return true;
+        if (stepId === 'generate' && suggestions) return true;
+
+        return false;
+    };
+
+    const handleStepClick = (stepId: Step) => {
+        if (canNavigateToStep(stepId) || stepId === currentStep) {
+            setCurrentStep(stepId);
+        }
+    };
 
     const startAnalysis = async () => {
         if (!targetPath) {
@@ -133,10 +153,13 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         if (!jobId) return;
         setIsGenerating(true);
         try {
-            await wizard.generate(jobId);
+            const result = await wizard.generate(jobId);
+            const count = result?.count || 0;
+            alert(`✅ ${count} job(s) created successfully!\n\nCheck the Jobs panel to manage and run them.`);
             onClose();
         } catch (err) {
             console.error("Failed to generate jobs", err);
+            alert("❌ Failed to generate jobs. Check the console for details.");
         } finally {
             setIsGenerating(false);
         }
@@ -163,61 +186,131 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     </button>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Progress Bar - Clickable Steps */}
                 <div className="flex border-b border-neutral-800">
                     {[
-                        { id: 'analyze', label: 'Analysis', icon: Search },
-                        { id: 'cluster', label: 'Grouping', icon: Users },
-                        { id: 'optimize', label: 'Optimization', icon: Settings },
-                        { id: 'generate', label: 'Generation', icon: Wand2 },
-                    ].map((step) => (
-                        <div
-                            key={step.id}
-                            className={cn(
-                                "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold border-b-2 transition-all",
-                                currentStep === step.id
-                                    ? "border-red-600 text-white bg-red-600/5"
-                                    : "border-transparent text-neutral-500"
-                            )}
-                        >
-                            <step.icon size={16} />
-                            {step.label}
-                        </div>
-                    ))}
+                        { id: 'analyze' as Step, label: 'Analysis', icon: Search },
+                        { id: 'cluster' as Step, label: 'Grouping', icon: Users },
+                        { id: 'optimize' as Step, label: 'Optimization', icon: Settings },
+                        { id: 'generate' as Step, label: 'Generation', icon: Wand2 },
+                    ].map((step) => {
+                        const isClickable = canNavigateToStep(step.id) || step.id === currentStep;
+                        return (
+                            <button
+                                key={step.id}
+                                onClick={() => handleStepClick(step.id)}
+                                disabled={!isClickable}
+                                className={cn(
+                                    "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold border-b-2 transition-all",
+                                    currentStep === step.id
+                                        ? "border-red-600 text-white bg-red-600/5"
+                                        : isClickable
+                                            ? "border-transparent text-neutral-400 hover:text-white hover:bg-neutral-800/50 cursor-pointer"
+                                            : "border-transparent text-neutral-600 cursor-not-allowed"
+                                )}
+                            >
+                                <step.icon size={16} />
+                                {step.label}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     {currentStep === 'analyze' && (
                         <div className="h-full flex flex-col items-center justify-center space-y-8 py-10">
-                            <div className="relative">
-                                <Loader2 size={64} className="text-red-600 animate-spin" />
-                            </div>
-                            <div className="text-center space-y-4 w-full max-w-md">
-                                <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
-                                <div className="flex items-center justify-center gap-3 text-sm text-neutral-400">
-                                    <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
-                                        Scenes
+                            {status === 'idle' ? (
+                                /* Start Analysis View */
+                                <>
+                                    <div className="text-center space-y-4">
+                                        <div className="p-4 bg-red-600/10 rounded-full inline-block">
+                                            <Search size={48} className="text-red-500" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white">Ready to Analyze</h3>
+                                        <p className="text-neutral-400 max-w-md">
+                                            The wizard will detect scenes and analyze faces in your video to create optimized processing jobs.
+                                        </p>
+                                        <div className="text-xs text-neutral-500 bg-neutral-800/50 rounded-lg p-3 max-w-md">
+                                            <strong>Target:</strong> {targetPath.split('/').pop() || targetPath}
+                                        </div>
                                     </div>
-                                    <ChevronRight size={14} className="text-neutral-700" />
-                                    <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
-                                        Faces
+                                    <button
+                                        onClick={startAnalysis}
+                                        className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
+                                    >
+                                        <Wand2 size={18} />
+                                        Start Analysis
+                                    </button>
+                                </>
+                            ) : status === 'loading' ? (
+                                /* Loading View */
+                                <>
+                                    <div className="relative">
+                                        <Loader2 size={64} className="text-red-600 animate-spin" />
                                     </div>
-                                </div>
+                                    <div className="text-center space-y-4 w-full max-w-md">
+                                        <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
+                                        <div className="flex items-center justify-center gap-3 text-sm text-neutral-400">
+                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                                Scenes
+                                            </div>
+                                            <ChevronRight size={14} className="text-neutral-700" />
+                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                                Faces
+                                            </div>
+                                        </div>
 
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                                        <span>Progress</span>
-                                        <span>{Math.round(progress * 100)}%</span>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                                <span>Progress</span>
+                                                <span>{Math.round(progress * 100)}%</span>
+                                            </div>
+                                            <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/50 shadow-inner">
+                                                <div
+                                                    className="h-full bg-red-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)]"
+                                                    style={{ width: `${progress * 100}%` }}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/50 shadow-inner">
-                                        <div
-                                            className="h-full bg-red-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)]"
-                                            style={{ width: `${progress * 100}%` }}
-                                        />
+                                </>
+                            ) : status === 'completed' ? (
+                                /* Completed View */
+                                <div className="text-center space-y-4">
+                                    <div className="p-4 bg-green-600/10 rounded-full inline-block">
+                                        <Search size={48} className="text-green-500" />
                                     </div>
+                                    <h3 className="text-xl font-bold text-white">Analysis Complete!</h3>
+                                    <p className="text-neutral-400">
+                                        Found {analysisResult?.scenes?.length || 0} scenes with faces detected.
+                                    </p>
+                                    <button
+                                        onClick={() => setCurrentStep('cluster')}
+                                        className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 mx-auto"
+                                    >
+                                        Continue to Grouping
+                                        <ChevronRight size={16} />
+                                    </button>
                                 </div>
-                            </div>
+                            ) : (
+                                /* Failed View */
+                                <div className="text-center space-y-4">
+                                    <div className="p-4 bg-red-600/10 rounded-full inline-block">
+                                        <X size={48} className="text-red-500" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white">Analysis Failed</h3>
+                                    <p className="text-neutral-400">
+                                        Something went wrong during the analysis.
+                                    </p>
+                                    <button
+                                        onClick={() => { setStatus('idle'); setJobId(null); }}
+                                        className="px-6 py-2 bg-neutral-700 hover:bg-neutral-600 text-white font-bold rounded-lg transition-all"
+                                    >
+                                        Try Again
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 

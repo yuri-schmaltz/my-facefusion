@@ -1009,7 +1009,7 @@ async def wizard_progress(job_id: str):
 
 class WizardClusterRequest(BaseModel):
     job_id: str
-    threshold: float = 0.6
+    threshold: float = 0.4  # Cosine distance threshold for face similarity
 
 @app.post("/api/v1/wizard/cluster")
 async def wizard_cluster(req: WizardClusterRequest):
@@ -1133,7 +1133,11 @@ async def wizard_generate(req: WizardGenerateRequest):
         name, ext = os.path.splitext(base_name)
         output_path = os.path.join(dir_name, f"{name}_scene_{i+1}{ext}")
         
-        job_id = job_manager.create_job(f"Scene {i+1} - {name}")
+        # Generate unique job ID (create_job takes the ID, not a display name)
+        job_id = f"wizard_{int(time.time() * 1000)}_{i}"
+        
+        if not job_manager.create_job(job_id):
+            raise HTTPException(500, f"Failed to create job {job_id}")
         
         # Apply suggested settings to the job
         # Note: job_manager doesn't support applying a dict directly yet in this mock,
@@ -1159,6 +1163,128 @@ async def wizard_generate(req: WizardGenerateRequest):
         created_jobs.append(job_id)
         
     return {"created_jobs": created_jobs, "count": len(created_jobs)}
+
+
+# ========================================
+# JOB MANAGEMENT API
+# ========================================
+
+@app.get("/api/v1/jobs")
+async def list_jobs():
+    """List all jobs with their status and details."""
+    all_jobs = []
+    
+    for status in ['drafted', 'queued', 'completed', 'failed']:
+        job_ids = job_manager.find_job_ids(status)
+        for job_id in job_ids:
+            job_data = job_manager.read_job_file(job_id)
+            if job_data:
+                steps = job_data.get('steps', [])
+                # Extract key info from first step if available
+                first_step_args = steps[0].get('args', {}) if steps else {}
+                all_jobs.append({
+                    'id': job_id,
+                    'status': status,
+                    'date_created': job_data.get('date_created'),
+                    'date_updated': job_data.get('date_updated'),
+                    'step_count': len(steps),
+                    'target_path': first_step_args.get('target_path'),
+                    'output_path': first_step_args.get('output_path'),
+                })
+    
+    return {"jobs": all_jobs}
+
+
+class SubmitJobsRequest(BaseModel):
+    job_ids: List[str]
+
+@app.post("/api/v1/jobs/submit")
+async def submit_jobs(req: SubmitJobsRequest):
+    """Submit drafted jobs to the queue for processing."""
+    results = {}
+    for job_id in req.job_ids:
+        success = job_manager.submit_job(job_id)
+        results[job_id] = success
+    
+    return {"results": results, "submitted": sum(1 for v in results.values() if v)}
+
+
+class UnqueueJobsRequest(BaseModel):
+    job_ids: List[str]
+
+@app.post("/api/v1/jobs/unqueue")
+async def unqueue_jobs(req: UnqueueJobsRequest):
+    """Return queued jobs back to drafted status."""
+    results = {}
+    for job_id in req.job_ids:
+        queued_job_ids = job_manager.find_job_ids('queued')
+        if job_id in queued_job_ids:
+            # Move job from queued back to drafted
+            success = job_manager.set_steps_status(job_id, 'drafted') and job_manager.move_job_file(job_id, 'drafted')
+            results[job_id] = success
+        else:
+            results[job_id] = False
+    
+    return {"results": results, "unqueued": sum(1 for v in results.values() if v)}
+
+
+class DeleteJobsRequest(BaseModel):
+    job_ids: List[str]
+
+@app.delete("/api/v1/jobs")
+async def delete_jobs(req: DeleteJobsRequest):
+    """Delete specified jobs."""
+    results = {}
+    for job_id in req.job_ids:
+        success = job_manager.delete_job(job_id)
+        results[job_id] = success
+    
+    return {"results": results, "deleted": sum(1 for v in results.values() if v)}
+
+
+@app.post("/api/v1/jobs/run")
+async def run_queued_jobs(background_tasks: BackgroundTasks):
+    """Run all queued jobs in the background."""
+    from facefusion.core import process_step
+    
+    queued_job_ids = job_manager.find_job_ids('queued')
+    
+    if not queued_job_ids:
+        return {"status": "no_jobs", "message": "No queued jobs to run"}
+    
+    # Process each job in background
+    for job_id in queued_job_ids:
+        job_data = job_manager.read_job_file(job_id)
+        if job_data:
+            steps = job_data.get('steps', [])
+            output_path = steps[0].get('args', {}).get('output_path', '') if steps else ''
+            
+            # Initialize progress tracking
+            job_progress[job_id] = {
+                "status": "running",
+                "progress": 0.0,
+                "preview_url": None
+            }
+            
+            # Add to background tasks
+            background_tasks.add_task(process_job_background, job_id, output_path)
+    
+    return {
+        "status": "started",
+        "jobs_started": len(queued_job_ids),
+        "job_ids": queued_job_ids
+    }
+
+
+@app.get("/api/v1/jobs/status")
+async def get_queue_status():
+    """Get the current status of all jobs being processed."""
+    return {
+        "running": {jid: data for jid, data in job_progress.items() if data.get("status") == "running"},
+        "completed": len([1 for data in job_progress.values() if data.get("status") == "completed"]),
+        "failed": len([1 for data in job_progress.values() if data.get("status") == "failed"]),
+    }
+
 
 # Global cache
 # analyzed_videos is now declared above with persistence helpers

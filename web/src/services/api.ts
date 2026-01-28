@@ -59,4 +59,13 @@ export const wizard = {
     getProgress: (jobId: string) => api.get(`/api/v1/wizard/progress/${jobId}`),
 };
 
+export const jobs = {
+    list: () => api.get('/api/v1/jobs'),
+    submit: (jobIds: string[]) => api.post('/api/v1/jobs/submit', { job_ids: jobIds }),
+    delete: (jobIds: string[]) => api.delete('/api/v1/jobs', { data: { job_ids: jobIds } }),
+    run: () => api.post('/api/v1/jobs/run'),
+    status: () => api.get('/api/v1/jobs/status'),
+    unqueue: (jobIds: string[]) => api.post('/api/v1/jobs/unqueue', { job_ids: jobIds }),
+};
+
 export default api;
