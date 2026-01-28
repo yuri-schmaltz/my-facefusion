@@ -1044,3 +1044,4 @@
 2026-01-28 02:50:08,046 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
 2026-01-28 02:50:08,047 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.15 seconds
 2026-01-28 03:01:38,579 - facefusion - ERROR - [__MAIN__.__MAIN__] [Errno 5] Input/output error
+2026-01-28 11:47:57,025 - facefusion - ERROR - [__MAIN__.__MAIN__] [Errno 5] Input/output error

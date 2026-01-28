@@ -1034,6 +1034,9 @@ async def wizard_cluster(req: WizardClusterRequest):
             face_scene_map.append(int(scene_idx))
     
     print(f"[WIZARD_CLUSTER] Total faces collected: {len(all_faces)}")
+    
+    # Map face objects to their scene index using id() to avoid numpy comparison issues
+    face_to_scene = {id(face): scene_idx for face, scene_idx in zip(all_faces, face_scene_map)}
         
     clusters = cluster_faces(all_faces, req.threshold)
     print(f"[WIZARD_CLUSTER] Clusters formed: {len(clusters)}")
@@ -1048,9 +1051,8 @@ async def wizard_cluster(req: WizardClusterRequest):
         # Use first face as representative
         rep_face = cluster[0]
         
-        # Find which scene this face came from to get the frame
-        face_idx_in_all = all_faces.index(rep_face)
-        scene_idx = face_scene_map[face_idx_in_all]
+        # Find which scene this face came from using id()
+        scene_idx = face_to_scene.get(id(rep_face), 0)
         
         # Get scene frame for thumbnail
         thumbnail_b64 = None
