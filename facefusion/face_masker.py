@@ -223,11 +223,22 @@ def create_occlusion_mask(crop_vision_frame : VisionFrame) -> Mask:
 	else:
 		model_names = [ state_manager.get_item('face_occluder_model') ]
 
+	# Optimization: Assume same input size for same model family to avoid resize churn
+	# XSeg models are typically 256x256
+	model_size = create_static_model_set('full').get(model_names[0]).get('size')
+	prepare_vision_frame = cv2.resize(crop_vision_frame, model_size)
+	prepare_vision_frame = numpy.expand_dims(prepare_vision_frame, axis = 0).astype(numpy.float32) / 255.0
+	prepare_vision_frame = prepare_vision_frame.transpose(0, 1, 2, 3)
+
 	for model_name in model_names:
-		model_size = create_static_model_set('full').get(model_name).get('size')
-		prepare_vision_frame = cv2.resize(crop_vision_frame, model_size)
-		prepare_vision_frame = numpy.expand_dims(prepare_vision_frame, axis = 0).astype(numpy.float32) / 255.0
-		prepare_vision_frame = prepare_vision_frame.transpose(0, 1, 2, 3)
+		# Double check if model size matches current prepare_vision_frame
+		current_model_size = create_static_model_set('full').get(model_name).get('size')
+		if current_model_size != model_size:
+			# Fallback for mixed sizes
+			prepare_vision_frame = cv2.resize(crop_vision_frame, current_model_size)
+			prepare_vision_frame = numpy.expand_dims(prepare_vision_frame, axis = 0).astype(numpy.float32) / 255.0
+			prepare_vision_frame = prepare_vision_frame.transpose(0, 1, 2, 3)
+
 		temp_mask = forward_occlude_face(prepare_vision_frame, model_name)
 		temp_mask = temp_mask.transpose(0, 1, 2).clip(0, 1).astype(numpy.float32)
 		temp_mask = cv2.resize(temp_mask, crop_vision_frame.shape[:2][::-1])
