@@ -150,6 +150,14 @@ class Runner:
             self.log("error", error_msg)
             logger.error(f"Job {job_id} failed: {tb}")
             
+            # --- DEBUG: Write traceback to file ---
+            try:
+                with open("/tmp/facefusion_runner_error.txt", "w") as f:
+                    f.write(f"Job {job_id} failed:\n{tb}")
+            except:
+                pass
+            # --------------------------------------
+            
             self.job.fail(ErrorCode.INTERNAL_ERROR, error_msg)
             self.job.metadata['traceback'] = tb
             self.store.update_job(self.job)
