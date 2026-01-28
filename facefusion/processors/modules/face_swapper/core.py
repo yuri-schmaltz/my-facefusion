@@ -637,8 +637,11 @@ def forward_swap_face(source_face : Face, target_face : Face, crop_vision_frame 
 			face_swapper_inputs[face_swapper_input.name] = crop_vision_frame
 
 	with conditional_thread_semaphore():
-		crop_vision_frame = face_swapper.run(None, face_swapper_inputs)[0][0]
-
+		try:
+			crop_vision_frame = face_swapper.run(None, face_swapper_inputs)[0][0]
+		except Exception as exception:
+			# logger.error('Face Swapper failed to process the frame', __name__)
+			pass
 	return crop_vision_frame
 
 
