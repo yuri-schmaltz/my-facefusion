@@ -964,7 +964,8 @@ def process_wizard_analysis(job_id: str, video_path: str):
         analyzed_videos[job_id] = {
             "video_path": video_path,
             "scenes": scenes,
-            "scene_faces": scene_faces
+            "scene_faces": scene_faces,
+            "face_thumbnails": {}  # Will be populated during clustering
         }
         wizard_tasks[job_id]["status"] = "completed"
         wizard_tasks[job_id]["progress"] = 1.0
@@ -1016,9 +1017,15 @@ async def wizard_cluster(req: WizardClusterRequest):
         raise HTTPException(404, "Analyzed data not found for this job_id")
         
     data = analyzed_videos[req.job_id]
+    video_path = data.get("video_path")
+    scenes = data.get("scenes", [])
     all_faces = []
-    for faces in data["scene_faces"].values():
-        all_faces.extend(faces)
+    face_scene_map = []  # Track which scene each face came from
+    
+    for scene_idx, faces in data["scene_faces"].items():
+        for face in faces:
+            all_faces.append(face)
+            face_scene_map.append(int(scene_idx))
         
     clusters = cluster_faces(all_faces, req.threshold)
     
@@ -1026,16 +1033,39 @@ async def wizard_cluster(req: WizardClusterRequest):
     cluster_results = []
     import cv2
     import base64
+    from facefusion.vision import read_video_frame
     
     for c_idx, cluster in enumerate(clusters):
         # Use first face as representative
         rep_face = cluster[0]
-        # We need the frame to create a thumbnail, but we don't store it in cache.
-        # For the representative, we'll just return the index and metadata for now.
-        # In a real implementation, we'd cache the thumbnail or re-read it.
+        
+        # Find which scene this face came from to get the frame
+        face_idx_in_all = all_faces.index(rep_face)
+        scene_idx = face_scene_map[face_idx_in_all]
+        
+        # Get scene frame for thumbnail
+        thumbnail_b64 = None
+        if video_path and scenes and scene_idx < len(scenes):
+            start_frame, end_frame = scenes[scene_idx]
+            middle_frame = start_frame + (end_frame - start_frame) // 2
+            vision_frame = read_video_frame(video_path, middle_frame)
+            
+            if vision_frame is not None:
+                box = rep_face.bounding_box
+                margin = 16
+                top = max(0, int(box[1]) - margin)
+                bottom = min(vision_frame.shape[0], int(box[3]) + margin)
+                left = max(0, int(box[0]) - margin)
+                right = min(vision_frame.shape[1], int(box[2]) + margin)
+                
+                crop = vision_frame[top:bottom, left:right]
+                _, buffer = cv2.imencode('.jpg', crop)
+                thumbnail_b64 = base64.b64encode(buffer).decode('utf-8')
+        
         cluster_results.append({
             "cluster_index": c_idx,
             "face_count": len(cluster),
+            "thumbnail": f"data:image/jpeg;base64,{thumbnail_b64}" if thumbnail_b64 else None,
             "representative": {
                 "gender": str(rep_face.gender),
                 "age": int(rep_face.age.start if isinstance(rep_face.age, range) else rep_face.age),
@@ -1070,7 +1100,10 @@ async def wizard_generate(req: WizardGenerateRequest):
           raise HTTPException(404, "Data not found")
           
     data = analyzed_videos[req.job_id]
-    video_path = wizard_tasks.get(req.job_id, {}).get("video_path") # Assuming we store this
+    video_path = data.get("video_path")  # Get from analyzed_videos, not wizard_tasks
+    
+    if not video_path:
+        raise HTTPException(400, "Video path not found in analyzed data")
     
     # Check if we have suggestions
     settings = wizard_suggestions.get(req.job_id, {})

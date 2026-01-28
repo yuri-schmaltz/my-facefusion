@@ -22,7 +22,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     const [progress, setProgress] = useState(0);
     const [currentStatus, setCurrentStatus] = useState("queued");
     const [statusMessage, setStatusMessage] = useState("Initializing...");
-    
+
     const pollInterval = useRef<any>(null);
 
     const statusLabels: Record<string, string> = {
@@ -45,10 +45,10 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         if (isOpen && currentStep === 'analyze' && !jobId && status === 'idle') {
             startAnalysis();
         } else if (!isOpen) {
-             // Stop polling if closed
-             if (pollInterval.current) clearInterval(pollInterval.current);
+            // Stop polling if closed
+            if (pollInterval.current) clearInterval(pollInterval.current);
         }
-    }, [isOpen]); 
+    }, [isOpen]);
 
     const startAnalysis = async () => {
         if (!targetPath) {
@@ -61,7 +61,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         setProgress(0);
         setCurrentStatus("queued");
         setStatusMessage("Initializing...");
-        
+
         // Clear any existing interval
         if (pollInterval.current) clearInterval(pollInterval.current);
 
@@ -238,8 +238,15 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                         <div key={idx} className="bg-neutral-800/50 border border-neutral-700/50 rounded-xl p-4 hover:border-red-500/50 transition-all group">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-16 h-16 bg-neutral-700 rounded-lg flex items-center justify-center text-neutral-500 overflow-hidden">
-                                                    {/* Placeholder for crop thumbnail */}
-                                                    <Users size={24} />
+                                                    {cluster.thumbnail ? (
+                                                        <img
+                                                            src={cluster.thumbnail}
+                                                            alt={`Face Group ${idx + 1}`}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <Users size={24} />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-white">Face Group #{idx + 1}</p>
