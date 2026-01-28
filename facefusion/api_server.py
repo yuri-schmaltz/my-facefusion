@@ -468,7 +468,10 @@ async def run_job(background_tasks: BackgroundTasks):
         
     except Exception as e:
         import traceback
-        traceback.print_exc()
+        tb = traceback.format_exc()
+        print(tb)
+        with open("/tmp/facefusion_api_error.txt", "w") as f:
+            f.write(tb)
         raise HTTPException(500, f"Job submission failed: {str(e)}")
 
 @app.post("/stop")

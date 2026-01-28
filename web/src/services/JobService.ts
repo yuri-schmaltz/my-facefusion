@@ -91,7 +91,7 @@ class JobService {
         return res.data;
     }
 
-    async cancelJob(jobId: string) {
+    async cancelJob() {
         // We use the new /stop endpoint which cancels all, or we could implement specific cancel.
         // For now, the user requirement was to wire "Stop" to existing logic which we upgraded.
         // But better to use orchestrator.cancel() if exposed.
