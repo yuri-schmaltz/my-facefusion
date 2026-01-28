@@ -185,6 +185,9 @@ def analyse_video(video_path : str, trim_frame_start : int, trim_frame_end : int
 
 			progress.set_postfix(rate = rate)
 			progress.update()
+			progress_callback = state_manager.get_item('current_job_progress_callback')
+			if progress_callback:
+				progress_callback(progress.n / progress.total)
 
 	return bool(rate > 10.0)
 

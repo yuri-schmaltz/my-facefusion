@@ -72,6 +72,8 @@ def ping_static_url(url : str) -> bool:
 
 
 def conditional_download_hashes(hash_set : DownloadSet) -> bool:
+	if not hash_set:
+		return True
 	hash_paths = [ hash_set.get(hash_key).get('path') for hash_key in hash_set.keys() ]
 
 	process_manager.check()
@@ -99,6 +101,8 @@ def conditional_download_hashes(hash_set : DownloadSet) -> bool:
 
 
 def conditional_download_sources(source_set : DownloadSet) -> bool:
+	if not source_set:
+		return True
 	source_paths = [ source_set.get(source_key).get('path') for source_key in source_set.keys() ]
 
 	process_manager.check()
@@ -168,8 +172,8 @@ def resolve_download_url(base_name : str, file_name : str) -> Optional[str]:
 def resolve_download_url_by_provider(download_provider : DownloadProvider, base_name : str, file_name : str) -> Optional[str]:
 	download_provider_value = facefusion.choices.download_provider_set.get(download_provider)
 
-	for download_provider_url in download_provider_value.get('urls'):
-		if ping_static_url(download_provider_url):
-			return download_provider_url + download_provider_value.get('path').format(base_name = base_name, file_name = file_name)
-
+	if download_provider_value:
+		for download_provider_url in download_provider_value.get('urls'):
+			if ping_static_url(download_provider_url):
+				return download_provider_url + download_provider_value.get('path').format(base_name = base_name, file_name = file_name)
 	return None

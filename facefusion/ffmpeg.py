@@ -48,6 +48,9 @@ def run_ffmpeg_with_progress(commands : List[Command], update_progress : UpdateP
 
 def update_progress(progress : tqdm, frame_number : int) -> None:
 	progress.update(frame_number - progress.n)
+	progress_callback = state_manager.get_item('current_job_progress_callback')
+	if progress_callback:
+		progress_callback(progress.n / progress.total)
 
 
 def run_ffmpeg(commands : List[Command]) -> subprocess.Popen[bytes]:

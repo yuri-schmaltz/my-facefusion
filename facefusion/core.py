@@ -153,14 +153,16 @@ def force_download() -> ErrorCode:
 
 	for module in common_modules + processor_modules:
 		if hasattr(module, 'create_static_model_set'):
-			for model in module.create_static_model_set(state_manager.get_item('download_scope')).values():
-				model_hash_set = model.get('hashes')
-				model_source_set = model.get('sources')
+			static_model_set = module.create_static_model_set(state_manager.get_item('download_scope'))
 
-				if model_hash_set and model_source_set:
-					if not conditional_download_hashes(model_hash_set) or not conditional_download_sources(model_source_set):
-						return 1
+			if static_model_set:
+				for model in static_model_set.values():
+					model_hash_set = model.get('hashes')
+					model_source_set = model.get('sources')
 
+					if model_hash_set and model_source_set:
+						if not conditional_download_hashes(model_hash_set) or not conditional_download_sources(model_source_set):
+							return 1
 	return 0
 
 
