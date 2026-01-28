@@ -1,5 +1,5 @@
 import React from "react";
-import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2 } from "lucide-react";
+import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2, X, Eye, FileText, Clock, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { WizardModal } from "./Wizard/WizardModal";
@@ -140,6 +140,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             console.error("Failed to run queue", err);
             alert("❌ Failed to start queue processing");
         }
+    };
+
+    // Job Details Modal state
+    const [selectedJobDetails, setSelectedJobDetails] = React.useState<any>(null);
+    const [isLoadingDetails, setIsLoadingDetails] = React.useState(false);
+
+    const viewJobDetails = async (jobId: string) => {
+        setIsLoadingDetails(true);
+        try {
+            const res = await jobsApi.getDetails(jobId);
+            setSelectedJobDetails(res.data);
+        } catch (err) {
+            console.error("Failed to load job details", err);
+            alert("❌ Failed to load job details");
+        } finally {
+            setIsLoadingDetails(false);
+        }
+    };
+
+    const closeJobDetails = () => {
+        setSelectedJobDetails(null);
     };
 
     const toggleArrayItem = (key: string, item: string) => {
@@ -745,6 +766,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Voice Extractor */}
+                                <div className="space-y-3 pt-2">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Voice Extractor</label>
+                                    <select
+                                        value={settings.voice_extractor_model || "kim_vocal_2"}
+                                        onChange={(e) => handleChange("voice_extractor_model", e.target.value)}
+                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                    >
+                                        {(choices?.voice_extractor_models || ["kim_vocal_1", "kim_vocal_2"]).map((m: string) => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -769,25 +804,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Actions Bar */}
-                        <div className="flex items-center gap-2 p-2 bg-neutral-800/50 rounded-lg mb-4 shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 p-2 bg-neutral-800/50 rounded-lg mb-4 shrink-0">
                             <button
                                 onClick={selectAllJobs}
-                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5"
+                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <CheckSquare size={12} /> Select All
                             </button>
                             <button
                                 onClick={deselectAllJobs}
-                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5"
+                                className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <Square size={12} /> Deselect
                             </button>
-                            <div className="flex-1" />
+                            <div className="flex-1 min-w-[20px]" />
                             <button
                                 onClick={submitSelectedJobs}
                                 disabled={selectedJobs.size === 0}
                                 className={cn(
-                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     selectedJobs.size > 0
                                         ? "bg-green-600 hover:bg-green-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
@@ -799,7 +834,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 onClick={unqueueSelectedJobs}
                                 disabled={Array.from(selectedJobs).filter(id => jobsList.find(j => j.id === id && j.status === 'queued')).length === 0}
                                 className={cn(
-                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     Array.from(selectedJobs).filter(id => jobsList.find(j => j.id === id && j.status === 'queued')).length > 0
                                         ? "bg-yellow-600 hover:bg-yellow-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
@@ -811,7 +846,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 onClick={deleteSelectedJobs}
                                 disabled={selectedJobs.size === 0}
                                 className={cn(
-                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     selectedJobs.size > 0
                                         ? "bg-red-600 hover:bg-red-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
@@ -823,7 +858,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 onClick={runQueuedJobs}
                                 disabled={jobsList.filter(j => j.status === 'queued').length === 0}
                                 className={cn(
-                                    "px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5",
+                                    "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     jobsList.filter(j => j.status === 'queued').length > 0
                                         ? "bg-purple-600 hover:bg-purple-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
@@ -893,6 +928,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 <div className="text-[10px] text-neutral-500">
                                                     {job.step_count} step{job.step_count !== 1 ? 's' : ''}
                                                 </div>
+
+                                                {/* View Details Button */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        viewJobDetails(job.id);
+                                                    }}
+                                                    className="p-1.5 hover:bg-neutral-700 rounded transition-colors text-neutral-400 hover:text-white"
+                                                    title="View Details"
+                                                >
+                                                    <Eye size={14} />
+                                                </button>
                                             </div>
                                         </div>
                                     );
@@ -980,25 +1027,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <span>{Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}</span>
                                     </div>
                                 </div>
-
-                                {/* Execution Queue */}
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                            Execution Queue
-                                        </label>
-                                        <Tooltip content={helpTexts['execution_queue_count']}>
-                                            <Info size={12} className="text-neutral-500 cursor-help" />
-                                        </Tooltip>
-                                    </div>
-                                    <input
-                                        type="number"
-                                        min="1" max="32"
-                                        value={settings.execution_queue_count || 1}
-                                        onChange={(e) => handleChange("execution_queue_count", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
-                                    />
-                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -1045,19 +1073,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         ))}
                                     </select>
                                 </div>
-                                {/* Voice Extractor */}
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Voice Extractor</label>
-                                    <select
-                                        value={settings.voice_extractor_model || "kim_vocal_2"}
-                                        onChange={(e) => handleChange("voice_extractor_model", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
-                                    >
-                                        {(choices?.voice_extractor_models || ["kim_vocal_1", "kim_vocal_2"]).map((m: string) => (
-                                            <option key={m} value={m}>{m}</option>
-                                        ))}
-                                    </select>
-                                </div>
                             </div>
 
                             <div className="pt-2 border-t border-neutral-800/50">
@@ -1085,6 +1100,150 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 onClose={() => setWizardOpen(false)}
                 targetPath={currentTargetPath || settings.target_path || ""}
             />
+
+            {/* Job Details Modal */}
+            {selectedJobDetails && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                            <div className="flex items-center gap-3">
+                                <FileText size={20} className="text-red-500" />
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">Job Details</h3>
+                                    <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={closeJobDetails}
+                                className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {/* Status & Info */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-neutral-800/50 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                        <Info size={12} />
+                                        <span className="text-[10px] uppercase font-bold">Status</span>
+                                    </div>
+                                    <span className={cn(
+                                        "text-sm font-bold uppercase",
+                                        selectedJobDetails.status === 'drafted' && "text-yellow-500",
+                                        selectedJobDetails.status === 'queued' && "text-blue-500",
+                                        selectedJobDetails.status === 'completed' && "text-green-500",
+                                        selectedJobDetails.status === 'failed' && "text-red-500",
+                                    )}>
+                                        {selectedJobDetails.status}
+                                    </span>
+                                </div>
+                                <div className="bg-neutral-800/50 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                        <Clock size={12} />
+                                        <span className="text-[10px] uppercase font-bold">Created</span>
+                                    </div>
+                                    <span className="text-sm text-white">
+                                        {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Steps */}
+                            <div>
+                                <div className="flex items-center gap-2 text-neutral-400 mb-2">
+                                    <Cpu size={14} />
+                                    <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
+                                </div>
+                                <div className="space-y-3">
+                                    {selectedJobDetails.steps?.map((step: any, idx: number) => (
+                                        <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-xs font-bold text-white">Step {idx + 1}</span>
+                                                <span className={cn(
+                                                    "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
+                                                    step.status === 'completed' ? "bg-green-500/20 text-green-500" :
+                                                        step.status === 'failed' ? "bg-red-500/20 text-red-500" :
+                                                            "bg-neutral-700 text-neutral-400"
+                                                )}>
+                                                    {step.status}
+                                                </span>
+                                            </div>
+
+                                            {/* Target & Output */}
+                                            <div className="space-y-1 text-[10px]">
+                                                {step.target_path && (
+                                                    <div className="flex gap-2">
+                                                        <span className="text-neutral-500 w-16">Target:</span>
+                                                        <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
+                                                            {step.target_path.split('/').pop()}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {step.output_path && (
+                                                    <div className="flex gap-2">
+                                                        <span className="text-neutral-500 w-16">Output:</span>
+                                                        <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
+                                                            {step.output_path.split('/').pop()}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Processors */}
+                                                {step.processors?.length > 0 && (
+                                                    <div className="flex gap-2 mt-2">
+                                                        <span className="text-neutral-500 w-16">Processors:</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {step.processors.map((p: string, i: number) => (
+                                                                <span key={i} className="px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded text-[9px]">
+                                                                    {p}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Source Paths */}
+                                                {step.source_paths?.length > 0 && (
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className="text-neutral-500 w-16">Sources:</span>
+                                                        <span className="text-neutral-300">
+                                                            {step.source_paths.length} file(s)
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Frame Range */}
+                                                {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className="text-neutral-500 w-16">Frames:</span>
+                                                        <span className="text-neutral-300">
+                                                            {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t border-neutral-700 flex justify-end">
+                            <button
+                                onClick={closeJobDetails}
+                                className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

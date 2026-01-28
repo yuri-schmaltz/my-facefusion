@@ -1195,6 +1195,58 @@ async def list_jobs():
     return {"jobs": all_jobs}
 
 
+@app.get("/api/v1/jobs/{job_id}")
+async def get_job_details(job_id: str):
+    """Get full details of a specific job including all steps and settings."""
+    job_data = job_manager.read_job_file(job_id)
+    
+    if not job_data:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Find job status
+    job_status = None
+    for status in ['drafted', 'queued', 'completed', 'failed']:
+        if job_id in job_manager.find_job_ids(status):
+            job_status = status
+            break
+    
+    steps = job_data.get('steps', [])
+    
+    # Build detailed response
+    detailed_steps = []
+    for idx, step in enumerate(steps):
+        args = step.get('args', {})
+        detailed_steps.append({
+            'index': idx,
+            'status': step.get('status', 'unknown'),
+            'target_path': args.get('target_path'),
+            'output_path': args.get('output_path'),
+            'source_paths': args.get('source_paths', []),
+            'processors': args.get('processors', []),
+            'face_selector_mode': args.get('face_selector_mode'),
+            'face_selector_gender': args.get('face_selector_gender'),
+            'face_selector_age_start': args.get('face_selector_age_start'),
+            'face_selector_age_end': args.get('face_selector_age_end'),
+            'output_video_quality': args.get('output_video_quality'),
+            'output_video_encoder': args.get('output_video_encoder'),
+            'execution_providers': args.get('execution_providers', []),
+            'trim_frame_start': args.get('trim_frame_start'),
+            'trim_frame_end': args.get('trim_frame_end'),
+            # Include all other args for full transparency
+            'all_args': args,
+        })
+    
+    return {
+        'id': job_id,
+        'status': job_status,
+        'version': job_data.get('version'),
+        'date_created': job_data.get('date_created'),
+        'date_updated': job_data.get('date_updated'),
+        'step_count': len(steps),
+        'steps': detailed_steps,
+    }
+
+
 class SubmitJobsRequest(BaseModel):
     job_ids: List[str]
 

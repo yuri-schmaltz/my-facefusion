@@ -8,6 +8,7 @@ import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
 import ProcessorSettings from "@/components/ProcessorSettings";
 import FaceSelector from "@/components/FaceSelector";
+import { MediaPreview } from "@/components/MediaPreview";
 // ... imports
 
 // ... inside App component
@@ -206,7 +207,7 @@ function App() {
   };
 
   return (
-    <div className="grid grid-cols-3 h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3">
+    <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3" style={{ gridTemplateColumns: '25% 1fr 30%' }}>
       <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} />
 
       {/* Column 1: Processors & Execution */}
@@ -264,67 +265,7 @@ function App() {
 
           </div>
 
-          <section className="p-4 bg-neutral-900/50 border-t border-neutral-800 flex items-center gap-2 shrink-0">
-            <TerminalButton
-              isOpen={isTerminalOpen}
-              onToggle={() => setIsTerminalOpen(!isTerminalOpen)}
-              isProcessing={isProcessing}
-              className="w-14"
-            />
-            {showStopConfirm ? (
-              <div className="flex-1 flex gap-1 animate-in fade-in zoom-in-95 duration-200">
-                <button
-                  onClick={async () => {
-                    await execute.stop();
-                    setShowStopConfirm(false);
-                  }}
-                  className="flex-1 py-4 font-bold rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20"
-                >
-                  <X size={18} /> Confirm Stop
-                </button>
-                <button
-                  onClick={() => setShowStopConfirm(false)}
-                  className="px-6 py-4 font-bold rounded-lg bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  if (isProcessing) {
-                    setShowStopConfirm(true);
-                  } else {
-                    startProcessing();
-                  }
-                }}
-                disabled={!isProcessing && (!sourcePath || !targetPath)}
-                className={cn(
-                  "flex-1 py-4 font-bold rounded-lg transition flex items-center justify-center gap-2 relative overflow-hidden",
-                  isProcessing
-                    ? "bg-red-600/10 border border-red-500/50 text-red-500 hover:bg-red-600/20"
-                    : (!sourcePath || !targetPath
-                      ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-                      : "bg-white text-black hover:bg-neutral-200")
-                )}
-              >
-                {isProcessing && (
-                  <div
-                    className="absolute inset-0 bg-red-500/10 transition-all duration-300 ease-linear origin-left"
-                    style={{ width: `${progress}%` }}
-                  />
-                )}
-                {isProcessing ? (
-                  <X size={18} className="z-10" />
-                ) : (
-                  <Play size={18} />
-                )}
-                <span className="z-10 relative">
-                  {isProcessing ? `Stop Processing (${Math.round(progress)}%)` : "Start Processing"}
-                </span>
-              </button>
-            )}
-          </section>
+
         </div>
       </aside>
 
@@ -333,230 +274,194 @@ function App() {
         <SettingsPanel
           settings={allSettings}
           choices={globalChoices}
-          helpTexts={helpTexts}
-          systemInfo={systemInfo}
-          onChange={updateSetting}
-          currentTargetPath={targetPath}
-        />
-      </div>
+        </div>
+    </div>
 
-      {/* Column 3: Source / Target / Preview */}
-      <div className="h-full flex flex-col gap-3 overflow-hidden">
-        <div className="grid grid-cols-2 gap-3 h-[250px]">
-          {/* Source Card */}
-          <div
-            className={cn(
-              "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
-              sourcePath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
-            )}
-          >
-            {sourcePath ? (
-              <>
-                <div className="absolute inset-0 z-0">
-                  {isVideo(sourcePath) ? (
-                    <video
-                      src={files.preview(sourcePath)}
-                      className="w-full h-full object-contain pointer-events-auto"
-                      controls
-                      muted
-                      loop
-                    />
-                  ) : (
-                    <img
-                      src={files.preview(sourcePath)}
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </div>
+      {/* Column 3: Source / Target / Preview */ }
+  <div className="h-full flex flex-col gap-3 overflow-hidden">
+    <div className="grid grid-cols-2 gap-3 h-[250px]">
+      {/* Source Card */}
+      <div
+        className={cn(
+          "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
+          sourcePath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+        )}
+      >
+        {sourcePath ? (
+          <>
+            <div className="absolute inset-0 z-0">
+              {isVideo(sourcePath) ? (
+                <video
+                  src={files.preview(sourcePath)}
+                  className="w-full h-full object-contain pointer-events-auto"
+                  controls
+                  muted
+                  loop
+                />
+              ) : (
+                <img
+                  src={files.preview(sourcePath)}
+                  className="w-full h-full object-contain"
+                />
+              )}
+            </div>
 
-                <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
-                  <div
-                    onClick={() => openBrowser("source")}
-                    className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
-                  >
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
-                      {sourcePath.split('/').pop()}
-                    </span>
-                    <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSourcePath(null);
-                      config.update({ source_paths: [] });
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
-                  >
-                    <X size={14} />
-                  </button>
-                  {/* The rest of the card is empty and allows pointer-events-none to pass through to the video below */}
-                </div>
-              </>
-            ) : (
+            <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
               <div
                 onClick={() => openBrowser("source")}
-                className="flex flex-col items-center justify-center w-full h-full"
+                className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
               >
-                <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
-                <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
-                <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+                <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
+                  {sourcePath.split('/').pop()}
+                </span>
+                <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
               </div>
-            )}
-          </div>
 
-          {/* Target Card */}
-          <div className="flex flex-col h-full overflow-hidden">
-            <div
-              className={cn(
-                "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all flex-1 group min-h-0 relative overflow-hidden",
-                targetPath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
-              )}
-            >
-              {targetPath ? (
-                <>
-                  <div className="absolute inset-0 z-0">
-                    {isVideo(targetPath) ? (
-                      <video
-                        src={files.preview(targetPath)}
-                        className="w-full h-full object-contain pointer-events-auto"
-                        onTimeUpdate={(e) => setCurrentVideoTime(e.currentTarget.currentTime)}
-                        controls
-                        muted
-                        loop
-                      />
-                    ) : (
-                      <img
-                        src={files.preview(targetPath)}
-                        className="w-full h-full object-contain"
-                      />
-                    )}
-                  </div>
-
-                  <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
-                    <div
-                      onClick={() => openBrowser("target")}
-                      className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
-                    >
-                      <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
-                        {targetPath.split('/').pop()}
-                      </span>
-                      <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
-                    </div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setTargetPath(null);
-                        config.update({ target_path: null });
-                      }}
-                      className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div
-                  onClick={() => openBrowser("target")}
-                  className="flex flex-col items-center justify-center w-full h-full"
-                >
-                  <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
-                  <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Target</p>
-                  <p className="text-[10px] text-neutral-600 mt-1 italic">The base media</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Detected Faces Card */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 animate-in fade-in slide-in-from-top-2 duration-500 min-h-[140px] flex flex-col">
-          <FaceSelector
-            targetPath={targetPath}
-            currentTime={currentVideoTime}
-            onSelect={(index) => updateSetting("reference_face_position", index)}
-          />
-        </div>
-
-        {/* Preview Card */}
-        <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
-          {/* Preview Toolbar */}
-          {previewUrl && (
-            <div className="absolute top-4 right-4 z-20 flex gap-2">
-              <select
-                value={previewResolution}
-                onChange={(e) => setPreviewResolution(e.target.value)}
-                className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSourcePath(null);
+                  config.update({ source_paths: [] });
+                }}
+                className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
               >
-                {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
-                  <option key={res} value={res} className="bg-neutral-900">{res}</option>
-                ))}
-              </select>
+                <X size={14} />
+              </button>
+              {/* The rest of the card is empty and allows pointer-events-none to pass through to the video below */}
+            </div>
+          </>
+        ) : (
+          <div
+            onClick={() => openBrowser("source")}
+            className="flex flex-col items-center justify-center w-full h-full"
+          >
+            <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
+            <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
+            <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+          </div>
+        )}
+      </div>
 
-              {isPreviewLoading && (
-                <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
-                  <Loader2 size={16} className="animate-spin text-red-500" />
-                </div>
-              )}
+      {/* Target Card with MediaPreview */}
+      <MediaPreview
+        file={targetPath}
+        type="target"
+        label="Select Target"
+        onUpload={() => openBrowser("target")}
+        onClear={() => {
+          setTargetPath(null);
+          config.update({ target_path: null });
+        }}
+        isMasking={activeProcessors.includes('watermark_remover')}
+        maskArea={[
+          allSettings.watermark_remover_area_start?.[0] || 0,
+          allSettings.watermark_remover_area_start?.[1] || 0,
+          allSettings.watermark_remover_area_end?.[0] || 0,
+          allSettings.watermark_remover_area_end?.[1] || 0
+        ]}
+        onMaskChange={(area) => {
+          // area is [x1, y1, x2, y2]
+          // We need to update watermark_remover_area_start and _end
+          // API expects space separated strings or list?
+          // config.update expects raw values.
+          // Our updateSetting wrapper handles details.
+          // Wait, updateSetting takes (key, value).
+          // We need to call it twice.
+          updateSetting('watermark_remover_area_start', [area[0], area[1]]);
+          updateSetting('watermark_remover_area_end', [area[2], area[3]]);
+        }}
+        className="h-full"
+      />
+
+    </div>
+
+    {/* Detected Faces Card */}
+    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 animate-in fade-in slide-in-from-top-2 duration-500 min-h-[140px] flex flex-col">
+      <FaceSelector
+        targetPath={targetPath}
+        currentTime={currentVideoTime}
+        onSelect={(index) => updateSetting("reference_face_position", index)}
+      />
+    </div>
+
+    {/* Preview Card */}
+    <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
+      {/* Preview Toolbar */}
+      {previewUrl && (
+        <div className="absolute top-4 right-4 z-20 flex gap-2">
+          <select
+            value={previewResolution}
+            onChange={(e) => setPreviewResolution(e.target.value)}
+            className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
+          >
+            {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
+              <option key={res} value={res} className="bg-neutral-900">{res}</option>
+            ))}
+          </select>
+
+          {isPreviewLoading && (
+            <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
+              <Loader2 size={16} className="animate-spin text-red-500" />
             </div>
           )}
+        </div>
+      )}
 
-          {outputUrl ? (
-            <div className="w-full h-full relative group">
-              <video
-                src={`http://localhost:8002${outputUrl}`}
-                controls
-                className="w-full h-full object-contain"
-                autoPlay
+      {outputUrl ? (
+        <div className="w-full h-full relative group">
+          <video
+            src={`http://localhost:8002${outputUrl}`}
+            controls
+            className="w-full h-full object-contain"
+            autoPlay
+          />
+          <a
+            href={`http://localhost:8002${outputUrl}`}
+            download
+            className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
+          >
+            <Upload size={16} className="rotate-180" /> Download
+          </a>
+        </div>
+      ) : isProcessing ? (
+        <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 size={48} className="animate-spin text-red-500" />
+            <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
+          </div>
+
+          <div className="w-full space-y-2">
+            <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
+              <span>Progress</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-red-600 transition-all duration-300 ease-linear rounded-full"
+                style={{ width: `${progress}%` }}
               />
-              <a
-                href={`http://localhost:8002${outputUrl}`}
-                download
-                className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
-              >
-                <Upload size={16} className="rotate-180" /> Download
-              </a>
             </div>
-          ) : isProcessing ? (
-            <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 size={48} className="animate-spin text-red-500" />
-                <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
-              </div>
-
-              <div className="w-full space-y-2">
-                <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
-                  <span>Progress</span>
-                  <span>{Math.round(progress)}%</span>
-                </div>
-                <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-600 transition-all duration-300 ease-linear rounded-full"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="text-center text-xs text-neutral-600 pt-2">
-                  {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
-                </p>
-              </div>
+            <p className="text-center text-xs text-neutral-600 pt-2">
+              {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
+            </p>
+          </div>
+        </div>
+      ) : previewUrl ? (
+        <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
+          <img src={previewUrl} className="w-full h-full object-contain" />
+          {isPreviewLoading && (
+            <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
+              <Loader2 size={16} className="animate-spin text-red-500" />
             </div>
-          ) : previewUrl ? (
-            <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
-              <img src={previewUrl} className="w-full h-full object-contain" />
-              {isPreviewLoading && (
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
-                  <Loader2 size={16} className="animate-spin text-red-500" />
-                </div>
-              )}
-              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                <Sparkles size={14} className="text-red-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Assuming the icon mapping object is defined elsewhere and needs to be updated.
+          )}
+          <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+            <Sparkles size={14} className="text-red-500" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Assuming the icon mapping object is defined elsewhere and needs to be updated.
                     Since the full context of the icon mapping object (e.g., `face_debugger: Bug,`)
                     is not present in the provided document, this change is placed as a comment
                     to indicate where it would logically go if the object were present.
@@ -564,7 +469,7 @@ function App() {
                     `watermark_remover: Eraser, // Reusing Eraser for now or use another icon`
                     into that object.
                 */}
-              {/*
+          {/*
                 // Example of where the icon mapping might be if it existed in this file:
                 const iconMapping = {
                   face_debugger: Bug,
@@ -576,15 +481,15 @@ function App() {
                   lip_syncer: Mic2,
                 };
                 */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
-              <p className="text-neutral-600 font-medium z-10 flex items-center gap-2">
-                <Sparkles size={16} /> Output Preview
-              </p>
-            </>
-          )}
-        </div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
+          <p className="text-neutral-600 font-medium z-10 flex items-center gap-2">
+            <Sparkles size={16} /> Output Preview
+          </p>
+        </>
+      )}
+    </div>
 
-      </div>
+  </div>
     </div >
   );
 }

@@ -61,6 +61,7 @@ export const wizard = {
 
 export const jobs = {
     list: () => api.get('/api/v1/jobs'),
+    getDetails: (jobId: string) => api.get(`/api/v1/jobs/${jobId}`),
     submit: (jobIds: string[]) => api.post('/api/v1/jobs/submit', { job_ids: jobIds }),
     delete: (jobIds: string[]) => api.delete('/api/v1/jobs', { data: { job_ids: jobIds } }),
     run: () => api.post('/api/v1/jobs/run'),
