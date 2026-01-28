@@ -95,3 +95,5 @@
 {"asctime": "2026-01-27 23:07:46,683", "name": "facefusion", "levelname": "CRITICAL", "message": "+----------------------------------+-------------+-------------+-------------+-------------+--------------+", "module": "cli_helper", "lineno": 13}
 {"asctime": "2026-01-27 23:07:46,683", "name": "facefusion", "levelname": "CRITICAL", "message": "| .assets/examples/target-240p.mp4 | 1           | 95.66       | 95.66       | 95.66       | 2.82         |", "module": "cli_helper", "lineno": 17}
 {"asctime": "2026-01-27 23:07:46,683", "name": "facefusion", "levelname": "CRITICAL", "message": "+----------------------------------+-------------+-------------+-------------+-------------+--------------+", "module": "cli_helper", "lineno": 19}
+{"asctime": "2026-01-28 00:32:37,708", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-28 00:32:37,713", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json", "module": "logger", "lineno": 49}

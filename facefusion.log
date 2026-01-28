@@ -530,3 +530,5 @@
 2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
 2026-01-27 23:07:46,683 - facefusion - CRITICAL - | .assets/examples/target-240p.mp4 | 1           | 95.66       | 95.66       | 95.66       | 2.82         |
 2026-01-27 23:07:46,683 - facefusion - CRITICAL - +----------------------------------+-------------+-------------+-------------+-------------+--------------+
+2026-01-28 00:32:37,708 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json
+2026-01-28 00:32:37,713 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json

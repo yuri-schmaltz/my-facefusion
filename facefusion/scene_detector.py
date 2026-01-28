@@ -2,6 +2,8 @@ from typing import List, Tuple
 import cv2
 import numpy
 from facefusion.vision import get_video_capture, count_video_frame_total
+from facefusion.thread_helper import thread_semaphore
+
 
 def detect_scene_cuts(video_path: str, threshold: float = 0.3, progress_callback = None) -> List[int]:
     scene_cuts = [0]
@@ -18,8 +20,10 @@ def detect_scene_cuts(video_path: str, threshold: float = 0.3, progress_callback
             if progress_callback and frame_number % 5 == 0:
                 progress_callback(frame_number / frame_total)
 
-            video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-            has_frame, frame = video_capture.read()
+            with thread_semaphore():
+                video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+                has_frame, frame = video_capture.read()
+            
             if not has_frame:
                 break
             
