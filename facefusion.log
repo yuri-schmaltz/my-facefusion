@@ -1043,3 +1043,4 @@
 2026-01-28 02:50:08,042 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
 2026-01-28 02:50:08,046 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
 2026-01-28 02:50:08,047 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.15 seconds
+2026-01-28 03:01:38,579 - facefusion - ERROR - [__MAIN__.__MAIN__] [Errno 5] Input/output error

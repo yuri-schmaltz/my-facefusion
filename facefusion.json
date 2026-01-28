@@ -608,3 +608,4 @@
 {"asctime": "2026-01-28 02:50:08,042", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] Error opening output files: Invalid argument", "module": "logger", "lineno": 57}
 {"asctime": "2026-01-28 02:50:08,046", "name": "facefusion", "levelname": "WARNING", "message": "[FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped", "module": "logger", "lineno": 53}
 {"asctime": "2026-01-28 02:50:08,047", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.15 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-28 03:01:38,579", "name": "facefusion", "levelname": "ERROR", "message": "[__MAIN__.__MAIN__] [Errno 5] Input/output error", "module": "logger", "lineno": 57}

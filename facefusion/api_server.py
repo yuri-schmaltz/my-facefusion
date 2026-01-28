@@ -1019,15 +1019,24 @@ async def wizard_cluster(req: WizardClusterRequest):
     data = analyzed_videos[req.job_id]
     video_path = data.get("video_path")
     scenes = data.get("scenes", [])
+    scene_faces = data.get("scene_faces", {})
+    
+    print(f"[WIZARD_CLUSTER] job_id={req.job_id}, video_path={video_path}")
+    print(f"[WIZARD_CLUSTER] scenes count: {len(scenes)}, scene_faces keys: {list(scene_faces.keys())}")
+    
     all_faces = []
     face_scene_map = []  # Track which scene each face came from
     
-    for scene_idx, faces in data["scene_faces"].items():
+    for scene_idx, faces in scene_faces.items():
+        print(f"[WIZARD_CLUSTER] scene {scene_idx}: {len(faces)} faces")
         for face in faces:
             all_faces.append(face)
             face_scene_map.append(int(scene_idx))
+    
+    print(f"[WIZARD_CLUSTER] Total faces collected: {len(all_faces)}")
         
     clusters = cluster_faces(all_faces, req.threshold)
+    print(f"[WIZARD_CLUSTER] Clusters formed: {len(clusters)}")
     
     # Prepare response with thumbnails
     cluster_results = []
