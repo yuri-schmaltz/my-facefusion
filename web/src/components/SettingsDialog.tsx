@@ -92,7 +92,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         <select
                             value={settings.face_selector_mode || "reference"}
                             onChange={(e) => handleChange("face_selector_mode", e.target.value)}
-                            className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                            className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         >
                             <option value="reference">Reference (One Face)</option>
                             <option value="one">One (First Found)</option>
@@ -113,7 +113,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                     className={cn(
                                         "px-3 py-1.5 text-xs font-medium rounded-full border transition-all",
                                         (settings.face_mask_types || []).includes(type)
-                                            ? "bg-red-600 border-red-500 text-white"
+                                            ? "bg-blue-600 border-blue-500 text-white"
                                             : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                     )}
                                 >
@@ -136,7 +136,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                     className={cn(
                                         "px-3 py-1.5 text-xs font-medium rounded-full border transition-all",
                                         (settings.face_mask_regions || []).includes(region)
-                                            ? "bg-red-600 border-red-500 text-white"
+                                            ? "bg-blue-600 border-blue-500 text-white"
                                             : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                     )}
                                 >
@@ -155,7 +155,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                             <select
                                 value={settings.output_video_encoder || "libx264"}
                                 onChange={(e) => handleChange("output_video_encoder", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                             >
                                 {OUTPUT_VIDEO_ENCODERS.map(enc => (
                                     <option key={enc} value={enc}>{enc}</option>
@@ -167,7 +167,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         <div className="space-y-3">
                             <label className="text-sm font-medium text-neutral-300 flex justify-between items-center">
                                 <span>Output Quality</span>
-                                <span className="text-red-500 font-bold">{settings.output_video_quality || 80}%</span>
+                                <span className="text-blue-500 font-bold">{settings.output_video_quality || 80}%</span>
                             </label>
                             <input
                                 type="range"
@@ -175,7 +175,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                 max="100"
                                 value={settings.output_video_quality || 80}
                                 onChange={(e) => handleChange("output_video_quality", e.target.value)}
-                                className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />
                         </div>
                     </div>
@@ -192,7 +192,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                 max="128"
                                 value={settings.execution_thread_count || 4}
                                 onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                             />
                         </div>
 
@@ -207,7 +207,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                 max="32"
                                 value={settings.execution_queue_count || 1}
                                 onChange={(e) => handleChange("execution_queue_count", e.target.value)}
-                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -232,7 +232,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                                         className={cn(
                                             "px-3 py-2 text-sm font-medium rounded-lg border text-center transition-all",
                                             isSelected
-                                                ? "bg-red-600/20 border-red-500 text-red-500"
+                                                ? "bg-blue-600/20 border-blue-500 text-blue-500"
                                                 : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600 hover:text-neutral-300"
                                         )}
                                     >

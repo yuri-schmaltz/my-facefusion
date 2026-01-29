@@ -280,8 +280,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                 {/* Header */}
                 <div className="p-6 border-b border-neutral-800 flex items-center justify-between bg-neutral-950/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-4 bg-red-600/10 rounded-full inline-block">
-                            <Wand2 size={20} className="text-red-500" />
+                        <div className="p-4 bg-blue-600/10 rounded-full inline-block">
+                            <Wand2 size={20} className="text-blue-500" />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-white">Automatic Wizard</h2>
@@ -311,7 +311,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 className={cn(
                                     "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold border-b-2 transition-all",
                                     currentStep === step.id
-                                        ? "border-red-600 text-white bg-red-600/5"
+                                        ? "border-blue-600 text-white bg-blue-600/5"
                                         : isClickable
                                             ? "border-transparent text-neutral-400 hover:text-white hover:bg-neutral-800/50 cursor-pointer"
                                             : "border-transparent text-neutral-600 cursor-not-allowed"
@@ -392,8 +392,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 /* Start Analysis View */
                                 <>
                                     <div className="text-center space-y-4">
-                                        <div className="p-4 bg-red-600/10 rounded-full inline-block">
-                                            <Search size={48} className="text-red-500" />
+                                        <div className="p-4 bg-blue-600/10 rounded-full inline-block">
+                                            <Search size={48} className="text-blue-500" />
                                         </div>
                                         <h3 className="text-xl font-bold text-white">Ready to Analyze</h3>
                                         <p className="text-neutral-400 max-w-md">
@@ -405,7 +405,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     </div>
                                     <button
                                         onClick={startAnalysis}
-                                        className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
+                                        className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
                                     >
                                         <Wand2 size={18} />
                                         Start Analysis
@@ -415,16 +415,16 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 /* Loading View */
                                 <>
                                     <div className="relative">
-                                        <Loader2 size={64} className="text-red-600 animate-spin" />
+                                        <Loader2 size={64} className="text-blue-600 animate-spin" />
                                     </div>
                                     <div className="text-center space-y-4 w-full max-w-md">
                                         <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
                                         <div className="flex items-center justify-center gap-3 text-sm text-neutral-400">
-                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-blue-500/50 bg-blue-500/10 text-blue-500" : "border-neutral-800 bg-neutral-900")}>
                                                 Scenes
                                             </div>
                                             <ChevronRight size={14} className="text-neutral-700" />
-                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-red-500/50 bg-red-500/10 text-red-500" : "border-neutral-800 bg-neutral-900")}>
+                                            <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-blue-500/50 bg-blue-500/10 text-blue-500" : "border-neutral-800 bg-neutral-900")}>
                                                 Faces
                                             </div>
                                         </div>
@@ -436,7 +436,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                             </div>
                                             <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/50 shadow-inner">
                                                 <div
-                                                    className="h-full bg-red-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)]"
+                                                    className="h-full bg-blue-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)]"
                                                     style={{ width: `${progress * 100}%` }}
                                                 />
                                             </div>
@@ -455,7 +455,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     </p>
                                     <button
                                         onClick={() => setCurrentStep('cluster')}
-                                        className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 mx-auto"
+                                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 mx-auto"
                                     >
                                         Continue to Grouping
                                         <ChevronRight size={16} />
@@ -464,8 +464,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             ) : (
                                 /* Failed View */
                                 <div className="text-center space-y-4">
-                                    <div className="p-4 bg-red-600/10 rounded-full inline-block">
-                                        <X size={48} className="text-red-500" />
+                                    <div className="p-4 bg-blue-600/10 rounded-full inline-block">
+                                        <X size={48} className="text-blue-500" />
                                     </div>
                                     <h3 className="text-xl font-bold text-white">Analysis Failed</h3>
                                     <p className="text-neutral-400">
@@ -491,7 +491,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
 
                             {status === 'loading' ? (
                                 <div className="flex items-center justify-center py-20">
-                                    <Loader2 className="animate-spin text-red-600" size={32} />
+                                    <Loader2 className="animate-spin text-blue-600" size={32} />
                                 </div>
                             ) : (
                                 <>
@@ -614,8 +614,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
 
                     {currentStep === 'optimize' && suggestions && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="bg-red-600/10 border border-red-600/20 rounded-xl p-6 flex items-start gap-4">
-                                <Settings className="text-red-500 shrink-0" size={24} />
+                            <div className="bg-blue-600/10 border border-blue-600/20 rounded-xl p-6 flex items-start gap-4">
+                                <Settings className="text-blue-500 shrink-0" size={24} />
                                 <div>
                                     <h4 className="font-bold text-white mb-1">Recommended Optimization</h4>
                                     <p className="text-sm text-neutral-400 leading-relaxed">
@@ -767,7 +767,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     {currentStep === 'optimize' && (
                         <button
                             onClick={() => setCurrentStep('generate')}
-                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
+                            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500 transition-colors flex items-center gap-2"
                         >
                             Next: Generation
                         </button>
@@ -777,7 +777,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                         <button
                             onClick={handleGenerateJobs}
                             disabled={isGenerating}
-                            className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-500 transition-colors flex items-center gap-2"
+                            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500 transition-colors flex items-center gap-2"
                         >
                             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
                             Generate Jobs

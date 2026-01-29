@@ -194,14 +194,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         className={cn(
                             "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
                             activeTab === tab.id
-                                ? "text-red-500 bg-red-500/5"
+                                ? "text-blue-500 bg-blue-500/5"
                                 : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
                         )}
                     >
                         <tab.icon size={14} />
                         <span className="hidden sm:inline">{tab.label}</span>
                         {activeTab === tab.id && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500 animate-in fade-in slide-in-from-bottom-1" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
                         )}
                     </button>
                 ))}
@@ -223,39 +223,56 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                                {[
-                                    { id: 'reference', label: 'Reference', icon: Target },
-                                    { id: 'automatic', label: 'Automatic', icon: Zap },
-                                    { id: 'one', label: 'Single', icon: User },
-                                    { id: 'many', label: 'Many', icon: Users },
-                                ].map((mode: any) => (
-                                    <button
-                                        key={mode.id}
-                                        onClick={() => {
-                                            handleChange("face_selector_mode", mode.id);
-                                            if (mode.id === 'automatic') {
-                                                setWizardOpen(true);
-                                            }
-                                        }}
-                                        className={cn(
-                                            "flex items-center justify-between px-3 py-2 rounded-lg border transition-all relative overflow-hidden group h-9",
-                                            settings.face_selector_mode === mode.id
-                                                ? "bg-red-600/10 border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.1)]"
-                                                : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <mode.icon size={14} className={cn(settings.face_selector_mode === mode.id ? "text-red-500" : "text-neutral-500")} />
-                                            <span className={cn("text-xs font-bold", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
+                            <div className="space-y-2 mt-2">
+                                {/* Top Row: Reference, Single, Many */}
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: 'reference', label: 'Reference', icon: Target },
+                                        { id: 'one', label: 'Single', icon: User },
+                                        { id: 'many', label: 'Many', icon: Users },
+                                    ].map((mode) => (
+                                        <button
+                                            key={mode.id}
+                                            onClick={() => handleChange("face_selector_mode", mode.id)}
+                                            className={cn(
+                                                "flex items-center justify-center gap-2 p-2 rounded-lg border transition-all relative overflow-hidden group h-9",
+                                                settings.face_selector_mode === mode.id
+                                                    ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                    : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
+                                            )}
+                                        >
+                                            <mode.icon size={14} className={cn(settings.face_selector_mode === mode.id ? "text-blue-500" : "text-neutral-500")} />
+                                            <span className={cn("text-[10px] font-bold uppercase", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
                                                 {mode.label}
                                             </span>
-                                        </div>
-                                        {settings.face_selector_mode === mode.id && (
-                                            <Sparkles size={10} className="text-red-500 opacity-50" />
-                                        )}
-                                    </button>
-                                ))}
+                                            {settings.face_selector_mode === mode.id && (
+                                                <Sparkles size={10} className="absolute top-1 right-1 text-blue-500 opacity-50" />
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Bottom Row: Automatic */}
+                                <button
+                                    onClick={() => {
+                                        handleChange("face_selector_mode", 'automatic');
+                                        setWizardOpen(true);
+                                    }}
+                                    className={cn(
+                                        "w-full flex items-center justify-center gap-2 p-2 rounded-lg border transition-all relative overflow-hidden group h-9",
+                                        settings.face_selector_mode === 'automatic'
+                                            ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                            : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
+                                    )}
+                                >
+                                    <Zap size={14} className={cn(settings.face_selector_mode === 'automatic' ? "text-blue-500" : "text-neutral-500")} />
+                                    <span className={cn("text-xs font-bold uppercase", settings.face_selector_mode === 'automatic' ? "text-white" : "text-neutral-400")}>
+                                        Automatic
+                                    </span>
+                                    {settings.face_selector_mode === 'automatic' && (
+                                        <Sparkles size={10} className="absolute top-1 right-1 text-blue-500 opacity-50" />
+                                    )}
+                                </button>
                             </div>
 
                             {/* Reference Options */}
@@ -264,14 +281,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Similarity Threshold</span>
-                                            <span className="text-red-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
+                                            <span className="text-blue-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="1.5" step="0.05"
                                             value={settings.reference_face_distance || 0.6}
                                             onChange={(e) => handleChange("reference_face_distance", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
                                     </div>
                                 </div>
@@ -279,101 +296,103 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Face Sorting */}
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                            <div className="space-y-1.5">
-                                <div className="flex items-center gap-2">
-                                    <ArrowDownAz size={12} className="text-neutral-500" />
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                        Selection Order
-                                    </label>
+                        <div className="space-y-2 pt-2">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <ArrowDownAz size={12} className="text-neutral-500" />
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                                            Selection Order
+                                        </label>
+                                    </div>
+                                    <select
+                                        value={settings.face_selector_order || "large-small"}
+                                        onChange={(e) => handleChange("face_selector_order", e.target.value)}
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:bg-neutral-800"
+                                    >
+                                        {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
+                                            <option key={order} value={order}>
+                                                {order.replace(/-/g, ' ').toUpperCase()}
+                                                {order === 'large-small' ? ' [Recommended]' : ''}
+                                            </option>
+                                        ))}</select>
                                 </div>
-                                <select
-                                    value={settings.face_selector_order || "large-small"}
-                                    onChange={(e) => handleChange("face_selector_order", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
-                                >
-                                    {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
-                                        <option key={order} value={order}>
-                                            {order.replace(/-/g, ' ').toUpperCase()}
-                                            {order === 'large-small' ? ' [Recommended]' : ''}
-                                        </option>
-                                    ))}</select>
+
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <Target size={12} className="text-neutral-500" />
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                                            Detector Model
+                                        </label>
+                                    </div>
+                                    <select
+                                        value={settings.face_detector_model || "yolo_face"}
+                                        onChange={(e) => handleChange("face_detector_model", e.target.value)}
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:bg-neutral-800"
+                                    >
+                                        {(() => {
+                                            const modelHints: Record<string, string> = {
+                                                "yolo": "Standard • Recommended",
+                                                "scrfd": "Ultra Fast",
+                                                "retinaface": "Maximum Precision",
+                                                "yunet": "Lightweight",
+                                                "many": "Universal Detector"
+                                            };
+                                            const getHint = (n: string) => {
+                                                const lower = n.toLowerCase();
+                                                for (const [k, h] of Object.entries(modelHints)) {
+                                                    if (lower.includes(k)) return ` [${h}]`;
+                                                }
+                                                return "";
+                                            };
+                                            const format = (n: string) => n.replace(/_/g, ' ').toUpperCase() + getHint(n);
+                                            const items = choices?.face_detector_models || ["yolo_face"];
+                                            const groups: Record<string, string[]> = { "Main Detectors": [], "Special": [] };
+                                            items.forEach((m: string) => {
+                                                if (m === 'many') groups["Special"].push(m);
+                                                else groups["Main Detectors"].push(m);
+                                            });
+                                            return Object.entries(groups).map(([label, models]: [string, string[]]) => models.length > 0 && (
+                                                <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase">
+                                                    {models.map((m: string) => <option key={m} value={m} className="bg-neutral-950 text-neutral-200">{format(m)}</option>)}
+                                                </optgroup>
+                                            ));
+                                        })()}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="space-y-1.5">
-                                <div className="flex items-center gap-2">
-                                    <Target size={12} className="text-neutral-500" />
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                        Detector Model
-                                    </label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Detector Size</label>
+                                    <select
+                                        value={settings.face_detector_size || "640x640"}
+                                        onChange={(e) => handleChange("face_detector_size", e.target.value)}
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
+                                    >
+                                        {(choices?.face_detector_set?.[settings.face_detector_model || 'yolo_face'] || ["640x640"]).map((s: string) => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <select
-                                    value={settings.face_detector_model || "yolo_face"}
-                                    onChange={(e) => handleChange("face_detector_model", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-all hover:bg-neutral-800"
-                                >
-                                    {(() => {
-                                        const modelHints: Record<string, string> = {
-                                            "yolo": "Standard • Recommended",
-                                            "scrfd": "Ultra Fast",
-                                            "retinaface": "Maximum Precision",
-                                            "yunet": "Lightweight",
-                                            "many": "Universal Detector"
-                                        };
-                                        const getHint = (n: string) => {
-                                            const lower = n.toLowerCase();
-                                            for (const [k, h] of Object.entries(modelHints)) {
-                                                if (lower.includes(k)) return ` [${h}]`;
-                                            }
-                                            return "";
-                                        };
-                                        const format = (n: string) => n.replace(/_/g, ' ').toUpperCase() + getHint(n);
-                                        const items = choices?.face_detector_models || ["yolo_face"];
-                                        const groups: Record<string, string[]> = { "Main Detectors": [], "Special": [] };
-                                        items.forEach((m: string) => {
-                                            if (m === 'many') groups["Special"].push(m);
-                                            else groups["Main Detectors"].push(m);
-                                        });
-                                        return Object.entries(groups).map(([label, models]: [string, string[]]) => models.length > 0 && (
-                                            <optgroup key={label} label={label} className="bg-neutral-900 text-neutral-500 font-bold text-[10px] uppercase">
-                                                {models.map((m: string) => <option key={m} value={m} className="bg-neutral-950 text-neutral-200">{format(m)}</option>)}
-                                            </optgroup>
-                                        ));
-                                    })()}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Detector Size</label>
-                                <select
-                                    value={settings.face_detector_size || "640x640"}
-                                    onChange={(e) => handleChange("face_detector_size", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
-                                >
-                                    {(choices?.face_detector_set?.[settings.face_detector_model || 'yolo_face'] || ["640x640"]).map((s: string) => (
-                                        <option key={s} value={s}>{s}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Landmarker Model</label>
-                                <select
-                                    value={settings.face_landmarker_model || "2dfan4"}
-                                    onChange={(e) => handleChange("face_landmarker_model", e.target.value)}
-                                    className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
-                                >
-                                    {(() => {
-                                        const format = (n: string) => {
-                                            const name = n.replace(/2dfan4/i, '2D-FAN (4pts)').replace(/2dfan2/i, '2D-FAN (2pts)').toUpperCase();
-                                            const hint = n.includes('peppa') ? ' [Funny • Experimental]' : n.includes('many') ? ' [High Precision]' : ' [Standard]';
-                                            return name + hint;
-                                        };
-                                        const items = choices?.face_landmarker_models || ["2dfan4"];
-                                        return items.map((m: string) => <option key={m} value={m}>{format(m)}</option>);
-                                    })()}
-                                </select>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Landmarker Model</label>
+                                    <select
+                                        value={settings.face_landmarker_model || "2dfan4"}
+                                        onChange={(e) => handleChange("face_landmarker_model", e.target.value)}
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs"
+                                    >
+                                        {(() => {
+                                            const format = (n: string) => {
+                                                const name = n.replace(/2dfan4/i, '2D-FAN (4pts)').replace(/2dfan2/i, '2D-FAN (2pts)').toUpperCase();
+                                                const hint = n.includes('peppa') ? ' [Funny • Experimental]' : n.includes('many') ? ' [High Precision]' : ' [Standard]';
+                                                return name + hint;
+                                            };
+                                            const items = choices?.face_landmarker_models || ["2dfan4"];
+                                            return items.map((m: string) => <option key={m} value={m}>{format(m)}</option>);
+                                        })()}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -390,7 +409,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 {/* Gender Filter */}
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Gender</label>
-                                    <div className="flex bg-neutral-800 rounded-lg p-0.5">
+                                    <div className="flex bg-neutral-800/50 border border-neutral-700/50 rounded-md p-0.5 h-7">
                                         {[
                                             { id: '', label: 'All' },
                                             { id: 'male', label: 'Male' },
@@ -400,10 +419,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 key={g.id}
                                                 onClick={() => handleChange("face_selector_gender", g.id)}
                                                 className={cn(
-                                                    "flex-1 py-0.5 text-[10px] font-bold rounded-md transition-all",
+                                                    "flex-1 text-xs font-bold rounded flex items-center justify-center transition-all",
                                                     settings.face_selector_gender === g.id
-                                                        ? "bg-red-600 text-white"
-                                                        : "text-neutral-500 hover:text-neutral-300"
+                                                        ? "bg-blue-600 text-white shadow-sm"
+                                                        : "text-neutral-400 hover:text-neutral-200"
                                                 )}
                                             >
                                                 {g.label}
@@ -415,19 +434,24 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 {/* Race Filter */}
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Race</label>
-                                    <select
-                                        value={settings.face_selector_race || ""}
-                                        onChange={(e) => handleChange("face_selector_race", e.target.value)}
-                                        className="w-full bg-neutral-800 border-none text-neutral-400 rounded-lg p-1 text-[10px] focus:ring-1 focus:ring-red-500 outline-none h-6"
-                                    >
-                                        <option value="">All Ethnicities</option>
-                                        <option value="white">White</option>
-                                        <option value="black">Black</option>
-                                        <option value="latino">Latino</option>
-                                        <option value="asian">Asian</option>
-                                        <option value="indian">Indian</option>
-                                        <option value="arabic">Arabic</option>
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={settings.face_selector_race || ""}
+                                            onChange={(e) => handleChange("face_selector_race", e.target.value)}
+                                            className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md pl-2 pr-6 py-1 text-xs focus:ring-1 focus:ring-blue-500 outline-none h-7 appearance-none"
+                                        >
+                                            <option value="">All Ethnicities</option>
+                                            <option value="white">White</option>
+                                            <option value="black">Black</option>
+                                            <option value="latino">Latino</option>
+                                            <option value="asian">Asian</option>
+                                            <option value="indian">Indian</option>
+                                            <option value="arabic">Arabic</option>
+                                        </select>
+                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
+                                            <Filter size={10} strokeWidth={3} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -437,20 +461,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <span>Target Age Range</span>
                                     <span className="text-neutral-300">{settings.face_selector_age_start} - {settings.face_selector_age_end} yrs</span>
                                 </label>
-                                <div className="flex items-center gap-2">
+                                <div className="grid grid-cols-2 gap-2">
                                     <input
                                         type="number"
                                         value={settings.face_selector_age_start || 0}
                                         onChange={(e) => handleChange("face_selector_age_start", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-red-500 outline-none h-7"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-blue-500 outline-none h-7"
                                         placeholder="Min"
                                     />
-                                    <div className="h-px bg-neutral-700 w-3 shadow-sm" />
                                     <input
                                         type="number"
                                         value={settings.face_selector_age_end || 100}
                                         onChange={(e) => handleChange("face_selector_age_end", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-red-500 outline-none h-7"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-blue-500 outline-none h-7"
                                         placeholder="Max"
                                     />
                                 </div>
@@ -470,27 +493,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Detector Score</span>
-                                        <span className="text-red-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
+                                        <span className="text-blue-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
                                         type="range"
                                         min="0" max="1" step="0.05"
                                         value={settings.face_detector_score || 0.5}
                                         onChange={(e) => handleChange("face_detector_score", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Landmarker Score</span>
-                                        <span className="text-red-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
+                                        <span className="text-blue-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
                                         type="range"
                                         min="0" max="1" step="0.05"
                                         value={settings.face_landmarker_score || 0.5}
                                         onChange={(e) => handleChange("face_landmarker_score", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
                                 </div>
                             </div>
@@ -505,7 +528,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             className={cn(
                                                 "flex-1 py-0.5 text-[10px] font-bold rounded-md border transition-all h-6",
                                                 (settings.face_detector_angles || [0]).includes(angle)
-                                                    ? "bg-red-600 border-red-500 text-white"
+                                                    ? "bg-blue-600 border-blue-500 text-white"
                                                     : "bg-neutral-800/50 border-neutral-700 text-neutral-500"
                                             )}
                                         >
@@ -565,7 +588,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             className={cn(
                                                 "flex-1 p-2 rounded-lg border transition-all flex flex-col items-center gap-0.5",
                                                 (settings.face_mask_types || []).includes(type)
-                                                    ? "bg-red-600 border-red-500 text-white shadow-lg shadow-red-900/20"
+                                                    ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20"
                                                     : "bg-neutral-800/50 border-neutral-700/50 text-neutral-400 hover:border-neutral-600"
                                             )}
                                         >
@@ -651,7 +674,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className={cn(
                                             "px-2 py-1.5 text-[10px] font-medium rounded-md border transition-all truncate text-center w-full",
                                             (settings.face_mask_regions || []).includes(region)
-                                                ? "bg-red-600 border-red-500 text-white"
+                                                ? "bg-blue-600 border-blue-500 text-white"
                                                 : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                         )}
                                     >
@@ -666,14 +689,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                     <span>Mask Blur</span>
-                                    <span className="text-red-400 font-mono">{(settings.face_mask_blur || 0.3).toFixed(2)}</span>
+                                    <span className="text-blue-400 font-mono">{(settings.face_mask_blur || 0.3).toFixed(2)}</span>
                                 </label>
                                 <input
                                     type="range"
                                     min="0" max="1" step="0.05"
                                     value={settings.face_mask_blur || 0.3}
                                     onChange={(e) => handleChange("face_mask_blur", e.target.value)}
-                                    className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                    className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                 />
                             </div>
                             <div className="space-y-3">
@@ -723,14 +746,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                             Audio Quality
-                                            <span className="text-red-500">{settings.output_audio_quality || 80}</span>
+                                            <span className="text-blue-500">{settings.output_audio_quality || 80}</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="100"
                                             value={settings.output_audio_quality || 80}
                                             onChange={(e) => handleChange("output_audio_quality", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
                                     </div>
                                 </div>
@@ -744,7 +767,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         min="0" max="200"
                                         value={settings.output_audio_volume || 100}
                                         onChange={(e) => handleChange("output_audio_volume", e.target.value)}
-                                        className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                        className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
                                 </div>
                                 {/* Voice Extractor */}
@@ -825,27 +848,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Video Quality</span>
-                                            <span className="text-red-500 font-bold">{settings.output_video_quality || 80}%</span>
+                                            <span className="text-blue-500 font-bold">{settings.output_video_quality || 80}%</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="100"
                                             value={settings.output_video_quality || 80}
                                             onChange={(e) => handleChange("output_video_quality", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
                                     </div>
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Scale Factor</span>
-                                            <span className="text-red-500 font-bold">{settings.output_video_scale || 1.0}x</span>
+                                            <span className="text-blue-500 font-bold">{settings.output_video_scale || 1.0}x</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0.25" max="4" step="0.25"
                                             value={settings.output_video_scale || 1.0}
                                             onChange={(e) => handleChange("output_video_scale", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
                                     </div>
                                 </div>
@@ -860,7 +883,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 className={cn(
                                                     "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
                                                     settings.temp_frame_format === f
-                                                        ? "bg-red-600 text-white"
+                                                        ? "bg-blue-600 text-white"
                                                         : "text-neutral-500 hover:text-neutral-300"
                                                 )}
                                             >
@@ -937,7 +960,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 className={cn(
                                     "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     selectedJobs.size > 0
-                                        ? "bg-red-600 hover:bg-red-500 text-white"
+                                        ? "bg-blue-600 hover:bg-blue-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
@@ -974,7 +997,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         drafted: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
                                         queued: "bg-blue-500/20 text-blue-500 border-blue-500/30",
                                         completed: "bg-green-500/20 text-green-500 border-green-500/30",
-                                        failed: "bg-red-500/20 text-red-500 border-red-500/30",
+                                        failed: "bg-blue-500/20 text-blue-500 border-blue-500/30",
                                     };
                                     return (
                                         <div
@@ -983,7 +1006,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             className={cn(
                                                 "p-3 rounded-lg border transition-all cursor-pointer",
                                                 isSelected
-                                                    ? "bg-red-600/10 border-red-500/50"
+                                                    ? "bg-blue-600/10 border-blue-500/50"
                                                     : "bg-neutral-800/50 border-neutral-700 hover:border-neutral-600",
                                                 (job.status !== 'drafted' && job.status !== 'queued') && "opacity-60 cursor-default"
                                             )}
@@ -992,7 +1015,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 {/* Checkbox */}
                                                 <div className={cn(
                                                     "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors",
-                                                    isSelected ? "bg-red-600 border-red-600" : "border-neutral-600",
+                                                    isSelected ? "bg-blue-600 border-blue-600" : "border-neutral-600",
                                                     (job.status !== 'drafted' && job.status !== 'queued') && "invisible"
                                                 )}>
                                                     {isSelected && <CheckSquare size={10} className="text-white" />}
@@ -1094,7 +1117,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 className={cn(
                                                     "px-2 py-2 text-[10px] font-bold rounded-lg border text-center transition-all",
                                                     isSelected
-                                                        ? "bg-red-600/20 border-red-500 text-red-500"
+                                                        ? "bg-blue-600/20 border-blue-500 text-blue-500"
                                                         : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
                                                     !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
                                                 )}
@@ -1122,7 +1145,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 <Info size={12} className="text-neutral-500 cursor-help" />
                                             </Tooltip>
                                         </div>
-                                        <span className="text-xs font-bold text-red-500">{settings.execution_thread_count || 4}</span>
+                                        <span className="text-xs font-bold text-blue-500">{settings.execution_thread_count || 4}</span>
                                     </div>
                                     <input
                                         type="range"
@@ -1131,7 +1154,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         step="1"
                                         value={settings.execution_thread_count || 4}
                                         onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
                                     <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
                                         <span>1</span>
@@ -1158,14 +1181,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         Memory Limit
-                                        <span className="text-red-500">{settings.system_memory_limit || 0} GB</span>
+                                        <span className="text-blue-500">{settings.system_memory_limit || 0} GB</span>
                                     </label>
                                     <input
                                         type="range"
                                         min="0" max="128" step="4"
                                         value={settings.system_memory_limit || 0}
                                         onChange={(e) => handleChange("system_memory_limit", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
                                 </div>
                             </div>
@@ -1213,12 +1236,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     className={cn(
                                         "w-full flex items-center justify-between p-3 rounded-lg border transition-all",
                                         settings.keep_temp
-                                            ? "bg-red-600/10 border-red-500/50 text-red-500"
+                                            ? "bg-blue-600/10 border-blue-500/50 text-blue-500"
                                             : "bg-neutral-800 border-neutral-700 text-neutral-400"
                                     )}
                                 >
                                     <span className="text-xs font-bold uppercase">Keep Temp Files</span>
-                                    <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-red-600" : "bg-neutral-700")}>
+                                    <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-blue-600" : "bg-neutral-700")}>
                                         <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
                                     </div>
                                 </button>
@@ -1241,7 +1264,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             {/* Header */}
                             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
                                 <div className="flex items-center gap-3">
-                                    <FileText size={20} className="text-red-500" />
+                                    <FileText size={20} className="text-blue-500" />
                                     <div>
                                         <h3 className="text-lg font-bold text-white">Job Details</h3>
                                         <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
@@ -1269,7 +1292,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             selectedJobDetails.status === 'drafted' && "text-yellow-500",
                                             selectedJobDetails.status === 'queued' && "text-blue-500",
                                             selectedJobDetails.status === 'completed' && "text-green-500",
-                                            selectedJobDetails.status === 'failed' && "text-red-500",
+                                            selectedJobDetails.status === 'failed' && "text-blue-500",
                                         )}>
                                             {selectedJobDetails.status}
                                         </span>
@@ -1299,7 +1322,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     <span className={cn(
                                                         "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
                                                         step.status === 'completed' ? "bg-green-500/20 text-green-500" :
-                                                            step.status === 'failed' ? "bg-red-500/20 text-red-500" :
+                                                            step.status === 'failed' ? "bg-blue-500/20 text-blue-500" :
                                                                 "bg-neutral-700 text-neutral-400"
                                                     )}>
                                                         {step.status}
@@ -1331,7 +1354,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                             <span className="text-neutral-500 w-16">Processors:</span>
                                                             <div className="flex flex-wrap gap-1">
                                                                 {step.processors.map((p: string, i: number) => (
-                                                                    <span key={i} className="px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded text-[9px]">
+                                                                    <span key={i} className="px-1.5 py-0.5 bg-blue-600/20 text-blue-400 rounded text-[9px]">
                                                                         {p}
                                                                     </span>
                                                                 ))}

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { files, execute, system, config } from "@/services/api";
-import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X } from "lucide-react";
+import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { Terminal, TerminalButton } from "@/components/Terminal";
@@ -23,6 +23,8 @@ const isVideo = (path: string) => {
 function App() {
   console.log("App Rendering...");
   const [processors, setProcessors] = useState<string[]>([]);
+  const [activeMediaTab, setActiveMediaTab] = useState<'source' | 'target' | 'output'>('target');
+  const [activeProcessorTab, setActiveProcessorTab] = useState("face");
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [allSettings, setAllSettings] = useState<any>({});
   const [systemInfo, setSystemInfo] = useState<any>({ execution_providers: ['cpu'] });
@@ -130,10 +132,12 @@ function App() {
       setIsProcessing(true);
       setJobStatus(job.status);
       setProgress(job.progress * 100); // job.progress is 0.0-1.0, UI expects 0-100
+      setActiveMediaTab('output');
     } else if (job.status === 'completed') {
       setIsProcessing(false);
       setJobStatus('completed');
       setProgress(100);
+      setActiveMediaTab('output');
       // Fetch final details to get preview URL if needed, 
       // or we can rely on what useJob fetched (it fetches status on init/update)
       // useJob updates 'job' state. 
@@ -189,6 +193,7 @@ function App() {
     setProgress(0);
     setJobStatus("queued");
     setOutputUrl(null);
+    setActiveMediaTab('output');
 
     try {
       const res = await execute.run();
@@ -213,62 +218,114 @@ function App() {
       {/* Column 1: Processors & Execution */}
       <aside className="flex flex-col h-full overflow-hidden">
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
-          <div className="p-3 space-y-4 flex flex-col h-full overflow-hidden">
-            <section className="shrink-0 space-y-4">
-              {[
-                {
-                  label: "Face & Portrait",
-                  items: processors.filter(p => !['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
-                },
-                {
-                  label: "Frame & Scene",
-                  items: processors.filter(p => ['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
-                }
-              ].map((cat) => cat.items.length > 0 && (
-                <div key={cat.label} className="space-y-2">
-                  <div className="flex items-center gap-2 px-1">
-                    <div className="h-px flex-1 bg-neutral-800" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-500 whitespace-nowrap">{cat.label}</span>
-                    <div className="h-px flex-1 bg-neutral-800" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {cat.items.map((proc) => {
-                      const Icon = {
-                        face_swapper: Replace,
-                        face_enhancer: Sparkles,
-                        frame_enhancer: AppWindow,
-                        face_debugger: Bug,
-                        expression_restorer: Smile,
-                        age_modifier: Clock,
-                        background_remover: Eraser,
-                        watermark_remover: Eraser,
-                        frame_colorizer: Palette,
-                        lip_syncer: Mic2
-                      }[proc] || Box;
+          {/* Processor Tabs */}
+          <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
+            {[
+              { id: "face", label: "Face & Portrait", icon: User },
+              { id: "frame", label: "Frame & Scene", icon: Film }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveProcessorTab(tab.id)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
+                  activeProcessorTab === tab.id
+                    ? "text-blue-500 bg-blue-500/5"
+                    : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
+                )}
+              >
+                <tab.icon size={14} />
+                <span className="hidden sm:inline">{tab.label}</span>
+                {activeProcessorTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+                )}
+              </button>
+            ))}
+          </div>
 
-                      return (
-                        <Tooltip key={proc} content={helpTexts[proc]}>
-                          <button
-                            onClick={() => toggleProcessor(proc)}
-                            className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                              ? "bg-red-600 border-red-500 text-white shadow-md shadow-red-900/20"
-                              : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
-                              }`}
-                          >
-                            <Icon size={14} />
-                            <span className="truncate">
-                              {proc
-                                .split("_")
-                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(" ")}
-                            </span>
-                          </button>
-                        </Tooltip>
-                      );
-                    })}
+          <div className="p-3 space-y-4 flex flex-col h-full overflow-hidden min-h-0">
+            <section className="shrink-0 space-y-4">
+              {/* Face & Portrait Processors */}
+              {activeProcessorTab === "face" && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                  <div className="grid grid-cols-2 gap-2">
+                    {processors
+                      .filter(p => !['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
+                      .map((proc) => {
+                        const Icon = {
+                          face_swapper: Replace,
+                          face_enhancer: Sparkles,
+                          face_debugger: Bug,
+                          expression_restorer: Smile,
+                          age_modifier: Clock,
+                          lip_syncer: Mic2,
+                          face_accessory_manager: Box,
+                          makeup_transfer: Palette
+                        }[proc] || User;
+
+                        return (
+                          <Tooltip key={proc} content={helpTexts[proc]}>
+                            <button
+                              onClick={() => toggleProcessor(proc)}
+                              className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
+                                ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/20"
+                                : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                                }`}
+                            >
+                              <Icon size={14} />
+                              <span className="truncate">
+                                {proc
+                                  .split("_")
+                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(" ")}
+                              </span>
+                            </button>
+                          </Tooltip>
+                        );
+                      })}
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* Frame & Scene Processors */}
+              {activeProcessorTab === "frame" && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-right-2 duration-300">
+                  <div className="grid grid-cols-2 gap-2">
+                    {processors
+                      .filter(p => ['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
+                      .map((proc) => {
+                        const Icon = {
+                          frame_enhancer: AppWindow,
+                          background_remover: Eraser,
+                          watermark_remover: Eraser,
+                          frame_colorizer: Palette,
+                          background_blur: AppWindow,
+                          privacy_blur: AppWindow
+                        }[proc] || Box;
+
+                        return (
+                          <Tooltip key={proc} content={helpTexts[proc]}>
+                            <button
+                              onClick={() => toggleProcessor(proc)}
+                              className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
+                                ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/20"
+                                : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                                }`}
+                            >
+                              <Icon size={14} />
+                              <span className="truncate">
+                                {proc
+                                  .split("_")
+                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(" ")}
+                              </span>
+                            </button>
+                          </Tooltip>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
             </section>
 
             <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
@@ -315,7 +372,7 @@ function App() {
                   await stop();
                   setShowStopConfirm(false);
                 }}
-                className="flex-1 py-2.5 font-bold rounded-lg bg-red-600/90 text-white hover:bg-red-600 transition flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 backdrop-blur-sm text-sm"
+                className="flex-1 py-2.5 font-bold rounded-lg bg-blue-600/90 text-white hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 backdrop-blur-sm text-sm"
               >
                 <X size={14} /> Confirm
               </button>
@@ -339,7 +396,7 @@ function App() {
               className={cn(
                 "flex-1 py-2.5 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden shadow-sm text-sm",
                 isProcessing
-                  ? "bg-red-600/10 border border-red-500/50 text-red-500 hover:bg-red-600/20 shadow-red-500/10"
+                  ? "bg-blue-600/10 border border-blue-500/50 text-blue-500 hover:bg-blue-600/20 shadow-blue-500/10"
                   : (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath)
                     ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-transparent"
                     : "bg-white text-black hover:bg-neutral-100 border border-transparent shadow-white/5 hover:shadow-white/10")
@@ -347,7 +404,7 @@ function App() {
             >
               {isProcessing && (
                 <div
-                  className="absolute inset-0 bg-red-500/10 transition-all duration-300 ease-linear origin-left"
+                  className="absolute inset-0 bg-blue-500/10 transition-all duration-300 ease-linear origin-left"
                   style={{ width: `${progress}%` }}
                 />
               )}
@@ -365,217 +422,223 @@ function App() {
       </div>
 
       {/* Column 3: Source / Target / Preview */}
-      <div className="h-full flex flex-col gap-3 overflow-hidden">
-        <div className="grid grid-cols-2 gap-3 h-[250px]">
-          {/* Source Card */}
-          <div
-            className={cn(
-              "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
-              sourcePath ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
-            )}
-          >
-            {sourcePath ? (
-              <>
-                <div className="absolute inset-0 z-0">
-                  {isVideo(sourcePath) ? (
-                    <video
-                      src={files.preview(sourcePath)}
-                      className="w-full h-full object-contain pointer-events-auto"
-                      controls
-                      muted
-                      loop
-                    />
-                  ) : (
-                    <img
-                      src={files.preview(sourcePath)}
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </div>
+      <div className="h-full flex flex-col overflow-hidden bg-neutral-900 border border-neutral-800 rounded-xl">
+        {/* Media Tabs */}
+        <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
+          {[
+            { id: 'source', label: 'Source', icon: User },
+            { id: 'target', label: 'Target', icon: Film },
+            { id: 'output', label: 'Output', icon: Play }
+          ].map((tab: any) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveMediaTab(tab.id as any)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
+                activeMediaTab === tab.id
+                  ? "text-blue-500 bg-blue-500/5"
+                  : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
+              )}
+            >
+              <tab.icon size={14} />
+              <span className="hidden sm:inline">{tab.label}</span>
+              {activeMediaTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+              )}
+            </button>
+          ))}
+        </div>
 
-                <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
+        <div className="flex-1 overflow-hidden relative p-3">
+          {/* Source Tab */}
+          {activeMediaTab === 'source' && (
+            <div className="h-full animate-in fade-in slide-in-from-left-2 duration-300">
+              <div
+                className={cn(
+                  "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
+                  sourcePath ? "border-blue-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+                )}
+              >
+                {sourcePath ? (
+                  <>
+                    <div className="absolute inset-0 z-0">
+                      {isVideo(sourcePath) ? (
+                        <video
+                          src={files.preview(sourcePath)}
+                          className="w-full h-full object-contain pointer-events-auto"
+                          controls
+                          muted
+                          loop
+                        />
+                      ) : (
+                        <img
+                          src={files.preview(sourcePath)}
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+
+                    <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
+                      <div
+                        onClick={() => openBrowser("source")}
+                        className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
+                      >
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
+                          {sourcePath.split('/').pop()}
+                        </span>
+                        <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSourcePath(null);
+                          config.update({ source_paths: [] });
+                        }}
+                        className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-blue-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
                   <div
                     onClick={() => openBrowser("source")}
-                    className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
+                    className="flex flex-col items-center justify-center w-full h-full"
                   >
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
-                      {sourcePath.split('/').pop()}
-                    </span>
-                    <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+                    <Upload className="text-neutral-600 mb-4 group-hover:text-blue-500 transition-colors" size={32} />
+                    <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
+                    <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Target Tab */}
+          {activeMediaTab === 'target' && (
+            <div className="h-full flex flex-col gap-3 animate-in fade-in duration-300">
+              <div className="flex-1 min-h-0">
+                <MediaPreview
+                  file={targetPath}
+                  type="target"
+                  label="Select Target"
+                  onUpload={() => openBrowser("target")}
+                  onClear={() => {
+                    setTargetPath(null);
+                    config.update({ target_path: null });
+                  }}
+                  isMasking={activeProcessors.includes('watermark_remover')}
+                  maskArea={[
+                    allSettings.watermark_remover_area_start?.[0] || 0,
+                    allSettings.watermark_remover_area_start?.[1] || 0,
+                    allSettings.watermark_remover_area_end?.[0] || 0,
+                    allSettings.watermark_remover_area_end?.[1] || 0
+                  ]}
+                  onMaskChange={(area) => {
+                    updateSetting('watermark_remover_area_start', [area[0], area[1]]);
+                    updateSetting('watermark_remover_area_end', [area[2], area[3]]);
+                  }}
+                  className="h-full"
+                />
+              </div>
+
+              {/* Detected Faces Card - Only shown in Target tab as it relates to target */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 min-h-[140px] flex flex-col">
+                <FaceSelector
+                  targetPath={targetPath}
+                  currentTime={currentVideoTime}
+                  onSelect={(index) => updateSetting("reference_face_position", index)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Output Tab */}
+          {activeMediaTab === 'output' && (
+            <div className="h-full bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner animate-in fade-in slide-in-from-right-2 duration-300">
+              {/* Preview Toolbar */}
+              {previewUrl && (
+                <div className="absolute top-4 right-4 z-20 flex gap-2">
+                  <select
+                    value={previewResolution}
+                    onChange={(e) => setPreviewResolution(e.target.value)}
+                    className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
+                  >
+                    {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
+                      <option key={res} value={res} className="bg-neutral-900">{res}</option>
+                    ))}
+                  </select>
+
+                  {isPreviewLoading && (
+                    <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
+                      <Loader2 size={16} className="animate-spin text-blue-500" />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {outputUrl ? (
+                <div className="w-full h-full relative group">
+                  <video
+                    src={`http://localhost:8002${outputUrl}`}
+                    controls
+                    className="w-full h-full object-contain"
+                    autoPlay
+                  />
+                  <a
+                    href={`http://localhost:8002${outputUrl}`}
+                    download
+                    className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
+                  >
+                    <Upload size={16} className="rotate-180" /> Download
+                  </a>
+                </div>
+              ) : isProcessing ? (
+                <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 size={48} className="animate-spin text-blue-500" />
+                    <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
                   </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSourcePath(null);
-                      config.update({ source_paths: [] });
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-red-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
-                  >
-                    <X size={14} />
-                  </button>
-                  {/* The rest of the card is empty and allows pointer-events-none to pass through to the video below */}
+                  <div className="w-full space-y-2">
+                    <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
+                      <span>Progress</span>
+                      <span>{Math.round(progress)}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-600 transition-all duration-300 ease-linear rounded-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <p className="text-center text-xs text-neutral-600 pt-2">
+                      {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
+                    </p>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div
-                onClick={() => openBrowser("source")}
-                className="flex flex-col items-center justify-center w-full h-full"
-              >
-                <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
-                <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
-                <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
-              </div>
-            )}
-          </div>
-
-          {/* Target Card with MediaPreview */}
-          <MediaPreview
-            file={targetPath}
-            type="target"
-            label="Select Target"
-            onUpload={() => openBrowser("target")}
-            onClear={() => {
-              setTargetPath(null);
-              config.update({ target_path: null });
-            }}
-            isMasking={activeProcessors.includes('watermark_remover')}
-            maskArea={[
-              allSettings.watermark_remover_area_start?.[0] || 0,
-              allSettings.watermark_remover_area_start?.[1] || 0,
-              allSettings.watermark_remover_area_end?.[0] || 0,
-              allSettings.watermark_remover_area_end?.[1] || 0
-            ]}
-            onMaskChange={(area) => {
-              // area is [x1, y1, x2, y2]
-              // We need to update watermark_remover_area_start and _end
-              // API expects space separated strings or list?
-              // config.update expects raw values.
-              // Our updateSetting wrapper handles details.
-              // Wait, updateSetting takes (key, value).
-              // We need to call it twice.
-              updateSetting('watermark_remover_area_start', [area[0], area[1]]);
-              updateSetting('watermark_remover_area_end', [area[2], area[3]]);
-            }}
-            className="h-full"
-          />
-
-        </div>
-
-        {/* Detected Faces Card */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 animate-in fade-in slide-in-from-top-2 duration-500 min-h-[140px] flex flex-col">
-          <FaceSelector
-            targetPath={targetPath}
-            currentTime={currentVideoTime}
-            onSelect={(index) => updateSetting("reference_face_position", index)}
-          />
-        </div>
-
-        {/* Preview Card */}
-        <div className="bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner">
-          {/* Preview Toolbar */}
-          {previewUrl && (
-            <div className="absolute top-4 right-4 z-20 flex gap-2">
-              <select
-                value={previewResolution}
-                onChange={(e) => setPreviewResolution(e.target.value)}
-                className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
-              >
-                {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
-                  <option key={res} value={res} className="bg-neutral-900">{res}</option>
-                ))}
-              </select>
-
-              {isPreviewLoading && (
-                <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
-                  <Loader2 size={16} className="animate-spin text-red-500" />
+              ) : previewUrl ? (
+                <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
+                  <img src={previewUrl} className="w-full h-full object-contain" />
+                  {isPreviewLoading && (
+                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
+                      <Loader2 size={16} className="animate-spin text-blue-500" />
+                    </div>
+                  )}
+                  <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                    <Sparkles size={14} className="text-blue-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-neutral-600">
+                  <Play size={48} className="mb-4 opacity-20" />
+                  <p className="text-sm font-bold uppercase tracking-widest opacity-50">No Output</p>
                 </div>
               )}
             </div>
           )}
-
-          {outputUrl ? (
-            <div className="w-full h-full relative group">
-              <video
-                src={`http://localhost:8002${outputUrl}`}
-                controls
-                className="w-full h-full object-contain"
-                autoPlay
-              />
-              <a
-                href={`http://localhost:8002${outputUrl}`}
-                download
-                className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
-              >
-                <Upload size={16} className="rotate-180" /> Download
-              </a>
-            </div>
-          ) : isProcessing ? (
-            <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 size={48} className="animate-spin text-red-500" />
-                <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
-              </div>
-
-              <div className="w-full space-y-2">
-                <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
-                  <span>Progress</span>
-                  <span>{Math.round(progress)}%</span>
-                </div>
-                <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-600 transition-all duration-300 ease-linear rounded-full"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="text-center text-xs text-neutral-600 pt-2">
-                  {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
-                </p>
-              </div>
-            </div>
-          ) : previewUrl ? (
-            <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
-              <img src={previewUrl} className="w-full h-full object-contain" />
-              {isPreviewLoading && (
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
-                  <Loader2 size={16} className="animate-spin text-red-500" />
-                </div>
-              )}
-              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                <Sparkles size={14} className="text-red-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Assuming the icon mapping object is defined elsewhere and needs to be updated.
-                    Since the full context of the icon mapping object (e.g., `face_debugger: Bug,`)
-                    is not present in the provided document, this change is placed as a comment
-                    to indicate where it would logically go if the object were present.
-                    If this mapping is part of a larger object, you would insert
-                    `watermark_remover: Eraser, // Reusing Eraser for now or use another icon`
-                    into that object.
-                */}
-              {/*
-                // Example of where the icon mapping might be if it existed in this file:
-                const iconMapping = {
-                  face_debugger: Bug,
-                  expression_restorer: Smile,
-                  age_modifier: Clock,
-                  background_remover: Eraser,
-                  watermark_remover: Eraser, // Reusing Eraser for now or use another icon
-                  frame_colorizer: Palette,
-                  lip_syncer: Mic2,
-                };
-                */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/30 to-transparent pointer-events-none" />
-              <p className="text-neutral-600 font-medium z-10 flex items-center gap-2">
-                <Sparkles size={16} /> Output Preview
-              </p>
-            </>
-          )}
         </div>
-
       </div>
     </div >
   );

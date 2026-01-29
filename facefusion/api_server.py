@@ -11,6 +11,7 @@ from pydantic import BaseModel
 import tempfile
 import anyio
 import subprocess
+import numpy
 
 from facefusion import state_manager, execution, logger
 import facefusion.metadata as metadata
@@ -927,6 +928,16 @@ def detect_faces_endpoint(req: FaceDetectRequest):
              fps = detect_video_fps(path) or 30.0
              frame_num = int(req.time_seconds * fps)
         vision_frame = read_video_frame(path, frame_num)
+        
+        # If frame is black/empty, scan forward to find content (up to 120 frames/2-4 secs)
+        if vision_frame is not None and not numpy.any(vision_frame):
+             logger.info(f"Frame {frame_num} is empty (black). Scanning forward for content...", __name__)
+             for i in range(1, 120):
+                 next_frame = read_video_frame(path, frame_num + i)
+                 if next_frame is not None and numpy.any(next_frame):
+                      logger.info(f"Found content at frame {frame_num + i}", __name__)
+                      vision_frame = next_frame
+                      break
     
     if vision_frame is None:
          logger.error(f"Could not read frame from {path}", __name__)

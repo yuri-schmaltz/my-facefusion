@@ -237,7 +237,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_start']?.[0] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -246,7 +246,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 />
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_start']?.[1] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -260,7 +260,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_end']?.[0] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -269,7 +269,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 />
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-red-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_end']?.[1] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -305,7 +305,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                         onUpdate(`${proc}_items`, newItems);
                                                     }}
                                                     className={`px-2 py-1.5 text-[10px] rounded border text-center transition-all ${isSelected
-                                                        ? "bg-red-600/20 border-red-500 text-red-500 font-bold"
+                                                        ? "bg-blue-600/20 border-blue-500 text-blue-500 font-bold"
                                                         : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                                         }`}
                                                 >

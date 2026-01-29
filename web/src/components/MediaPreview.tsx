@@ -165,7 +165,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
 
         return (
             <div
-                className="absolute border-2 border-red-500 bg-red-500/20 pointer-events-none z-10"
+                className="absolute border-2 border-blue-500 bg-blue-500/20 pointer-events-none z-10"
                 style={{
                     left: bx1,
                     top: by1,
@@ -173,7 +173,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                     height: by2 - by1
                 }}
             >
-                <div className="absolute top-0 right-0 -mt-6 bg-red-600 text-white text-[9px] px-1 py-0.5 rounded font-bold">
+                <div className="absolute top-0 right-0 -mt-6 bg-blue-600 text-white text-[9px] px-1 py-0.5 rounded font-bold">
                     REMOVE
                 </div>
             </div>
@@ -188,7 +188,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
             ref={containerRef}
             className={cn(
                 "relative bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center transition-all overflow-hidden group select-none",
-                file ? "border-red-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50",
+                file ? "border-blue-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50",
                 isMasking && file ? "cursor-crosshair" : "cursor-pointer",
                 className
             )}
@@ -225,7 +225,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                     {/* Controls Overlay */}
                     <div className="z-20 absolute top-3 right-3 flex gap-2">
                         {isMasking && (
-                            <div className="px-2 py-1.5 bg-red-600/90 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5 animate-pulse border border-red-400">
+                            <div className="px-2 py-1.5 bg-blue-600/90 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5 animate-pulse border border-blue-400">
                                 <Eraser size={12} /> DRAW MASK
                             </div>
                         )}
@@ -254,7 +254,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                 </>
             ) : (
                 <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none">
-                    <Upload className="text-neutral-600 mb-4 group-hover:text-red-500 transition-colors" size={32} />
+                    <Upload className="text-neutral-600 mb-4 group-hover:text-blue-500 transition-colors" size={32} />
                     <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">{label}</p>
                     <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
                 </div>

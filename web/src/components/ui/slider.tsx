@@ -21,7 +21,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
                     step={step}
                     value={value[0]}
                     onChange={(e) => onValueChange([parseFloat(e.target.value)])}
-                    className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                    className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
                     ref={ref}
                     {...props}
                 />

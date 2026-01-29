@@ -119,7 +119,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                             <p className="text-sm">Loading...</p>
                         </div>
                     ) : error ? (
-                        <div className="flex flex-col items-center justify-center h-full text-red-500 gap-3">
+                        <div className="flex flex-col items-center justify-center h-full text-blue-500 gap-3">
                             <p>{error}</p>
                             <button
                                 onClick={() => loadPathRefined("")}

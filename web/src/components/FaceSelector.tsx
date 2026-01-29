@@ -72,7 +72,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                         onClick={() => setAutoScan(!autoScan)}
                         disabled={!targetPath}
                         className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 transition-all ${autoScan
-                            ? "bg-red-500/20 border-red-500 text-red-500"
+                            ? "bg-blue-500/20 border-blue-500 text-blue-500"
                             : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-neutral-300"
                             } ${!targetPath ? "opacity-30 cursor-not-allowed" : ""}`}
                         title="Auto-scan faces while scrubbing video"
@@ -100,7 +100,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                         </div>
                     </div>
                 ) : error ? (
-                    <div className="text-xs text-red-500 italic px-2">{error}</div>
+                    <div className="text-xs text-blue-500 italic px-2">{error}</div>
                 ) : faces.length === 0 && !loading ? (
                     <div className="text-xs text-neutral-600 italic px-2">No faces found</div>
                 ) : (
@@ -111,7 +111,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                                     className="relative group cursor-pointer"
                                     onClick={() => onSelect?.(face.index)}
                                 >
-                                    <div className="aspect-square rounded-lg overflow-hidden border border-neutral-800 bg-neutral-900 group-hover:border-red-500/50 transition-colors">
+                                    <div className="aspect-square rounded-lg overflow-hidden border border-neutral-800 bg-neutral-900 group-hover:border-blue-500/50 transition-colors">
                                         <img
                                             src={face.thumbnail}
                                             alt={`Face ${face.index}`}
