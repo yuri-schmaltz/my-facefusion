@@ -38,7 +38,7 @@ function App() {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [lastSourceDir, setLastSourceDir] = useState<string>(() => localStorage.getItem("lastSourceDir") || "");
   const [lastTargetDir, setLastTargetDir] = useState<string>(() => localStorage.getItem("lastTargetDir") || "");
-  const [currentVideoTime] = useState<number>(0);
+  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [previewResolution, setPreviewResolution] = useState("512x512");
   const [globalChoices, setGlobalChoices] = useState<any>({});
@@ -539,6 +539,7 @@ function App() {
                     updateSetting('watermark_remover_area_start', [area[0], area[1]]);
                     updateSetting('watermark_remover_area_end', [area[2], area[3]]);
                   }}
+                  onTimeUpdate={setCurrentVideoTime}
                   className="h-full"
                 />
               </div>

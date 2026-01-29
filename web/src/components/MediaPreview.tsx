@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Upload, X, Replace, Ban, Eraser } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Upload, X, Eraser } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/services/api";
 
@@ -12,18 +12,19 @@ interface MediaPreviewProps {
     isMasking?: boolean;
     maskArea?: number[]; // [x1, y1, x2, y2]
     onMaskChange?: (area: number[]) => void;
+    onTimeUpdate?: (time: number) => void;
     className?: string;
 }
 
 export const MediaPreview: React.FC<MediaPreviewProps> = ({
     file,
-    type,
     label,
     onUpload,
     onClear,
     isMasking,
     maskArea,
     onMaskChange,
+    onTimeUpdate,
     className
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -206,10 +207,10 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                                 ref={mediaRef as any}
                                 src={api.defaults.baseURL ? `${api.defaults.baseURL}/files/preview?path=${encodeURIComponent(file)}` : file} // Rough fix for preview url, assumes context
                                 className={cn(
-                                    "w-full h-full object-contain",
                                     isMasking ? "pointer-events-none" : "pointer-events-auto"
                                 )}
                                 controls={!isMasking}
+                                onTimeUpdate={(e) => onTimeUpdate?.(e.currentTarget.currentTime)}
                             />
                         ) : (
                             <img

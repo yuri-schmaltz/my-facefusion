@@ -905,7 +905,6 @@ def detect_faces_endpoint(req: FaceDetectRequest):
     import cv2
     import base64
     from facefusion import face_analyser
-    
     path = req.path
     # Security check using existing preview logic
     path = os.path.realpath(os.path.abspath(path.strip('"\'')))

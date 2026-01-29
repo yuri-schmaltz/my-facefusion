@@ -26,6 +26,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
 
     const fetchFaces = async (time: number) => {
         if (!targetPath) return;
+        console.log(`[FaceSelector] Fetching faces for ${targetPath} at ${time.toFixed(2)}s`);
         setLoading(true);
         setError(null);
         try {
