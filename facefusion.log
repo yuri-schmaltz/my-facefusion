@@ -5063,3 +5063,25 @@ AttributeError: 'NoneType' object has no attribute 'run'
 2026-01-29 14:23:24,492 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
 2026-01-29 14:23:24,708 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 340.89 seconds
 2026-01-29 14:23:27,044 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:24:22,532 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:24:23,590 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:24:23,843 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 54.59 seconds
+2026-01-29 14:24:25,884 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:24:32,414 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 14:24:32,737 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 14:24:35,650 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 14:24:35,916 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.03 seconds
+2026-01-29 14:24:38,061 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:24:43,555 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 14:24:43,855 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 14:24:44,294 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 14:24:44,510 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.32 seconds
+2026-01-29 14:24:46,104 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:24:51,512 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:24:52,013 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:24:52,269 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 4.07 seconds
+2026-01-29 14:24:53,661 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:24:57,585 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 14:24:57,939 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 14:24:59,739 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 14:24:59,956 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.34 seconds
