@@ -112,67 +112,6 @@ def pre_check() -> bool:
 	return True
 
 
-def common_pre_check() -> bool:
-	common_modules =\
-	[
-		content_analyser,
-		face_classifier,
-		face_detector,
-		face_landmarker,
-		face_masker,
-		face_recognizer,
-		voice_extractor
-	]
-
-	content_analyser_content = inspect.getsource(content_analyser).encode()
-	content_analyser_hash = hash_helper.create_hash(content_analyser_content)
-
-	for module in common_modules:
-		print(f'Checking module: {module.__name__}', flush=True)
-		if not module.pre_check():
-			print(f'Module {module.__name__} failed pre_check', flush=True)
-			return False
-	print('All common modules passed pre_check', flush=True)
-
-	return content_analyser_hash == '0cc0cf55'
-
-
-def processors_pre_check() -> bool:
-	for processor_module in get_processors_modules(state_manager.get_item('processors')):
-		if not processor_module.pre_check():
-			return False
-	return True
-
-
-def force_download() -> ErrorCode:
-	common_modules =\
-	[
-		content_analyser,
-		face_classifier,
-		face_detector,
-		face_landmarker,
-		face_masker,
-		face_recognizer,
-		voice_extractor
-	]
-	available_processors = [ get_file_name(file_path) for file_path in resolve_file_paths('facefusion/processors/modules') ]
-	processor_modules = get_processors_modules(available_processors)
-
-	for module in common_modules + processor_modules:
-		if hasattr(module, 'create_static_model_set'):
-			static_model_set = module.create_static_model_set(state_manager.get_item('download_scope'))
-
-			if static_model_set:
-				for model in static_model_set.values():
-					model_hash_set = model.get('hashes')
-					model_source_set = model.get('sources')
-
-					if model_hash_set and model_source_set:
-						if not conditional_download_hashes(model_hash_set) or not conditional_download_sources(model_source_set):
-							return 1
-	return 0
-
-
 def route_job_manager(args : Args) -> ErrorCode:
 	if state_manager.get_item('command') == 'job-list':
 		job_headers, job_contents = compose_job_list(state_manager.get_item('job_status'))
@@ -319,7 +258,7 @@ def process_headless(args : Args) -> ErrorCode:
 	# Prepare request
 	# We need to extract specific fields from step_args
 	request = RunRequest(
-		source_paths=step_args.get('source_paths', []),
+		source_paths=step_args.get('source_paths') or [],
 		target_path=step_args.get('target_path'),
 		output_path=step_args.get('output_path'),
 		processors=state_manager.get_item('processors'),
@@ -396,6 +335,35 @@ def processors_pre_check() -> bool:
 		if not processor_module.pre_check():
 			return False
 	return True
+
+
+def force_download() -> ErrorCode:
+	common_modules =\
+	[
+		content_analyser,
+		face_classifier,
+		face_detector,
+		face_landmarker,
+		face_masker,
+		face_recognizer,
+		voice_extractor
+	]
+	available_processors = [ get_file_name(file_path) for file_path in resolve_file_paths('facefusion/processors/modules') ]
+	processor_modules = get_processors_modules(available_processors)
+
+	for module in common_modules + processor_modules:
+		if hasattr(module, 'create_static_model_set'):
+			static_model_set = module.create_static_model_set(state_manager.get_item('download_scope'))
+
+			if static_model_set:
+				for model in static_model_set.values():
+					model_hash_set = model.get('hashes')
+					model_source_set = model.get('sources')
+
+					if model_hash_set and model_source_set:
+						if not conditional_download_hashes(model_hash_set) or not conditional_download_sources(model_source_set):
+							return 1
+	return 0
 
 
 def process_step(job_id : str, step_index : int, step_args : Args) -> bool:

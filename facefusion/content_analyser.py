@@ -122,7 +122,7 @@ def clear_inference_pool() -> None:
 def resolve_execution_providers() -> List[ExecutionProvider]:
 	if is_macos() and has_execution_provider('coreml'):
 		return [ 'cpu' ]
-	return state_manager.get_item('execution_providers')
+	return state_manager.get_item('execution_providers') or []
 
 
 def collect_model_downloads() -> Tuple[DownloadSet, DownloadSet]:

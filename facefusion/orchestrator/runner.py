@@ -86,7 +86,8 @@ class Runner:
             from facefusion.orchestrator.security import validate_input_path, validate_output_path
             
             try:
-                config['source_paths'] = [validate_input_path(p) for p in config.get('source_paths', [])]
+                source_paths = config.get('source_paths') or []
+                config['source_paths'] = [validate_input_path(p) for p in source_paths]
                 config['target_path'] = validate_input_path(config.get('target_path'))
                 config['output_path'] = validate_output_path(config.get('output_path'))
             except Exception as e:
@@ -149,15 +150,6 @@ class Runner:
             tb = traceback.format_exc()
             self.log("error", error_msg)
             logger.error(f"Job {job_id} failed: {tb}")
-            
-            # --- DEBUG: Write traceback to file ---
-            try:
-                with open("/tmp/facefusion_runner_error.txt", "w") as f:
-                    f.write(f"Job {job_id} failed:\n{tb}")
-            except:
-                pass
-            # --------------------------------------
-            
             self.job.fail(ErrorCode.INTERNAL_ERROR, error_msg)
             self.job.metadata['traceback'] = tb
             self.store.update_job(self.job)

@@ -178,10 +178,13 @@ class Orchestrator:
                 pass 
                 
         except Exception as e:
-            traceback.print_exc()
-            logger.exception(f"Unexpected error in job {job_id}: {e}")
+            tb = traceback.format_exc()
+            logger.error(f"Critical error in job {job_id}: {tb}")
             job.fail(ErrorCode.INTERNAL_ERROR, str(e))
         finally:
+            self.store.update_job(job)
+            self.event_bus.publish(create_status_event(job_id, job.status))
+            
             with self._lock:
                 self._active_runners.pop(job_id, None)
             
