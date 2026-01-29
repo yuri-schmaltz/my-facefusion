@@ -12,7 +12,7 @@ import tempfile
 import anyio
 import subprocess
 
-from facefusion import state_manager, execution
+from facefusion import state_manager, execution, logger
 import facefusion.metadata as metadata
 from facefusion.jobs import job_manager, job_runner
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
@@ -39,6 +39,9 @@ async def lifespan(app: FastAPI):
     job_manager.init_jobs(jobs_path)
     load_wizard_state()
     
+    
+    # Initialize logger
+    logger.init(state_manager.get_item('log_level') or 'info')
     
     # Initialize default state items
     from facefusion import choices
@@ -926,15 +929,13 @@ def detect_faces_endpoint(req: FaceDetectRequest):
         vision_frame = read_video_frame(path, frame_num)
     
     if vision_frame is None:
-         import logging
-         logging.error(f"Could not read frame from {path}")
+         logger.error(f"Could not read frame from {path}", __name__)
          raise HTTPException(400, "Could not read frame")
 
     # Detect faces
-    import logging
-    logging.info(f"Detecting faces in frame from {path}")
+    print(f"[DEBUG] Detecting faces in frame from {path}")
     faces = face_analyser.get_many_faces([vision_frame])
-    logging.info(f"Found {len(faces)} faces")
+    print(f"[DEBUG] Found {len(faces)} faces")
     
     results = []
     for idx, face in enumerate(faces):

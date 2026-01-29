@@ -88,14 +88,17 @@ def read_video_frame(video_path : str, frame_number : int = 0) -> Optional[Visio
 
 			with thread_semaphore():
 				current_frame_position = int(video_capture.get(cv2.CAP_PROP_POS_FRAMES))
+				print(f"[DEBUG] read_video_frame: path={video_path}, target={frame_number}, current={current_frame_position}, total={frame_total}")
 				if current_frame_position != frame_number:
-					video_capture.set(cv2.CAP_PROP_POS_FRAMES, min(frame_total, frame_number - 1))
+					seek_to = max(0, min(frame_total - 1, frame_number))
+					print(f"[DEBUG] read_video_frame: seeking to {seek_to}")
+					video_capture.set(cv2.CAP_PROP_POS_FRAMES, seek_to)
 				
 				has_vision_frame, vision_frame = video_capture.read()
+				print(f"[DEBUG] read_video_frame: read success={has_vision_frame}, any={numpy.any(vision_frame) if has_vision_frame else 'N/A'}")
 
 			if has_vision_frame:
 				return vision_frame
-
 	return None
 
 

@@ -97,8 +97,10 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 	many_faces : List[Face] = []
 
 	for vision_frame in vision_frames:
+		print(f"[DEBUG] Processing frame, shape: {vision_frame.shape if hasattr(vision_frame, 'shape') else 'N/A'}, any: {numpy.any(vision_frame)}")
 		if numpy.any(vision_frame):
 			static_faces = get_static_faces(vision_frame)
+			print(f"[DEBUG] Static faces found: {len(static_faces) if static_faces else 0}")
 			if static_faces:
 				many_faces.extend(static_faces)
 			else:
@@ -107,6 +109,7 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 				all_face_landmarks_5 = []
 
 				for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
+					print(f"[DEBUG] Calling detector with angle {face_detector_angle}")
 					if face_detector_angle == 0:
 						bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
 					else:

@@ -121,14 +121,14 @@ def create_static_model_set(download_scope : DownloadScope) -> ModelSet:
 
 
 def get_inference_pool() -> InferencePool:
-	model_names = [ state_manager.get_item('face_detector_model') ]
+	model_names = [ state_manager.get_item('face_detector_model') or 'yolo_face' ]
 	_, model_source_set = collect_model_downloads()
 
 	return inference_manager.get_inference_pool(__name__, model_names, model_source_set)
 
 
 def clear_inference_pool() -> None:
-	model_names = [ state_manager.get_item('face_detector_model') ]
+	model_names = [ state_manager.get_item('face_detector_model') or 'yolo_face' ]
 	inference_manager.clear_inference_pool(__name__, model_names)
 
 
@@ -138,7 +138,7 @@ def collect_model_downloads() -> Tuple[DownloadSet, DownloadSet]:
 	model_source_set = {}
 
 	for face_detector_model in [ 'retinaface', 'scrfd', 'yolo_face', 'yunet' ]:
-		if state_manager.get_item('face_detector_model') in [ 'many', face_detector_model ]:
+		if (state_manager.get_item('face_detector_model') or 'yolo_face') in [ 'many', face_detector_model ]:
 			model_hash_set[face_detector_model] = model_set.get(face_detector_model).get('hashes').get(face_detector_model)
 			model_source_set[face_detector_model] = model_set.get(face_detector_model).get('sources').get(face_detector_model)
 
@@ -152,32 +152,36 @@ def pre_check() -> bool:
 
 
 def detect_faces(vision_frame : VisionFrame) -> Tuple[List[BoundingBox], List[Score], List[FaceLandmark5]]:
+	print(f"[DEBUG] Entering detect_faces in face_detector.py")
 	margin_top, margin_right, margin_bottom, margin_left = prepare_margin(vision_frame)
 	margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
 	all_bounding_boxes : List[BoundingBox] = []
 	all_face_scores : List[Score] = []
 	all_face_landmarks_5 : List[FaceLandmark5] = []
 
-	if state_manager.get_item('face_detector_model') in [ 'many', 'retinaface' ]:
-		bounding_boxes, face_scores, face_landmarks_5 = detect_with_retinaface(margin_vision_frame, state_manager.get_item('face_detector_size'))
+	face_detector_model = state_manager.get_item('face_detector_model') or 'yolo_face'
+	face_detector_size = state_manager.get_item('face_detector_size') or '640x640'
+
+	if face_detector_model in [ 'many', 'retinaface' ]:
+		bounding_boxes, face_scores, face_landmarks_5 = detect_with_retinaface(margin_vision_frame, face_detector_size)
 		all_bounding_boxes.extend(bounding_boxes)
 		all_face_scores.extend(face_scores)
 		all_face_landmarks_5.extend(face_landmarks_5)
 
-	if state_manager.get_item('face_detector_model') in [ 'many', 'scrfd' ]:
-		bounding_boxes, face_scores, face_landmarks_5 = detect_with_scrfd(margin_vision_frame, state_manager.get_item('face_detector_size'))
+	if face_detector_model in [ 'many', 'scrfd' ]:
+		bounding_boxes, face_scores, face_landmarks_5 = detect_with_scrfd(margin_vision_frame, face_detector_size)
 		all_bounding_boxes.extend(bounding_boxes)
 		all_face_scores.extend(face_scores)
 		all_face_landmarks_5.extend(face_landmarks_5)
 
-	if state_manager.get_item('face_detector_model') in [ 'many', 'yolo_face' ]:
-		bounding_boxes, face_scores, face_landmarks_5 = detect_with_yolo_face(margin_vision_frame, state_manager.get_item('face_detector_size'))
+	if face_detector_model in [ 'many', 'yolo_face' ]:
+		bounding_boxes, face_scores, face_landmarks_5 = detect_with_yolo_face(margin_vision_frame, face_detector_size)
 		all_bounding_boxes.extend(bounding_boxes)
 		all_face_scores.extend(face_scores)
 		all_face_landmarks_5.extend(face_landmarks_5)
 
-	if state_manager.get_item('face_detector_model') == 'yunet':
-		bounding_boxes, face_scores, face_landmarks_5 = detect_with_yunet(margin_vision_frame, state_manager.get_item('face_detector_size'))
+	if face_detector_model == 'yunet':
+		bounding_boxes, face_scores, face_landmarks_5 = detect_with_yunet(margin_vision_frame, face_detector_size)
 		all_bounding_boxes.extend(bounding_boxes)
 		all_face_scores.extend(face_scores)
 		all_face_landmarks_5.extend(face_landmarks_5)
@@ -310,6 +314,10 @@ def detect_with_yolo_face(vision_frame : VisionFrame, face_detector_size : str) 
 	detection = forward_with_yolo_face(detect_vision_frame)
 	detection = numpy.squeeze(detection).T
 	bounding_boxes_raw, face_scores_raw, face_landmarks_5_raw = numpy.split(detection, [ 4, 5 ], axis = 1)
+	
+	print(f"[DEBUG] YOLO Raw Max Score: {numpy.max(face_scores_raw) if face_scores_raw.any() else 'None'}")
+	print(f"[DEBUG] Using Detection Score: {face_detector_score}")
+	
 	keep_indices = numpy.where(face_scores_raw > face_detector_score)[0]
 
 	if numpy.any(keep_indices):
