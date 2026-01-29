@@ -1449,3 +1449,18 @@
 {"asctime": "2026-01-28 22:51:45,522", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
 {"asctime": "2026-01-28 22:51:54,810", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226", "module": "logger", "lineno": 49}
 {"asctime": "2026-01-28 22:51:54,926", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.3 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:01,527", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 0", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:08,764", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:09,102", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:09,530", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:09,745", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.61 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:11,766", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 0", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:18,675", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:19,181", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:19,440", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 5.52 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:21,072", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 0", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:25,982", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:26,346", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:28,292", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:28,508", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.38 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-01-29 13:10:30,430", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 0", "module": "logger", "lineno": 49}

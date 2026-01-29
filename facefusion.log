@@ -4145,3 +4145,18 @@ TypeError: expected str, bytes or os.PathLike object, not NoneType
 2026-01-28 22:51:45,522 - facefusion - INFO - [FACEFUSION.CORE] processing
 2026-01-28 22:51:54,810 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
 2026-01-28 22:51:54,926 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.3 seconds
+2026-01-29 13:10:01,527 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:10:08,764 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:10:09,102 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:10:09,530 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:10:09,745 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.61 seconds
+2026-01-29 13:10:11,766 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:10:18,675 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:10:19,181 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:10:19,440 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 5.52 seconds
+2026-01-29 13:10:21,072 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:10:25,982 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:10:26,346 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:10:28,292 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:10:28,508 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.38 seconds
+2026-01-29 13:10:30,430 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0

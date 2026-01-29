@@ -111,6 +111,21 @@ def main():
     # Configure CUDA environment variables
     configure_cuda_env()
 
+    # Handle arguments pass-through
+    if len(sys.argv) > 1:
+        # If user passed arguments (e.g. headless-run ...), pass them to facefusion.py
+        # and do NOT start the web UI.
+        print(f"Passing arguments to facefusion.py: {sys.argv[1:]}")
+        try:
+            cmd = [sys.executable, "facefusion.py"] + sys.argv[1:]
+            # Use subprocess.run to wait for completion
+            subprocess.run(cmd, check=True)
+            sys.exit(0)
+        except subprocess.CalledProcessError as e:
+            sys.exit(e.returncode)
+        except KeyboardInterrupt:
+            sys.exit(130)
+
     # Pre-flight check: Kill anything on our ports to prevent conflicts
     print("Checking ports...")
     try:
