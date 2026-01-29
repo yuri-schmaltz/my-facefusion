@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from typing import List, Tuple
 
@@ -169,27 +170,38 @@ def analyse_video(video_path : str, trim_frame_start : int, trim_frame_end : int
 	rate = 0.0
 	total = 0
 	counter = 0
+	
+	execution_thread_count = state_manager.get_item('execution_thread_count') or 4
 
 	with tqdm(total = len(frame_range), desc = translator.get('analysing'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
+		with ThreadPoolExecutor(max_workers = execution_thread_count) as executor:
+			futures = []
+			for frame_number in frame_range:
+				if frame_number % int(video_fps) == 0:
+					futures.append(executor.submit(analyse_video_frame, video_path, frame_number))
+				else:
+					progress.update()
 
-		for frame_number in frame_range:
-			if frame_number % int(video_fps) == 0:
-				vision_frame = read_video_frame(video_path, frame_number)
+			for future in as_completed(futures):
 				total += 1
-
-				if analyse_frame(vision_frame):
+				if future.result():
 					counter += 1
-
-			if counter > 0 and total > 0:
-				rate = counter / total * 100
-
-			progress.set_postfix(rate = rate)
-			progress.update()
-			progress_callback = state_manager.get_item('current_job_progress_callback')
-			if progress_callback:
-				progress_callback(progress.n / progress.total)
+				
+				if counter > 0 and total > 0:
+					rate = counter / total * 100
+				
+				progress.set_postfix(rate = rate)
+				progress.update()
+				progress_callback = state_manager.get_item('current_job_progress_callback')
+				if progress_callback:
+					progress_callback(progress.n / progress.total)
 
 	return bool(rate > 10.0)
+
+
+def analyse_video_frame(video_path : str, frame_number : int) -> bool:
+	vision_frame = read_video_frame(video_path, frame_number)
+	return analyse_frame(vision_frame)
 
 
 def detect_nsfw(vision_frame : VisionFrame) -> bool:

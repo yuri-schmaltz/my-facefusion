@@ -59,6 +59,15 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 	apply_if_present('target_pattern', args.get('target_pattern'))
 	apply_if_present('output_pattern', args.get('output_pattern'))
 	
+	# Learning System: Reuse previously successful model for this video
+	from facefusion.face_analyser import load_learning_cache
+	target_path = args.get('target_path')
+	if target_path and is_video(target_path):
+		cache = load_learning_cache()
+		if target_path in cache:
+			args['face_detector_model'] = cache[target_path]
+			print(f"[LEARNING-SYSTEM] Applying previously successful detector: {cache[target_path]}")
+	
 	# Auto-select retinaface for video targets (97% detection vs 0% for yoloface)
 	# Override default yolo_face for better video detection
 	target_path = args.get('target_path')
@@ -76,6 +85,24 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 	apply_if_present('face_detector_margin', normalize_space(args.get('face_detector_margin')) if 'face_detector_margin' in args else None)
 	apply_if_present('face_detector_angles', args.get('face_detector_angles'))
 	apply_if_present('face_detector_score', args.get('face_detector_score'))
+	apply_if_present('face_detector_ensemble', args.get('face_detector_ensemble'))
+	apply_if_present('export_problem_frames', args.get('export_problem_frames'))
+
+	# face detector profiles
+	face_detector_profile = args.get('face_detector_profile')
+	if face_detector_profile == 'fast':
+		state_manager.set_item('face_detector_model', 'yolo_face')
+		state_manager.set_item('face_detector_size', '320x320')
+		state_manager.set_item('face_detector_score', 0.4)
+	elif face_detector_profile == 'balanced':
+		state_manager.set_item('face_detector_model', 'retinaface')
+		state_manager.set_item('face_detector_size', '640x640')
+		state_manager.set_item('face_detector_score', 0.5)
+	elif face_detector_profile == 'quality':
+		state_manager.set_item('face_detector_model', 'many')
+		state_manager.set_item('face_detector_size', '1024x1024')
+		state_manager.set_item('face_detector_score', 0.5)
+		state_manager.set_item('face_detector_ensemble', True)
 	# face landmarker
 	apply_if_present('face_landmarker_model', args.get('face_landmarker_model'))
 	apply_if_present('face_landmarker_score', args.get('face_landmarker_score'))

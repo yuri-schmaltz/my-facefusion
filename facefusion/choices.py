@@ -13,6 +13,7 @@ face_detector_set : FaceDetectorSet =\
 	'yunet': [ '640x640' ]
 }
 face_detector_models : List[FaceDetectorModel] = list(face_detector_set.keys())
+face_detector_profiles : List[str] = [ 'fast', 'balanced', 'quality' ]
 face_landmarker_models : List[FaceLandmarkerModel] = [ 'many', '2dfan4', 'peppa_wutz' ]
 face_selector_modes : List[FaceSelectorMode] = [ 'automatic', 'many', 'one', 'reference' ]
 face_selector_orders : List[FaceSelectorOrder] = [ 'left-right', 'right-left', 'top-bottom', 'bottom-top', 'small-large', 'large-small', 'best-worst', 'worst-best' ]

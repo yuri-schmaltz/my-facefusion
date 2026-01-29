@@ -15,6 +15,7 @@ from facefusion.jobs import job_helper, job_manager, job_runner
 from facefusion.jobs.job_list import compose_job_list
 from facefusion.memory import limit_system_memory
 from facefusion.processors.core import get_processors_modules
+from facefusion.face_analyser import print_analysis_stats
 from facefusion.program import create_program
 from facefusion.program_helper import validate_args, validate_paths
 from facefusion.types import Args, ErrorCode
@@ -388,7 +389,9 @@ def conditional_process() -> ErrorCode:
 	if is_image(state_manager.get_item('target_path')):
 		return image_to_image.process(start_time)
 	if is_video(state_manager.get_item('target_path')):
-		return image_to_video.process(start_time)
+		image_to_video.process(start_time)
+		print_analysis_stats()
+		return 0
 
 	return 0
 

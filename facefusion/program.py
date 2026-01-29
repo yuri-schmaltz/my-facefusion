@@ -121,7 +121,10 @@ def create_face_detector_program() -> ArgumentParser:
 	group_face_detector.add_argument('--face-detector-margin', help = translator.get('help.face_detector_margin'), type = partial(sanitize_int_range, int_range = facefusion.choices.face_detector_margin_range), default = config.get_int_list('face_detector', 'face_detector_margin', '0 0 0 0'), nargs = '+')
 	group_face_detector.add_argument('--face-detector-angles', help = translator.get('help.face_detector_angles'), type = int, default = config.get_int_list('face_detector', 'face_detector_angles', '0'), choices = facefusion.choices.face_detector_angles, nargs = '+', metavar = 'FACE_DETECTOR_ANGLES')
 	group_face_detector.add_argument('--face-detector-score', help = translator.get('help.face_detector_score'), type = float, default = config.get_float_value('face_detector', 'face_detector_score', '0.5'), choices = facefusion.choices.face_detector_score_range, metavar = create_float_metavar(facefusion.choices.face_detector_score_range))
-	job_store.register_step_keys([ 'face_detector_model', 'face_detector_size', 'face_detector_margin', 'face_detector_angles', 'face_detector_score' ])
+	group_face_detector.add_argument('--face-detector-ensemble', help = translator.get('help.face_detector_ensemble'), action = 'store_true', default = config.get_bool_value('face_detector', 'face_detector_ensemble'))
+	group_face_detector.add_argument('--export-problem-frames', help = translator.get('help.export_problem_frames'), action = 'store_true', default = config.get_bool_value('face_detector', 'export_problem_frames'))
+	group_face_detector.add_argument('--face-detector-profile', help = translator.get('help.face_detector_profile'), default = config.get_str_value('face_detector', 'face_detector_profile'), choices = facefusion.choices.face_detector_profiles)
+	job_store.register_step_keys([ 'face_detector_model', 'face_detector_size', 'face_detector_margin', 'face_detector_angles', 'face_detector_score', 'face_detector_ensemble', 'export_problem_frames', 'face_detector_profile' ])
 	return program
 
 

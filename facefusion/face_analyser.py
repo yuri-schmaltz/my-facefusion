@@ -1,4 +1,5 @@
-from typing import List, Optional
+import threading
+from typing import Any, List, Optional, Tuple, Sequence
 
 import numpy
 
@@ -12,11 +13,58 @@ from facefusion.face_recognizer import calculate_face_embedding
 from facefusion.face_store import get_static_faces, set_static_faces
 from facefusion.types import BoundingBox, Face, FaceLandmark5, FaceLandmarkSet, FaceScoreSet, Score, VisionFrame
 
+TEMPORAL_CACHE : List[Face] = []
+TEMPORAL_VISION_FRAME : Optional[VisionFrame] = None
+FALLBACK_MODELS = [ 'retinaface', 'scrfd' ]
+FALLBACK_RESOLUTIONS = [ '1024x1024', '1280x1280' ]
 
-def create_faces(vision_frame : VisionFrame, bounding_boxes : List[BoundingBox], face_scores : List[Score], face_landmarks_5 : List[FaceLandmark5]) -> List[Face]:
+ANALYSIS_STATS = {
+	'total_frames': 0,
+	'faces_detected': 0,
+	'fallbacks_triggered': 0,
+	'adaptive_skips': 0,
+	'ensemble_matches': 0
+}
+LEARNING_CACHE_PATH = '.assets/learning_system.json'
+DETECTION_LOCK = threading.Lock()
+
+
+def load_learning_cache() -> dict:
+	import json
+	import os
+	if os.path.exists(LEARNING_CACHE_PATH):
+		with open(LEARNING_CACHE_PATH, 'r') as f:
+			return json.load(f)
+	return {}
+
+
+def save_learning_cache(cache : dict) -> None:
+	import json
+	import os
+	os.makedirs(os.path.dirname(LEARNING_CACHE_PATH), exist_ok = True)
+	with open(LEARNING_CACHE_PATH, 'w') as f:
+		json.dump(cache, f)
+FALLBACK_MODELS = [ 'retinaface', 'scrfd' ]
+FALLBACK_RESOLUTIONS = [ '1024x1024', '1280x1280' ]
+
+
+def calculate_iou(box1 : BoundingBox, box2 : BoundingBox) -> float:
+	x1 = max(box1[0], box2[0])
+	y1 = max(box1[1], box2[1])
+	x2 = min(box1[2], box2[2])
+	y2 = min(box1[3], box2[3])
+	intersection = max(0, x2 - x1) * max(0, y2 - y1)
+	area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+	area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+	return intersection / (area1 + area2 - intersection + 1e-7)
+
+
+def create_faces(vision_frame : VisionFrame, bounding_boxes : List[BoundingBox], face_scores : List[Score], face_landmarks_5 : List[FaceLandmark5], face_detector_score : float = None) -> List[Face]:
 	faces = []
+	if face_detector_score is None:
+		face_detector_score = state_manager.get_item('face_detector_score')
 	nms_threshold = get_nms_threshold(state_manager.get_item('face_detector_model'), state_manager.get_item('face_detector_angles'))
-	keep_indices = apply_nms(bounding_boxes, face_scores, state_manager.get_item('face_detector_score'), nms_threshold)
+	keep_indices = apply_nms(bounding_boxes, face_scores, face_detector_score, nms_threshold)
 
 	for index in keep_indices:
 		bounding_box = bounding_boxes[index]
@@ -94,58 +142,172 @@ def get_average_face(faces : List[Face]) -> Optional[Face]:
 
 
 def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
+	global TEMPORAL_CACHE, TEMPORAL_VISION_FRAME
 	many_faces : List[Face] = []
 
 	for vision_frame in vision_frames:
 		if numpy.any(vision_frame):
+			ANALYSIS_STATS['total_frames'] += 1
+			# 1. Adaptive Detection
+			if TEMPORAL_VISION_FRAME is not None and TEMPORAL_CACHE:
+				if vision_frame.shape == TEMPORAL_VISION_FRAME.shape:
+					diff = numpy.abs(vision_frame.astype(numpy.int16) - TEMPORAL_VISION_FRAME.astype(numpy.int16))
+					if numpy.mean(diff) < 2.0:
+						ANALYSIS_STATS['adaptive_skips'] += 1
+						many_faces.extend(TEMPORAL_CACHE)
+						continue
+
 			static_faces = get_static_faces(vision_frame)
 			if static_faces:
 				many_faces.extend(static_faces)
 			else:
-				all_bounding_boxes = []
-				all_face_scores = []
-				all_face_landmarks_5 = []
-
-				for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
-					if face_detector_angle == 0:
-						bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+				with DETECTION_LOCK:
+					if state_manager.get_item('face_detector_ensemble'):
+						faces = detect_with_ensemble(vision_frame)
 					else:
-						bounding_boxes, face_scores, face_landmarks_5 = detect_faces_by_angle(vision_frame, face_detector_angle)
-					all_bounding_boxes.extend(bounding_boxes)
-					all_face_scores.extend(face_scores)
-					all_face_landmarks_5.extend(face_landmarks_5)
+						faces = detect_with_hierarchy(vision_frame)
+				
+				if faces:
+					many_faces.extend(faces)
+					set_static_faces(vision_frame, faces)
 
-				# Fallback mechanism: if no faces detected, try retinaface
-				if not all_bounding_boxes and state_manager.get_item('face_detector_model') != 'retinaface':
-					original_model = state_manager.get_item('face_detector_model')
-					
-					# Clear the current detector's inference pool before switching
-					from facefusion import face_detector
-					face_detector.clear_inference_pool()
-					
-					state_manager.set_item('face_detector_model', 'retinaface')
-					
-					# Retry with retinaface
-					for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
-						if face_detector_angle == 0:
-							bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
-						else:
-							bounding_boxes, face_scores, face_landmarks_5 = detect_faces_by_angle(vision_frame, face_detector_angle)
-						all_bounding_boxes.extend(bounding_boxes)
-						all_face_scores.extend(face_scores)
-						all_face_landmarks_5.extend(face_landmarks_5)
-					
-					# Restore original model and clear retinaface pool
-					face_detector.clear_inference_pool()
-					state_manager.set_item('face_detector_model', original_model)
+			# 2. Face Tracking/Consistency (Link with temporal cache)
+			if many_faces:
+				ANALYSIS_STATS['faces_detected'] += len(many_faces)
+				if TEMPORAL_CACHE:
+					for face in many_faces:
+						for temp_face in TEMPORAL_CACHE:
+							if calculate_iou(face.bounding_box, temp_face.bounding_box) > 0.8:
+								pass
 
-				if all_bounding_boxes and all_face_scores and all_face_landmarks_5 and (state_manager.get_item('face_detector_score') or 0.5) > 0:
-					faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+			if many_faces:
+				TEMPORAL_CACHE = many_faces
+				TEMPORAL_VISION_FRAME = vision_frame.copy()
+				
+				# Learning System: Record what worked
+				target_path = state_manager.get_item('target_path')
+				if target_path and ANALYSIS_STATS['total_frames'] == 1:
+					cache = load_learning_cache()
+					cache[target_path] = state_manager.get_item('face_detector_model')
+					save_learning_cache(cache)
+			else:
+				# 3. Problem Frame Export (Save failed detections for debugging)
+				if state_manager.get_item('export_problem_frames'):
+					import cv2
+					import os
+					debug_path = '.assets/debug'
+					os.makedirs(debug_path, exist_ok = True)
+					cv2.imwrite(os.path.join(debug_path, f"failed_frame_{ANALYSIS_STATS['total_frames']}.jpg"), vision_frame)
 
-					if faces:
-						many_faces.extend(faces)
-						set_static_faces(vision_frame, faces)
 	return many_faces
+
+
+def print_analysis_stats() -> None:
+	print("-" * 40)
+	print("FACE DETECTION ENHANCEMENT REPORT")
+	print("-" * 40)
+	print(f"Total Frames Scanned: {ANALYSIS_STATS['total_frames']}")
+	print(f"Faces Detected:      {ANALYSIS_STATS['faces_detected']}")
+	print(f"Adaptive Skips:      {ANALYSIS_STATS['adaptive_skips']} (Saved {(ANALYSIS_STATS['adaptive_skips']/max(1, ANALYSIS_STATS['total_frames'])*100):.1f}%)")
+	print(f"Fallbacks Hit:       {ANALYSIS_STATS['fallbacks_triggered']}")
+	print(f"Ensemble Matches:    {ANALYSIS_STATS['ensemble_matches']}")
+	hit_rate = (ANALYSIS_STATS['faces_detected'] / max(1, ANALYSIS_STATS['total_frames'])) * 100
+	print(f"Final Hit Rate:      {hit_rate:.1f}%")
+	print("-" * 40)
+
+
+def detect_with_ensemble(vision_frame : VisionFrame) -> List[Face]:
+	all_bounding_boxes = []
+	all_face_scores = []
+	all_face_landmarks_5 = []
+	
+	models = [ state_manager.get_item('face_detector_model') ] + FALLBACK_MODELS
+	models = list(set(models)) # Unique models
+	
+	original_model = state_manager.get_item('face_detector_model')
+	for model in models:
+		state_manager.set_item('face_detector_model', model)
+		boxes, scores, landmarks = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
+		all_bounding_boxes.extend(boxes)
+		all_face_scores.extend(scores)
+		all_face_landmarks_5.extend(landmarks)
+	
+	if all_bounding_boxes:
+		ANALYSIS_STATS['ensemble_matches'] += 1
+		faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5, original_score)
+		state_manager.set_item('face_detector_model', original_model)
+		return faces
+	
+	state_manager.set_item('face_detector_model', original_model)
+	return []
+
+
+def detect_with_hierarchy(vision_frame : VisionFrame) -> List[Face]:
+	# 1. Initial try
+	all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
+	if all_bounding_boxes:
+		return create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+
+	# 2. Fallback Models (Hierarchical)
+	ANALYSIS_STATS['fallbacks_triggered'] += 1
+	original_model = state_manager.get_item('face_detector_model')
+	for fallback_model in FALLBACK_MODELS:
+		if fallback_model != original_model:
+			state_manager.set_item('face_detector_model', fallback_model)
+			all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
+			if all_bounding_boxes:
+				faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+				state_manager.set_item('face_detector_model', original_model)
+				return faces
+	state_manager.set_item('face_detector_model', original_model)
+
+	# 3. Auto-Resolution Fallback
+	for fallback_res in FALLBACK_RESOLUTIONS:
+		all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, fallback_res)
+		if all_bounding_boxes:
+			return create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+
+	# 4. Dynamic Threshold (Lower score)
+	original_score = state_manager.get_item('face_detector_score')
+	if original_score > 0.3:
+		state_manager.set_item('face_detector_score', 0.2)
+		all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
+		if all_bounding_boxes:
+			faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5, 0.2)
+			state_manager.set_item('face_detector_score', original_score)
+			return faces
+		state_manager.set_item('face_detector_score', original_score)
+
+	return []
+
+
+def detect_at_resolution(vision_frame : VisionFrame, face_detector_size : str) -> Tuple[List[BoundingBox], List[Score], List[FaceLandmark5]]:
+	all_bounding_boxes = []
+	all_face_scores = []
+	all_face_landmarks_5 = []
+	
+	import facefusion.choices
+	detector_model = state_manager.get_item('face_detector_model')
+	available_sizes = facefusion.choices.face_detector_set.get(detector_model, [ '640x640' ])
+	
+	# Cap resolution if not supported by model
+	if face_detector_size not in available_sizes:
+		face_detector_size = available_sizes[-1] # Use largest available
+	
+	original_size = state_manager.get_item('face_detector_size')
+	state_manager.set_item('face_detector_size', face_detector_size)
+
+	for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
+		if face_detector_angle == 0:
+			bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+		else:
+			bounding_boxes, face_scores, face_landmarks_5 = detect_faces_by_angle(vision_frame, face_detector_angle)
+		all_bounding_boxes.extend(bounding_boxes)
+		all_face_scores.extend(face_scores)
+		all_face_landmarks_5.extend(face_landmarks_5)
+	
+	state_manager.set_item('face_detector_size', original_size)
+	return all_bounding_boxes, all_face_scores, all_face_landmarks_5
 
 
 def scale_face(target_face : Face, target_vision_frame : VisionFrame, temp_vision_frame : VisionFrame) -> Face:
