@@ -59,8 +59,8 @@ def process_frame(inputs : FaceAccessoryManagerInputs) -> ProcessorOutputs:
 	if target_vision_frame is None:
 		return temp_vision_frame, temp_vision_mask
 	
-	mode = state_manager.get_item('face_accessory_manager_mode')
-	blend = state_manager.get_item('face_accessory_manager_blend') / 100.0
+	mode = state_manager.get_item('face_accessory_manager_mode') or 'replicate'
+	blend = (state_manager.get_item('face_accessory_manager_blend') if state_manager.get_item('face_accessory_manager_blend') is not None else 100) / 100.0
 
 	target_faces = select_faces(reference_vision_frame, target_vision_frame)
 

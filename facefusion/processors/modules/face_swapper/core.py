@@ -581,17 +581,17 @@ def post_process() -> None:
 def swap_face(source_face : Face, target_face : Face, temp_vision_frame : VisionFrame) -> VisionFrame:
 	model_template = get_model_options().get('template')
 	model_size = get_model_options().get('size')
-	pixel_boost_size = unpack_resolution(state_manager.get_item('face_swapper_pixel_boost'))
+	pixel_boost_size = unpack_resolution(state_manager.get_item('face_swapper_pixel_boost') or '256x256')
 	pixel_boost_total = pixel_boost_size[0] // model_size[0]
 	crop_vision_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, target_face.landmark_set.get('5/68'), model_template, pixel_boost_size)
 	temp_vision_frames = []
 	crop_masks = []
 
-	if 'box' in state_manager.get_item('face_mask_types'):
-		box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur'), state_manager.get_item('face_mask_padding'))
+	if 'box' in (state_manager.get_item('face_mask_types') or []):
+		box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, state_manager.get_item('face_mask_padding') or (0, 0, 0, 0))
 		crop_masks.append(box_mask)
 
-	if 'occlusion' in state_manager.get_item('face_mask_types'):
+	if 'occlusion' in (state_manager.get_item('face_mask_types') or []):
 		occlusion_mask = create_occlusion_mask(crop_vision_frame)
 		crop_masks.append(occlusion_mask)
 
@@ -603,13 +603,13 @@ def swap_face(source_face : Face, target_face : Face, temp_vision_frame : Vision
 		temp_vision_frames.append(pixel_boost_vision_frame)
 	crop_vision_frame = explode_pixel_boost(temp_vision_frames, pixel_boost_total, model_size, pixel_boost_size)
 
-	if 'area' in state_manager.get_item('face_mask_types'):
+	if 'area' in (state_manager.get_item('face_mask_types') or []):
 		face_landmark_68 = cv2.transform(target_face.landmark_set.get('68').reshape(1, -1, 2), affine_matrix).reshape(-1, 2)
-		area_mask = create_area_mask(crop_vision_frame, face_landmark_68, state_manager.get_item('face_mask_areas'))
+		area_mask = create_area_mask(crop_vision_frame, face_landmark_68, state_manager.get_item('face_mask_areas') or [])
 		crop_masks.append(area_mask)
 
-	if 'region' in state_manager.get_item('face_mask_types'):
-		region_mask = create_region_mask(crop_vision_frame, state_manager.get_item('face_mask_regions'))
+	if 'region' in (state_manager.get_item('face_mask_types') or []):
+		region_mask = create_region_mask(crop_vision_frame, state_manager.get_item('face_mask_regions') or [])
 		crop_masks.append(region_mask)
 
 	crop_mask = numpy.minimum.reduce(crop_masks).clip(0, 1)
@@ -701,7 +701,7 @@ def prepare_source_embedding(source_face : Face) -> Embedding:
 
 def balance_source_embedding(source_embedding : Embedding, target_embedding : Embedding) -> Embedding:
 	model_type = get_model_options().get('type')
-	face_swapper_weight = state_manager.get_item('face_swapper_weight')
+	face_swapper_weight = state_manager.get_item('face_swapper_weight') if state_manager.get_item('face_swapper_weight') is not None else 0.5
 	face_swapper_weight = numpy.interp(face_swapper_weight, [ 0, 1 ], [ 0.35, -0.35 ]).astype(numpy.float32)
 
 	if model_type in [ 'hififace', 'hyperswap', 'inswapper', 'simswap' ]:

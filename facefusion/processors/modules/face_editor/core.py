@@ -205,7 +205,7 @@ def edit_face(target_face : Face, temp_vision_frame : VisionFrame) -> VisionFram
 	model_size = get_model_options().get('size')
 	face_landmark_5 = scale_face_landmark_5(target_face.landmark_set.get('5/68'), 1.5)
 	crop_vision_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, face_landmark_5, model_template, model_size)
-	box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur'), (0, 0, 0, 0))
+	box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, (0, 0, 0, 0))
 	crop_vision_frame = prepare_crop_frame(crop_vision_frame)
 	crop_vision_frame = apply_edit(crop_vision_frame, target_face.landmark_set.get('68'))
 	crop_vision_frame = normalize_crop_frame(crop_vision_frame)
@@ -314,7 +314,7 @@ def forward_generate_frame(feature_volume : LivePortraitFeatureVolume, source_mo
 
 
 def edit_eyebrow_direction(expression : LivePortraitExpression) -> LivePortraitExpression:
-	face_editor_eyebrow = state_manager.get_item('face_editor_eyebrow_direction')
+	face_editor_eyebrow = state_manager.get_item('face_editor_eyebrow_direction') or 0
 
 	if face_editor_eyebrow > 0:
 		expression[0, 1, 1] += numpy.interp(face_editor_eyebrow, [ -1, 1 ], [ -0.015, 0.015 ])
@@ -450,9 +450,9 @@ def edit_mouth_smile(expression : LivePortraitExpression) -> LivePortraitExpress
 
 
 def edit_head_rotation(pitch : LivePortraitPitch, yaw : LivePortraitYaw, roll : LivePortraitRoll) -> LivePortraitRotation:
-	face_editor_head_pitch = state_manager.get_item('face_editor_head_pitch')
-	face_editor_head_yaw = state_manager.get_item('face_editor_head_yaw')
-	face_editor_head_roll = state_manager.get_item('face_editor_head_roll')
+	face_editor_head_pitch = state_manager.get_item('face_editor_head_pitch') or 0
+	face_editor_head_yaw = state_manager.get_item('face_editor_head_yaw') or 0
+	face_editor_head_roll = state_manager.get_item('face_editor_head_roll') or 0
 	edit_pitch = pitch + float(numpy.interp(face_editor_head_pitch, [ -1, 1 ], [ 20, -20 ]))
 	edit_yaw = yaw + float(numpy.interp(face_editor_head_yaw, [ -1, 1 ], [ 60, -60 ]))
 	edit_roll = roll + float(numpy.interp(face_editor_head_roll, [ -1, 1 ], [ -15, 15 ]))

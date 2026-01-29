@@ -152,16 +152,16 @@ def post_process() -> None:
 def restore_expression(target_face : Face, target_vision_frame : VisionFrame, temp_vision_frame : VisionFrame) -> VisionFrame:
 	model_template = get_model_options().get('template')
 	model_size = get_model_options().get('size')
-	expression_restorer_factor = float(numpy.interp(float(state_manager.get_item('expression_restorer_factor')), [ 0, 100 ], [ 0, 1.2 ]))
+	expression_restorer_factor = float(numpy.interp(float(state_manager.get_item('expression_restorer_factor') if state_manager.get_item('expression_restorer_factor') is not None else 80), [ 0, 100 ], [ 0, 1.2 ]))
 	target_crop_vision_frame, _ = warp_face_by_face_landmark_5(target_vision_frame, target_face.landmark_set.get('5/68'), model_template, model_size)
 	temp_crop_vision_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, target_face.landmark_set.get('5/68'), model_template, model_size)
-	box_mask = create_box_mask(temp_crop_vision_frame, state_manager.get_item('face_mask_blur'), (0, 0, 0, 0))
+	box_mask = create_box_mask(temp_crop_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, (0, 0, 0, 0))
 	crop_masks =\
 	[
 		box_mask
 	]
 
-	if 'occlusion' in state_manager.get_item('face_mask_types'):
+	if 'occlusion' in (state_manager.get_item('face_mask_types') or []):
 		occlusion_mask = create_occlusion_mask(temp_crop_vision_frame)
 		crop_masks.append(occlusion_mask)
 
@@ -189,7 +189,7 @@ def apply_restore(target_crop_vision_frame : VisionFrame, temp_crop_vision_frame
 
 
 def restrict_expression_areas(temp_expression : LivePortraitExpression, target_expression : LivePortraitExpression) -> LivePortraitExpression:
-	expression_restorer_areas = state_manager.get_item('expression_restorer_areas')
+	expression_restorer_areas = state_manager.get_item('expression_restorer_areas') or []
 
 	if 'upper-face' not in expression_restorer_areas:
 		target_expression[:, [1, 2, 6, 10, 11, 12, 13, 15, 16]] = temp_expression[:, [1, 2, 6, 10, 11, 12, 13, 15, 16]]

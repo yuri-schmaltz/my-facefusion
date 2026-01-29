@@ -54,8 +54,8 @@ def process_frame(inputs : HairColorizerInputs) -> ProcessorOutputs:
 	if target_vision_frame is None:
 		return temp_vision_frame, temp_vision_mask
 
-	type = state_manager.get_item('hair_colorizer_type')
-	blend = state_manager.get_item('hair_colorizer_blend') / 100.0
+	type = state_manager.get_item('hair_colorizer_type') or 'shift'
+	blend = (state_manager.get_item('hair_colorizer_blend') if state_manager.get_item('hair_colorizer_blend') is not None else 50) / 100.0
 
 	if blend == 0:
 		return temp_vision_frame, temp_vision_mask

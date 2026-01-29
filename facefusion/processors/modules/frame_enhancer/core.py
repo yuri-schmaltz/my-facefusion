@@ -655,7 +655,7 @@ def normalize_tile_frame(tile_vision_frame : VisionFrame) -> VisionFrame:
 
 
 def blend_merge_frame(temp_vision_frame : VisionFrame, merge_vision_frame : VisionFrame) -> VisionFrame:
-	frame_enhancer_blend = 1 - (state_manager.get_item('frame_enhancer_blend') / 100)
+	frame_enhancer_blend = 1 - ((state_manager.get_item('frame_enhancer_blend') if state_manager.get_item('frame_enhancer_blend') is not None else 80) / 100)
 	temp_vision_frame = cv2.resize(temp_vision_frame, (merge_vision_frame.shape[1], merge_vision_frame.shape[0]))
 	temp_vision_frame = blend_frame(temp_vision_frame, merge_vision_frame, 1 - frame_enhancer_blend)
 	return temp_vision_frame

@@ -55,8 +55,8 @@ def process_frame(inputs : FaceRelighterInputs) -> ProcessorOutputs:
 	if target_vision_frame is None:
 		return temp_vision_frame, temp_vision_mask
 
-	type = state_manager.get_item('face_relighter_type')
-	blend = state_manager.get_item('face_relighter_blend') / 100.0
+	type = state_manager.get_item('face_relighter_type') or 'brighten'
+	blend = (state_manager.get_item('face_relighter_blend') if state_manager.get_item('face_relighter_blend') is not None else 50) / 100.0
 
 	if blend == 0:
 		return temp_vision_frame, temp_vision_mask

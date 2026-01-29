@@ -41,107 +41,107 @@ async def lifespan(app: FastAPI):
     
     
     # Initialize default state items
+    from facefusion import choices
+    
     if state_manager.get_item('download_providers') is None:
-        from facefusion import choices
         state_manager.init_item('download_providers', choices.download_providers)
         
-        if state_manager.get_item('execution_providers') is None:
-            state_manager.init_item('execution_providers', ['cpu'])
+    if state_manager.get_item('execution_providers') is None:
+        state_manager.init_item('execution_providers', ['cpu'])
             
-            if state_manager.get_item('execution_device_ids') is None:
-                state_manager.init_item('execution_device_ids', [0])
+    if state_manager.get_item('execution_device_ids') is None:
+        state_manager.init_item('execution_device_ids', [0])
     
-        if state_manager.get_item('execution_thread_count') is None:
-            state_manager.init_item('execution_thread_count', 4)
+    if state_manager.get_item('execution_thread_count') is None:
+        state_manager.init_item('execution_thread_count', 4)
     
-        if state_manager.get_item('execution_queue_count') is None:
-            state_manager.init_item('execution_queue_count', 1)
+    if state_manager.get_item('execution_queue_count') is None:
+        state_manager.init_item('execution_queue_count', 1)
             
-        if state_manager.get_item('output_video_quality') is None:
-            state_manager.init_item('output_video_quality', 80)
+    if state_manager.get_item('output_video_quality') is None:
+        state_manager.init_item('output_video_quality', 80)
             
-        if state_manager.get_item('face_selector_mode') is None:
-            state_manager.init_item('face_selector_mode', 'reference')
+    if state_manager.get_item('face_selector_mode') is None:
+        state_manager.init_item('face_selector_mode', 'reference')
             
-        if state_manager.get_item('face_mask_types') is None:
-            state_manager.init_item('face_mask_types', ['box'])
+    if state_manager.get_item('face_mask_types') is None:
+        state_manager.init_item('face_mask_types', ['box'])
     
-        if state_manager.get_item('face_mask_regions') is None:
-            state_manager.init_item('face_mask_regions', ['skin'])
+    if state_manager.get_item('face_mask_regions') is None:
+        state_manager.init_item('face_mask_regions', ['skin'])
     
-        # Ensure temp_path is set
-        if state_manager.get_item('temp_path') is None:
-            state_manager.init_item('temp_path', tempfile.gettempdir())
+    # Ensure temp_path is set
+    if state_manager.get_item('temp_path') is None:
+        state_manager.init_item('temp_path', tempfile.gettempdir())
     
-        # Common Face Detector settings
-        if state_manager.get_item('face_detector_model') is None:
-            state_manager.init_item('face_detector_model', 'yolo_face')
-        if state_manager.get_item('face_detector_size') is None:
-            state_manager.init_item('face_detector_size', '640x640')
-        if state_manager.get_item('face_detector_angles') is None:
-            state_manager.init_item('face_detector_angles', [0])
-        if state_manager.get_item('face_detector_margin') is None:
-            state_manager.init_item('face_detector_margin', [0, 0, 0, 0])
-        if state_manager.get_item('face_detector_score') is None:
-            state_manager.init_item('face_detector_score', 0.5)
+    # Common Face Detector settings
+    if state_manager.get_item('face_detector_model') is None:
+        state_manager.init_item('face_detector_model', 'yolo_face')
+    if state_manager.get_item('face_detector_size') is None:
+        state_manager.init_item('face_detector_size', '640x640')
+    if state_manager.get_item('face_detector_angles') is None:
+        state_manager.init_item('face_detector_angles', [0])
+    if state_manager.get_item('face_detector_margin') is None:
+        state_manager.init_item('face_detector_margin', [0, 0, 0, 0])
+    if state_manager.get_item('face_detector_score') is None:
+        state_manager.init_item('face_detector_score', 0.5)
     
-        # Face Landmarker settings
-        if state_manager.get_item('face_landmarker_model') is None:
-            state_manager.init_item('face_landmarker_model', '2dfan4')
-        if state_manager.get_item('face_landmarker_score') is None:
-            state_manager.init_item('face_landmarker_score', 0.5)
+    # Face Landmarker settings
+    if state_manager.get_item('face_landmarker_model') is None:
+        state_manager.init_item('face_landmarker_model', '2dfan4')
+    if state_manager.get_item('face_landmarker_score') is None:
+        state_manager.init_item('face_landmarker_score', 0.5)
     
-        # Face Selector settings
-        if state_manager.get_item('face_selector_order') is None:
-            state_manager.init_item('face_selector_order', 'large-small')
-        if state_manager.get_item('reference_face_position') is None:
-            state_manager.init_item('reference_face_position', 0)
-        if state_manager.get_item('reference_face_distance') is None:
-            state_manager.init_item('reference_face_distance', 0.6)
-        if state_manager.get_item('reference_frame_number') is None:
-            state_manager.init_item('reference_frame_number', 0)
+    # Face Selector settings
+    if state_manager.get_item('face_selector_order') is None:
+        state_manager.init_item('face_selector_order', 'large-small')
+    if state_manager.get_item('reference_face_position') is None:
+        state_manager.init_item('reference_face_position', 0)
+    if state_manager.get_item('reference_face_distance') is None:
+        state_manager.init_item('reference_face_distance', 0.6)
+    if state_manager.get_item('reference_frame_number') is None:
+        state_manager.init_item('reference_frame_number', 0)
     
-        # Face Mask settings
-        if state_manager.get_item('face_occluder_model') is None:
-            state_manager.init_item('face_occluder_model', 'xseg_1')
-        if state_manager.get_item('face_parser_model') is None:
-            state_manager.init_item('face_parser_model', 'bisenet_resnet_34')
-        if state_manager.get_item('face_mask_areas') is None:
-            from facefusion import choices
-            state_manager.init_item('face_mask_areas', choices.face_mask_areas)
-        if state_manager.get_item('face_mask_blur') is None:
-            state_manager.init_item('face_mask_blur', 0.3)
-        if state_manager.get_item('face_mask_padding') is None:
-            state_manager.init_item('face_mask_padding', [0, 0, 0, 0])
+    # Face Mask settings
+    if state_manager.get_item('face_occluder_model') is None:
+        state_manager.init_item('face_occluder_model', 'xseg_1')
+    if state_manager.get_item('face_parser_model') is None:
+        state_manager.init_item('face_parser_model', 'bisenet_resnet_34')
+    if state_manager.get_item('face_mask_areas') is None:
+        state_manager.init_item('face_mask_areas', choices.face_mask_areas)
+    if state_manager.get_item('face_mask_blur') is None:
+        state_manager.init_item('face_mask_blur', 0.3)
+    if state_manager.get_item('face_mask_padding') is None:
+        state_manager.init_item('face_mask_padding', [0, 0, 0, 0])
     
-        # Voice settings
-        if state_manager.get_item('voice_extractor_model') is None:
-            state_manager.init_item('voice_extractor_model', 'kim_vocal_2')
+    # Voice settings
+    if state_manager.get_item('voice_extractor_model') is None:
+        state_manager.init_item('voice_extractor_model', 'kim_vocal_2')
     
-        # Output / Temp settings
-        if state_manager.get_item('temp_frame_format') is None:
-            state_manager.init_item('temp_frame_format', 'png')
-        if state_manager.get_item('output_image_quality') is None:
-            state_manager.init_item('output_image_quality', 80)
-        if state_manager.get_item('output_image_scale') is None:
-            state_manager.init_item('output_image_scale', 1.0)
-        if state_manager.get_item('output_audio_quality') is None:
-            state_manager.init_item('output_audio_quality', 80)
-        if state_manager.get_item('output_video_preset') is None:
-            state_manager.init_item('output_video_preset', 'veryfast')
-        if state_manager.get_item('output_video_scale') is None:
-            state_manager.init_item('output_video_scale', 1.0)
+    # Output / Temp settings
+    if state_manager.get_item('temp_frame_format') is None:
+        state_manager.init_item('temp_frame_format', 'png')
+    if state_manager.get_item('output_image_quality') is None:
+        state_manager.init_item('output_image_quality', 80)
+    if state_manager.get_item('output_image_scale') is None:
+        state_manager.init_item('output_image_scale', 1.0)
+    if state_manager.get_item('output_audio_quality') is None:
+        state_manager.init_item('output_audio_quality', 80)
+    if state_manager.get_item('output_video_preset') is None:
+        state_manager.init_item('output_video_preset', 'veryfast')
+    if state_manager.get_item('output_video_scale') is None:
+        state_manager.init_item('output_video_scale', 1.0)
     
-        if state_manager.get_item('processors') is None:
-            state_manager.init_item('processors', [])
+    if state_manager.get_item('processors') is None:
+        state_manager.init_item('processors', [])
         
-        # Initialize processor-specific defaults
-        if state_manager.get_item('face_swapper_model') is None:
-            state_manager.init_item('face_swapper_model', 'hyperswap_1a_256')
-        if state_manager.get_item('face_swapper_pixel_boost') is None:
-            state_manager.init_item('face_swapper_pixel_boost', '256x256')
-        if state_manager.get_item('face_swapper_weight') is None:
-            state_manager.init_item('face_swapper_weight', 0.5)
+    # Initialize processor-specific defaults
+    if state_manager.get_item('face_swapper_model') is None:
+        state_manager.init_item('face_swapper_model', 'hyperswap_1a_256')
+    if state_manager.get_item('face_swapper_pixel_boost') is None:
+        state_manager.init_item('face_swapper_pixel_boost', '256x256')
+    if state_manager.get_item('face_swapper_weight') is None:
+        state_manager.init_item('face_swapper_weight', 0.5)
             
         if state_manager.get_item('face_enhancer_model') is None:
             state_manager.init_item('face_enhancer_model', 'codeformer')
@@ -926,10 +926,15 @@ def detect_faces_endpoint(req: FaceDetectRequest):
         vision_frame = read_video_frame(path, frame_num)
     
     if vision_frame is None:
+         import logging
+         logging.error(f"Could not read frame from {path}")
          raise HTTPException(400, "Could not read frame")
 
     # Detect faces
+    import logging
+    logging.info(f"Detecting faces in frame from {path}")
     faces = face_analyser.get_many_faces([vision_frame])
+    logging.info(f"Found {len(faces)} faces")
     
     results = []
     for idx, face in enumerate(faces):

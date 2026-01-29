@@ -328,18 +328,18 @@ def swap_face(target_face : Face, temp_vision_frame : VisionFrame) -> VisionFram
 	model_size = get_model_size()
 	crop_vision_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, target_face.landmark_set.get('5/68'), model_template, model_size)
 	crop_vision_frame_raw = crop_vision_frame.copy()
-	box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur'), state_manager.get_item('face_mask_padding'))
+	box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, state_manager.get_item('face_mask_padding') or (0, 0, 0, 0))
 	crop_masks =\
 	[
 		box_mask
 	]
 
-	if 'occlusion' in state_manager.get_item('face_mask_types'):
+	if 'occlusion' in (state_manager.get_item('face_mask_types') or []):
 		occlusion_mask = create_occlusion_mask(crop_vision_frame)
 		crop_masks.append(occlusion_mask)
 
 	crop_vision_frame = prepare_crop_frame(crop_vision_frame)
-	deep_swapper_morph = numpy.array([ numpy.interp(state_manager.get_item('deep_swapper_morph'), [ 0, 100 ], [ 0, 1 ]) ]).astype(numpy.float32)
+	deep_swapper_morph = numpy.array([ numpy.interp(state_manager.get_item('deep_swapper_morph') if state_manager.get_item('deep_swapper_morph') is not None else 100, [ 0, 100 ], [ 0, 1 ]) ]).astype(numpy.float32)
 	crop_vision_frame, crop_source_mask, crop_target_mask = forward(crop_vision_frame, deep_swapper_morph)
 	crop_vision_frame = normalize_crop_frame(crop_vision_frame)
 	crop_vision_frame = conditional_match_frame_color(crop_vision_frame_raw, crop_vision_frame)
@@ -347,11 +347,11 @@ def swap_face(target_face : Face, temp_vision_frame : VisionFrame) -> VisionFram
 
 	if 'area' in state_manager.get_item('face_mask_types'):
 		face_landmark_68 = cv2.transform(target_face.landmark_set.get('68').reshape(1, -1, 2), affine_matrix).reshape(-1, 2)
-		area_mask = create_area_mask(crop_vision_frame, face_landmark_68, state_manager.get_item('face_mask_areas'))
+		area_mask = create_area_mask(crop_vision_frame, face_landmark_68, state_manager.get_item('face_mask_areas') or [])
 		crop_masks.append(area_mask)
 
 	if 'region' in state_manager.get_item('face_mask_types'):
-		region_mask = create_region_mask(crop_vision_frame, state_manager.get_item('face_mask_regions'))
+		region_mask = create_region_mask(crop_vision_frame, state_manager.get_item('face_mask_regions') or [])
 		crop_masks.append(region_mask)
 
 	crop_mask = numpy.minimum.reduce(crop_masks).clip(0, 1)

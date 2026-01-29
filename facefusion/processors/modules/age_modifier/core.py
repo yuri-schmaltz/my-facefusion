@@ -141,13 +141,13 @@ def modify_age(target_face : Face, temp_vision_frame : VisionFrame) -> VisionFra
 	extend_face_landmark_5 = scale_face_landmark_5(face_landmark_5, 0.875)
 	extend_vision_frame, extend_affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, extend_face_landmark_5, model_templates.get('target_with_background'), model_sizes.get('target_with_background'))
 	extend_vision_frame_raw = extend_vision_frame.copy()
-	box_mask = create_box_mask(extend_vision_frame, state_manager.get_item('face_mask_blur'), (0, 0, 0, 0))
+	box_mask = create_box_mask(extend_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, (0, 0, 0, 0))
 	crop_masks =\
 	[
 		box_mask
 	]
 
-	if 'occlusion' in state_manager.get_item('face_mask_types'):
+	if 'occlusion' in (state_manager.get_item('face_mask_types') or []):
 		occlusion_mask = create_occlusion_mask(crop_vision_frame)
 		temp_matrix = merge_matrix([ extend_affine_matrix, cv2.invertAffineTransform(affine_matrix) ])
 		occlusion_mask = cv2.warpAffine(occlusion_mask, temp_matrix, model_sizes.get('target_with_background'))
@@ -155,7 +155,7 @@ def modify_age(target_face : Face, temp_vision_frame : VisionFrame) -> VisionFra
 
 	crop_vision_frame = prepare_vision_frame(crop_vision_frame)
 	extend_vision_frame = prepare_vision_frame(extend_vision_frame)
-	age_modifier_direction = numpy.array(numpy.interp(state_manager.get_item('age_modifier_direction'), [ -100, 100 ], [ 2.5, -2.5 ])).astype(numpy.float32)
+	age_modifier_direction = numpy.array(numpy.interp(state_manager.get_item('age_modifier_direction') if state_manager.get_item('age_modifier_direction') is not None else 0, [ -100, 100 ], [ 2.5, -2.5 ])).astype(numpy.float32)
 	extend_vision_frame = forward(crop_vision_frame, extend_vision_frame, age_modifier_direction)
 	extend_vision_frame = normalize_extend_frame(extend_vision_frame)
 	extend_vision_frame = match_frame_color(extend_vision_frame_raw, extend_vision_frame)

@@ -180,13 +180,13 @@ def sync_lip(target_face : Face, source_voice_frame : AudioFrame, temp_vision_fr
 	crop_vision_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, target_face.landmark_set.get('5/68'), 'ffhq_512', (512, 512))
 	crop_masks = []
 
-	if 'occlusion' in state_manager.get_item('face_mask_types'):
+	if 'occlusion' in (state_manager.get_item('face_mask_types') or []):
 		occlusion_mask = create_occlusion_mask(crop_vision_frame)
 		crop_masks.append(occlusion_mask)
 
 	if model_type == 'edtalk':
-		lip_syncer_weight = numpy.array([ state_manager.get_item('lip_syncer_weight') ]).astype(numpy.float32)
-		box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur'), state_manager.get_item('face_mask_padding'))
+		lip_syncer_weight = numpy.array([ state_manager.get_item('lip_syncer_weight') if state_manager.get_item('lip_syncer_weight') is not None else 0.5 ]).astype(numpy.float32)
+		box_mask = create_box_mask(crop_vision_frame, state_manager.get_item('face_mask_blur') or 0.3, state_manager.get_item('face_mask_padding') or (0, 0, 0, 0))
 		crop_masks.append(box_mask)
 		crop_vision_frame = prepare_crop_frame(crop_vision_frame)
 		crop_vision_frame = forward_edtalk(source_voice_frame, crop_vision_frame, lip_syncer_weight)
@@ -242,7 +242,7 @@ def prepare_audio_frame(temp_audio_frame : AudioFrame) -> AudioFrame:
 	temp_audio_frame = temp_audio_frame.clip(-4, 4).astype(numpy.float32)
 
 	if model_type == 'wav2lip':
-		temp_audio_frame = temp_audio_frame * state_manager.get_item('lip_syncer_weight') * 2.0
+		temp_audio_frame = temp_audio_frame * (state_manager.get_item('lip_syncer_weight') if state_manager.get_item('lip_syncer_weight') is not None else 0.5) * 2.0
 
 	temp_audio_frame = numpy.expand_dims(temp_audio_frame, axis = (0, 1))
 	return temp_audio_frame

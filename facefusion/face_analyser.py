@@ -106,7 +106,7 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 				all_face_scores = []
 				all_face_landmarks_5 = []
 
-				for face_detector_angle in state_manager.get_item('face_detector_angles'):
+				for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
 					if face_detector_angle == 0:
 						bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
 					else:
@@ -115,7 +115,7 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 					all_face_scores.extend(face_scores)
 					all_face_landmarks_5.extend(face_landmarks_5)
 
-				if all_bounding_boxes and all_face_scores and all_face_landmarks_5 and state_manager.get_item('face_detector_score') > 0:
+				if all_bounding_boxes and all_face_scores and all_face_landmarks_5 and (state_manager.get_item('face_detector_score') or 0.5) > 0:
 					faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
 
 					if faces:
