@@ -4984,3 +4984,82 @@ AttributeError: 'NoneType' object has no attribute 'run'
 2026-01-29 14:14:27,361 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
 2026-01-29 14:14:34,925 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
 2026-01-29 14:14:35,244 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 10.51 seconds
+2026-01-29 14:17:22,021 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:17:28,862 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:17:29,980 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:17:30,235 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 6.09 seconds
+2026-01-29 14:17:32,283 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:17:37,226 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 14:17:37,573 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 14:17:39,542 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 14:17:39,758 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.45 seconds
+2026-01-29 14:17:41,679 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:18:44,559 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:18:51,030 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 852x480 and 29.97002997002997 frames per second
+2026-01-29 14:18:53,883 - facefusion.orchestrator.runner - ERROR - Job job-20260129-141844-959a5344 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 391, in conditional_process
+    return image_to_video.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 36, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 103, in process_video
+    future.result()
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 188, in process_temp_frame
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_swapper/core.py", line 770, in process_frame
+    target_faces = select_faces(reference_vision_frame, target_vision_frame)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_selector.py", line 11, in select_faces
+    target_faces = get_many_faces([ target_vision_frame ])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 111, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 166, in detect_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_with_retinaface(margin_vision_frame, face_detector_size)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 227, in detect_with_retinaface
+    detection = forward_with_retinaface(detect_vision_frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 410, in forward_with_retinaface
+    detection = face_detector.run(None,
+                ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'run'
+
+2026-01-29 14:19:28,412 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:19:31,927 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:19:34,813 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:19:35,103 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 5.04 seconds
+2026-01-29 14:20:08,580 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:20:12,005 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:20:13,668 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:20:13,951 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.81 seconds
+2026-01-29 14:20:31,461 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:20:38,052 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 1920x1080 and 29.97002997002997 frames per second
+2026-01-29 14:20:41,680 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 1920x1080 and 29.97002997002997 frames per second
+2026-01-29 14:20:42,385 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.7 seconds
+2026-01-29 14:21:14,379 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 14:21:17,845 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:21:18,854 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 14:21:19,120 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.13 seconds
+2026-01-29 14:23:23,095 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 14:23:23,445 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 14:23:24,492 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 14:23:24,708 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 340.89 seconds
+2026-01-29 14:23:27,044 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0

@@ -58,6 +58,18 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 	apply_if_present('source_pattern', args.get('source_pattern'))
 	apply_if_present('target_pattern', args.get('target_pattern'))
 	apply_if_present('output_pattern', args.get('output_pattern'))
+	
+	# Auto-select retinaface for video targets (97% detection vs 0% for yoloface)
+	# Override default yolo_face for better video detection
+	target_path = args.get('target_path')
+	face_detector_model = args.get('face_detector_model')
+	if target_path and is_video(target_path) and face_detector_model == 'yolo_face':
+		# User didn't explicitly request yolo_face, it's just the default
+		# Override with retinaface for better video detection
+		print(f"[AUTO-SELECT] Detected video target: {get_file_name(target_path)}")
+		print(f"[AUTO-SELECT] Switching face detector from 'yolo_face' to 'retinaface' for better video detection")
+		args['face_detector_model'] = 'retinaface'
+	
 	# face detector
 	apply_if_present('face_detector_model', args.get('face_detector_model'))
 	apply_if_present('face_detector_size', args.get('face_detector_size'))
