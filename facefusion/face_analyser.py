@@ -97,10 +97,8 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 	many_faces : List[Face] = []
 
 	for vision_frame in vision_frames:
-		print(f"[DEBUG] Processing frame, shape: {vision_frame.shape if hasattr(vision_frame, 'shape') else 'N/A'}, any: {numpy.any(vision_frame)}")
 		if numpy.any(vision_frame):
 			static_faces = get_static_faces(vision_frame)
-			print(f"[DEBUG] Static faces found: {len(static_faces) if static_faces else 0}")
 			if static_faces:
 				many_faces.extend(static_faces)
 			else:
@@ -109,7 +107,6 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 				all_face_landmarks_5 = []
 
 				for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
-					print(f"[DEBUG] Calling detector with angle {face_detector_angle}")
 					if face_detector_angle == 0:
 						bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
 					else:
@@ -117,6 +114,30 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 					all_bounding_boxes.extend(bounding_boxes)
 					all_face_scores.extend(face_scores)
 					all_face_landmarks_5.extend(face_landmarks_5)
+
+				# Fallback mechanism: if no faces detected, try retinaface
+				if not all_bounding_boxes and state_manager.get_item('face_detector_model') != 'retinaface':
+					original_model = state_manager.get_item('face_detector_model')
+					
+					# Clear the current detector's inference pool before switching
+					from facefusion import face_detector
+					face_detector.clear_inference_pool()
+					
+					state_manager.set_item('face_detector_model', 'retinaface')
+					
+					# Retry with retinaface
+					for face_detector_angle in (state_manager.get_item('face_detector_angles') or [0]):
+						if face_detector_angle == 0:
+							bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+						else:
+							bounding_boxes, face_scores, face_landmarks_5 = detect_faces_by_angle(vision_frame, face_detector_angle)
+						all_bounding_boxes.extend(bounding_boxes)
+						all_face_scores.extend(face_scores)
+						all_face_landmarks_5.extend(face_landmarks_5)
+					
+					# Restore original model and clear retinaface pool
+					face_detector.clear_inference_pool()
+					state_manager.set_item('face_detector_model', original_model)
 
 				if all_bounding_boxes and all_face_scores and all_face_landmarks_5 and (state_manager.get_item('face_detector_score') or 0.5) > 0:
 					faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
