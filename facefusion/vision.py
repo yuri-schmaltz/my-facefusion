@@ -14,7 +14,7 @@ from facefusion.common_helper import is_windows
 from facefusion.filesystem import get_file_extension, is_image, is_video
 from facefusion.thread_helper import thread_semaphore
 from facefusion.types import ColorMode, Duration, Fps, Mask, Orientation, Resolution, Scale, VisionFrame
-from facefusion.video_manager import get_video_capture
+from facefusion.video_manager import get_video_capture, release_video_capture
 
 
 def read_static_images(image_paths : List[str], color_mode : ColorMode = 'rgb') -> List[VisionFrame]:
@@ -96,6 +96,18 @@ def read_video_frame(video_path : str, frame_number : int = 0) -> Optional[Visio
 				
 				has_vision_frame, vision_frame = video_capture.read()
 				print(f"[DEBUG] read_video_frame: read success={has_vision_frame}, any={numpy.any(vision_frame) if has_vision_frame else 'N/A'}")
+
+				if has_vision_frame and not numpy.any(vision_frame):
+					print(f"[DEBUG] read_video_frame: Frame is empty (all zeros). Releasing capture and retrying...")
+					release_video_capture(video_path)
+					# Retry once with a fresh capture
+					video_capture = get_video_capture(video_path)
+					if video_capture and video_capture.isOpened():
+						current_frame_position = int(video_capture.get(cv2.CAP_PROP_POS_FRAMES))
+						if current_frame_position != frame_number:
+							video_capture.set(cv2.CAP_PROP_POS_FRAMES, min(frame_total, frame_number - 1))
+						has_vision_frame, vision_frame = video_capture.read()
+						print(f"[DEBUG] read_video_frame: Retry result success={has_vision_frame}, any={numpy.any(vision_frame) if has_vision_frame else 'N/A'}")
 
 			if has_vision_frame:
 				return vision_frame

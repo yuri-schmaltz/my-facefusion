@@ -38,3 +38,9 @@ def clear_video_pool() -> None:
 
 	VIDEO_POOL_SET['capture'].clear()
 	VIDEO_POOL_SET['writer'].clear()
+
+
+def release_video_capture(video_path : str) -> None:
+	if video_path in VIDEO_POOL_SET.get('capture'):
+		VIDEO_POOL_SET['capture'][video_path].release()
+		del VIDEO_POOL_SET['capture'][video_path]
