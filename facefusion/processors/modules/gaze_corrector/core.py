@@ -5,7 +5,7 @@ import numpy
 import facefusion.jobs.job_store
 from facefusion import config, state_manager, translator
 from facefusion.face_masker import create_area_mask
-from facefusion.face_analyser import get_one_face
+from facefusion.face_analyser import get_one_face, get_many_faces
 from facefusion.processors.modules.gaze_corrector import choices as gaze_corrector_choices
 from facefusion.processors.modules.gaze_corrector.types import GazeCorrectorInputs
 from facefusion.processors.types import ProcessorOutputs
@@ -62,7 +62,8 @@ def process_frame(inputs : GazeCorrectorInputs) -> ProcessorOutputs:
 		return temp_vision_frame, temp_vision_mask
 
 	# Enhance eyes
-	target_face = get_one_face(temp_vision_frame)
+	faces = get_many_faces([temp_vision_frame])
+	target_face = get_one_face(faces)
 	if not target_face:
 		return temp_vision_frame, temp_vision_mask
 	

@@ -4160,3 +4160,719 @@ TypeError: expected str, bytes or os.PathLike object, not NoneType
 2026-01-29 13:10:28,292 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
 2026-01-29 13:10:28,508 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.38 seconds
 2026-01-29 13:10:30,430 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:18:35,308 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:18:41,799 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:18:42,110 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:18:44,168 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:18:44,384 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.59 seconds
+2026-01-29 13:18:47,358 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:18:53,754 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:18:54,121 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:02,433 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:02,649 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.92 seconds
+2026-01-29 13:19:04,415 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:08,918 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:09,312 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:11,172 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:11,389 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.37 seconds
+2026-01-29 13:19:13,168 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:19,467 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:19,850 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:21,900 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:22,115 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.62 seconds
+2026-01-29 13:19:23,915 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:29,120 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:29,403 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:31,420 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:31,636 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.5 seconds
+2026-01-29 13:19:33,377 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:37,978 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:38,316 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:40,248 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:40,515 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.58 seconds
+2026-01-29 13:19:42,527 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:47,095 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:47,387 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:49,353 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:49,620 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.51 seconds
+2026-01-29 13:19:51,322 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:19:56,299 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:19:56,644 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:19:58,710 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:19:58,926 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.56 seconds
+2026-01-29 13:20:00,713 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:05,701 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:20:05,988 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:20:07,921 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:20:08,138 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.43 seconds
+2026-01-29 13:20:09,895 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:14,435 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:20:14,793 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:20:14,795 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132009-2a3c2717 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_relighter/core.py", line 67, in process_frame
+    target_face = get_one_face(temp_vision_frame)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 65, in get_one_face
+    if faces:
+       ^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2026-01-29 13:20:16,718 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:21,101 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:20:21,269 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132016-15e4fe62 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 391, in conditional_process
+    return image_to_video.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 36, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 103, in process_video
+    future.result()
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 188, in process_temp_frame
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_stabilizer/core.py", line 69, in process_frame
+    target_face = get_one_face(temp_vision_frame)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 65, in get_one_face
+    if faces:
+       ^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2026-01-29 13:20:23,198 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:30,124 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:20:30,408 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:20:30,828 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:20:31,044 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.68 seconds
+2026-01-29 13:20:32,911 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:39,343 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:20:39,702 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:20:43,075 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:20:43,291 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 7.12 seconds
+2026-01-29 13:20:44,989 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:20:49,490 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:20:49,836 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:20:56,248 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:20:57,571 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.01 seconds
+2026-01-29 13:20:59,437 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:04,110 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:21:04,442 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:21:04,445 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132059-bdb64cac failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/gaze_corrector/core.py", line 65, in process_frame
+    target_face = get_one_face(temp_vision_frame)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 65, in get_one_face
+    if faces:
+       ^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2026-01-29 13:21:06,031 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:10,584 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:21:10,948 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:21:11,494 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:21:11,710 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.06 seconds
+2026-01-29 13:21:13,688 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:15,510 - facefusion - ERROR - [FACEFUSION.CORE] choose an audio for the source!
+2026-01-29 13:21:16,963 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:21,614 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:21:21,988 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:21:21,990 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132116-3b948776 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/makeup_transfer/core.py", line 70, in process_frame
+    target_face = get_one_face(temp_vision_frame)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 65, in get_one_face
+    if faces:
+       ^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2026-01-29 13:21:23,590 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:28,097 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:21:28,463 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:21:30,285 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132123-28e8d48d failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/privacy_blur/core.py", line 92, in process_frame
+    temp_vision_frame = apply_privacy(temp_vision_frame, bystander, mode, amount)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/privacy_blur/core.py", line 99, in apply_privacy
+    x1, y1, x2, y2 = face.bbox.astype(int)
+                     ^^^^^^^^^
+AttributeError: 'Face' object has no attribute 'bbox'
+
+2026-01-29 13:21:32,229 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:21:36,942 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:21:37,243 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:21:37,385 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:21:37,601 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.7 seconds
+2026-01-29 13:23:57,966 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:04,489 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:04,796 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:06,847 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:07,114 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.62 seconds
+2026-01-29 13:24:08,839 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:13,406 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:13,760 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:14,320 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:14,535 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.09 seconds
+2026-01-29 13:24:16,125 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:22,137 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:22,499 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:30,526 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:30,793 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.61 seconds
+2026-01-29 13:24:32,542 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:37,102 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:37,485 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:39,355 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:39,571 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.48 seconds
+2026-01-29 13:24:41,283 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:47,517 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:47,911 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:49,874 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:50,141 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.6 seconds
+2026-01-29 13:24:51,815 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:24:57,015 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:24:57,376 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:24:59,638 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:24:59,854 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.9 seconds
+2026-01-29 13:25:01,664 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:06,225 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:06,563 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:08,495 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:25:08,711 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.37 seconds
+2026-01-29 13:25:10,641 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:15,248 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:15,524 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:17,538 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:25:17,805 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.59 seconds
+2026-01-29 13:25:19,627 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:24,716 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:25,071 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:27,065 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:25:27,331 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.66 seconds
+2026-01-29 13:25:29,187 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:34,165 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:34,446 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:36,475 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:25:36,691 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.48 seconds
+2026-01-29 13:25:38,571 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:43,037 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:43,321 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:43,324 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132538-ab12b841 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_relighter/core.py", line 67, in process_frame
+    faces = get_many_faces(temp_vision_frame)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 114, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 157, in detect_faces
+    margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 792, in pad
+    pad_width = _as_pairs(pad_width, array.ndim, as_index=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 535, in _as_pairs
+    return np.broadcast_to(x, (ndim, 2)).tolist()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 443, in broadcast_to
+    return _broadcast_to(array, shape, subok=subok, readonly=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 382, in _broadcast_to
+    it = np.nditer(
+         ^^^^^^^^^^
+ValueError: operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+
+2026-01-29 13:25:45,039 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:49,427 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:25:49,574 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132545-dd437ef1 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 391, in conditional_process
+    return image_to_video.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 36, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 103, in process_video
+    future.result()
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 188, in process_temp_frame
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_stabilizer/core.py", line 69, in process_frame
+    faces = get_many_faces(temp_vision_frame)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 114, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 157, in detect_faces
+    margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 792, in pad
+    pad_width = _as_pairs(pad_width, array.ndim, as_index=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 535, in _as_pairs
+    return np.broadcast_to(x, (ndim, 2)).tolist()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 443, in broadcast_to
+    return _broadcast_to(array, shape, subok=subok, readonly=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 382, in _broadcast_to
+    it = np.nditer(
+         ^^^^^^^^^^
+ValueError: operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+
+2026-01-29 13:25:51,520 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:25:58,431 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:25:58,725 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:25:59,130 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:25:59,345 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.65 seconds
+2026-01-29 13:26:01,209 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:07,055 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:07,402 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:10,684 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:26:10,950 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 6.84 seconds
+2026-01-29 13:26:12,617 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:17,230 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:17,594 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:24,111 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:26:25,433 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.2 seconds
+2026-01-29 13:26:27,183 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:31,737 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:32,095 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:32,099 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132627-5a889ef4 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/gaze_corrector/core.py", line 65, in process_frame
+    faces = get_many_faces(temp_vision_frame)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 114, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 157, in detect_faces
+    margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 792, in pad
+    pad_width = _as_pairs(pad_width, array.ndim, as_index=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 535, in _as_pairs
+    return np.broadcast_to(x, (ndim, 2)).tolist()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 443, in broadcast_to
+    return _broadcast_to(array, shape, subok=subok, readonly=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 382, in _broadcast_to
+    it = np.nditer(
+         ^^^^^^^^^^
+ValueError: operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+
+2026-01-29 13:26:33,686 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:38,299 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:38,632 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:39,185 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:26:39,401 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.12 seconds
+2026-01-29 13:26:41,483 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:43,269 - facefusion - ERROR - [FACEFUSION.CORE] choose an audio for the source!
+2026-01-29 13:26:44,747 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:49,555 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:49,947 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:49,952 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132644-0b0bed18 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/makeup_transfer/core.py", line 70, in process_frame
+    faces = get_many_faces(temp_vision_frame)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 114, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 157, in detect_faces
+    margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 792, in pad
+    pad_width = _as_pairs(pad_width, array.ndim, as_index=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 535, in _as_pairs
+    return np.broadcast_to(x, (ndim, 2)).tolist()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 443, in broadcast_to
+    return _broadcast_to(array, shape, subok=subok, readonly=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 382, in _broadcast_to
+    it = np.nditer(
+         ^^^^^^^^^^
+ValueError: operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+
+2026-01-29 13:26:51,535 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:26:56,127 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:26:56,484 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:26:56,488 - facefusion.orchestrator.runner - ERROR - Job job-20260129-132651-1c52e53d failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 125, in run
+    success = process_step(job_id, 0, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 376, in process_step
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 389, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/privacy_blur/core.py", line 63, in process_frame
+    all_faces = get_many_faces(target_vision_frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_analyser.py", line 114, in get_many_faces
+    bounding_boxes, face_scores, face_landmarks_5 = detect_faces(vision_frame)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_detector.py", line 157, in detect_faces
+    margin_vision_frame = numpy.pad(vision_frame, ((margin_top, margin_bottom), (margin_left, margin_right), (0, 0)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 792, in pad
+    pad_width = _as_pairs(pad_width, array.ndim, as_index=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py", line 535, in _as_pairs
+    return np.broadcast_to(x, (ndim, 2)).tolist()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 443, in broadcast_to
+    return _broadcast_to(array, shape, subok=subok, readonly=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/.venv/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py", line 382, in _broadcast_to
+    it = np.nditer(
+         ^^^^^^^^^^
+ValueError: operands could not be broadcast together with remapped shapes [original->remapped]: (3,2)  and requested shape (2,2)
+
+2026-01-29 13:26:58,063 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:27:02,653 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:27:03,011 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:27:03,162 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:27:03,378 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.7 seconds
+2026-01-29 13:27:41,378 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:27:47,980 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:27:48,287 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:27:50,293 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:27:50,509 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.64 seconds
+2026-01-29 13:27:52,494 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:27:57,104 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:27:57,453 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:27:58,036 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:27:58,252 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.14 seconds
+2026-01-29 13:28:00,356 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:06,485 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:06,841 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:28:14,959 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:28:15,175 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.8 seconds
+2026-01-29 13:28:17,009 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:21,495 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:21,869 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:28:23,806 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:28:24,021 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.4 seconds
+2026-01-29 13:28:25,722 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:31,663 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:31,990 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:28:33,923 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:28:34,139 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.39 seconds
+2026-01-29 13:28:35,825 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:41,061 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:41,352 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:28:43,402 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:28:43,619 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.68 seconds
+2026-01-29 13:28:45,376 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:49,975 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:50,330 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:28:52,268 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:28:52,534 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.55 seconds
+2026-01-29 13:28:54,447 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:28:59,140 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:28:59,494 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:01,421 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:01,637 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.54 seconds
+2026-01-29 13:29:03,581 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:08,702 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:29:09,045 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:11,045 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:11,261 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.54 seconds
+2026-01-29 13:29:13,188 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:18,258 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:29:18,622 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:20,601 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:20,818 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.66 seconds
+2026-01-29 13:29:22,721 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:27,338 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:29:27,706 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:29,660 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:29,877 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.56 seconds
+2026-01-29 13:29:31,973 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:36,517 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:29:37,383 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:29:37,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 4.02 seconds
+2026-01-29 13:29:39,611 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:46,619 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:29:46,966 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:47,350 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:47,566 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.88 seconds
+2026-01-29 13:29:49,392 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:29:55,364 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:29:55,730 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:29:59,001 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:29:59,268 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 6.89 seconds
+2026-01-29 13:30:00,904 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:05,567 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:05,921 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:12,594 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:13,866 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.3 seconds
+2026-01-29 13:30:15,609 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:20,211 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:20,566 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:22,460 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:22,676 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.44 seconds
+2026-01-29 13:30:24,343 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:28,933 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:29,285 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:29,824 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:30,041 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.06 seconds
+2026-01-29 13:30:31,631 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:33,479 - facefusion - ERROR - [FACEFUSION.CORE] choose an audio for the source!
+2026-01-29 13:30:34,905 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:39,538 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:39,935 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:41,828 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:42,045 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.56 seconds
+2026-01-29 13:30:43,667 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:48,248 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:48,573 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:50,396 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:50,612 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.3 seconds
+2026-01-29 13:30:52,556 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:30:57,110 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:30:57,479 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:30:57,631 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:30:57,898 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.71 seconds
+2026-01-29 13:31:33,252 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:31:39,747 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:31:40,079 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:31:42,111 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:31:42,378 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.63 seconds
+2026-01-29 13:31:44,158 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:31:48,676 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:31:48,982 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:31:49,532 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:31:49,748 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.98 seconds
+2026-01-29 13:31:51,301 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:31:57,192 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:31:57,487 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:05,576 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:05,843 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.57 seconds
+2026-01-29 13:32:07,597 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:32:12,087 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:32:12,457 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:14,385 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:14,601 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.41 seconds
+2026-01-29 13:32:16,632 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:32:22,652 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:32:23,041 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:25,077 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:25,343 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.64 seconds
+2026-01-29 13:32:27,191 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:32:32,442 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:32:32,799 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:34,837 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:35,103 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.78 seconds
+2026-01-29 13:32:36,984 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:32:41,594 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:32:41,957 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:43,881 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:44,098 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.49 seconds
+2026-01-29 13:32:46,139 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:32:50,806 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:32:51,168 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:32:53,181 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:32:53,398 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.59 seconds
+2026-01-29 13:32:55,293 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:00,400 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:00,743 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:33:02,881 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:33:03,106 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.7 seconds
+2026-01-29 13:33:04,809 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:09,839 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:10,194 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:33:12,272 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:33:12,488 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.73 seconds
+2026-01-29 13:33:14,297 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:18,878 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:19,156 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:33:21,122 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:33:21,338 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.43 seconds
+2026-01-29 13:33:23,070 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:27,506 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:33:28,318 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:33:28,595 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.88 seconds
+2026-01-29 13:33:30,596 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:37,632 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:37,988 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:33:38,488 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:33:38,703 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.9 seconds
+2026-01-29 13:33:40,517 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:46,348 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:46,714 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:33:50,116 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:33:50,333 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 6.98 seconds
+2026-01-29 13:33:52,056 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:33:56,577 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:33:56,946 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:34:03,656 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:34:04,927 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 11.31 seconds
+2026-01-29 13:34:06,576 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:34:11,278 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:34:11,626 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:34:13,487 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:34:13,703 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.48 seconds
+2026-01-29 13:34:15,750 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:34:20,384 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:34:20,765 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:34:21,344 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:34:21,560 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.24 seconds
+2026-01-29 13:34:23,615 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:34:28,352 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:34:57,020 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 640x480 and 29.97002997002997 frames per second
+2026-01-29 13:34:57,285 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 31.83 seconds
+2026-01-29 13:34:59,183 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:35:03,725 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:35:04,112 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:35:06,014 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:35:06,230 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.41 seconds
+2026-01-29 13:35:08,315 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:35:12,826 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:35:13,130 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:35:15,055 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:35:15,271 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.38 seconds
+2026-01-29 13:35:16,863 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 0
+2026-01-29 13:35:21,603 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 2448x3264
+2026-01-29 13:35:21,890 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-29 13:35:22,031 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 2448x3264
+2026-01-29 13:35:22,247 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.76 seconds

@@ -4,7 +4,7 @@ import numpy
 
 import facefusion.jobs.job_store
 from facefusion import config, state_manager, translator
-from facefusion.face_analyser import get_one_face
+from facefusion.face_analyser import get_one_face, get_many_faces
 from facefusion.processors.modules.face_stabilizer import choices as face_stabilizer_choices
 from facefusion.processors.modules.face_stabilizer.types import FaceStabilizerInputs
 from facefusion.processors.types import ProcessorOutputs
@@ -66,7 +66,8 @@ def process_frame(inputs : FaceStabilizerInputs) -> ProcessorOutputs:
 	# Let's interpret blend as 'strength' of zoom? No.
 	# Let's interpret blend as 'smoothing' if we had history. Without history, it's just 'lock strength'.
 	
-	target_face = get_one_face(temp_vision_frame)
+	faces = get_many_faces([temp_vision_frame])
+	target_face = get_one_face(faces)
 	if not target_face:
 		return temp_vision_frame, temp_vision_mask
 	

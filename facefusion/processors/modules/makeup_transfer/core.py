@@ -5,7 +5,7 @@ import numpy
 import facefusion.jobs.job_store
 from facefusion import config, state_manager, translator
 from facefusion.face_masker import create_area_mask
-from facefusion.face_analyser import get_one_face
+from facefusion.face_analyser import get_one_face, get_many_faces
 from facefusion.processors.modules.makeup_transfer import choices as makeup_transfer_choices
 from facefusion.processors.modules.makeup_transfer.types import MakeupTransferInputs
 from facefusion.processors.types import ProcessorOutputs
@@ -67,7 +67,8 @@ def process_frame(inputs : MakeupTransferInputs) -> ProcessorOutputs:
 	# We can use the landmarks from the target_face IF the swap didn't move features too much (it usually aligns).
 	# However, for precision, let's detect on the swapped frame (temp_vision_frame).
 	
-	target_face = get_one_face(temp_vision_frame)
+	faces = get_many_faces([temp_vision_frame])
+	target_face = get_one_face(faces)
 	if not target_face:
 		return temp_vision_frame, temp_vision_mask
 		

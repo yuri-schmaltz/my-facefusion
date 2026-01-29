@@ -5,7 +5,7 @@ import numpy
 import facefusion.jobs.job_store
 from facefusion import config, state_manager, translator
 from facefusion.face_masker import create_area_mask
-from facefusion.face_analyser import get_one_face
+from facefusion.face_analyser import get_one_face, get_many_faces
 from facefusion.processors.modules.face_relighter import choices as face_relighter_choices
 from facefusion.processors.modules.face_relighter.types import FaceRelighterInputs
 from facefusion.processors.types import ProcessorOutputs
@@ -64,7 +64,8 @@ def process_frame(inputs : FaceRelighterInputs) -> ProcessorOutputs:
 	# Approximate 3D lighting by brightening T-zone (nose, forehead) and darkening cheeks?
 	# Or simple global adjustment based on mask.
 	
-	target_face = get_one_face(temp_vision_frame)
+	faces = get_many_faces([temp_vision_frame])
+	target_face = get_one_face(faces)
 	if not target_face:
 		return temp_vision_frame, temp_vision_mask
 	

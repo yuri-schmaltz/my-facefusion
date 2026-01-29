@@ -96,7 +96,7 @@ def process_frame(inputs : PrivacyBlurInputs) -> ProcessorOutputs:
 
 def apply_privacy(temp_vision_frame, face, mode, amount):
 	# Extract bounding box
-	x1, y1, x2, y2 = face.bbox.astype(int)
+	x1, y1, x2, y2 = face.bounding_box.astype(int)
 	h, w, c = temp_vision_frame.shape
 	
 	# Padding
