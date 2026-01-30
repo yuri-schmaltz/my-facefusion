@@ -941,119 +941,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </div>
                 )}
 
-                {activeTab === "system" && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
-                        <div className="flex items-center gap-2 text-neutral-400">
-                            <HardDrive size={16} />
-                            <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-6">
-                            {/* Execution Provider */}
-                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
-                                <div className="flex items-center gap-2">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                        Execution Provider
-                                    </label>
-                                    <Tooltip content={helpTexts['execution_providers']}>
-                                        <Info size={12} className="text-neutral-500 cursor-help" />
-                                    </Tooltip>
-                                </div>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
-                                        const current = settings.execution_providers || [];
-                                        const isSelected = current.includes(provider);
-                                        const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
-
-                                        const labels: Record<string, string> = {
-                                            cpu: "CPU Standard",
-                                            cuda: "NVIDIA CUDA",
-                                            tensorrt: "NVIDIA TensorRT",
-                                            rocm: "AMD ROCm",
-                                            directml: "DirectML (Windows)",
-                                            openvino: "Intel OpenVINO",
-                                            coreml: "Apple CoreML"
-                                        };
-                                        return (
-                                            <button
-                                                key={provider}
-                                                onClick={() => toggleExecutionProvider(provider)}
-                                                disabled={!isAvailable}
-                                                className={cn(
-                                                    "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
-                                                    isSelected
-                                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                                        : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
-                                                    !isAvailable && "opacity-50 cursor-not-allowed"
-                                                )}
-                                            >
-                                                <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
-                                                {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Temp Frame Format */}
-                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Temp Frame Format</label>
-                                <div className="flex bg-neutral-800 rounded-lg p-0.5">
-                                    {(choices?.temp_frame_formats || ['png', 'bmp', 'jpg']).map((f: string) => (
-                                        <button
-                                            key={f}
-                                            onClick={() => handleChange("temp_frame_format", f)}
-                                            className={cn(
-                                                "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
-                                                settings.temp_frame_format === f
-                                                    ? "bg-blue-600 text-white"
-                                                    : "text-neutral-500 hover:text-neutral-300"
-                                            )}
-                                        >
-                                            {f.toUpperCase()}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Hard Debugging / Troubleshooting */}
-                            <div className="space-y-4 pt-4 border-t border-neutral-800/50">
-                                <div className="flex items-center gap-2">
-                                    <Bug size={14} className="text-neutral-500" />
-                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                                        Hard Debugging
-                                    </label>
-                                </div>
-                                <button
-                                    onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
-                                    className={cn(
-                                        "w-full flex items-center justify-between p-3 rounded-xl border transition-all",
-                                        settings.export_problem_frames
-                                            ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                            : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
-                                    )}
-                                >
-                                    <div className="flex flex-col items-start gap-1">
-                                        <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
-                                            Export Failure Frames
-                                        </span>
-                                        <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
-                                    </div>
-                                    <div className={cn(
-                                        "w-10 h-5 rounded-full relative transition-colors",
-                                        settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
-                                    )}>
-                                        <div className={cn(
-                                            "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
-                                            settings.export_problem_frames ? "left-6" : "left-1"
-                                        )} />
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 {activeTab === "jobs" && (
                     <div className="flex flex-col h-full animate-in fade-in slide-in-from-left-2 duration-300">
                         {/* Header */}
@@ -1290,6 +1177,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
+                            {/* Temp Frame Format */}
+                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Temp Frame Format</label>
+                                <div className="flex bg-neutral-800 rounded-lg p-0.5">
+                                    {(choices?.temp_frame_formats || ['png', 'bmp', 'jpg']).map((f: string) => (
+                                        <button
+                                            key={f}
+                                            onClick={() => handleChange("temp_frame_format", f)}
+                                            className={cn(
+                                                "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
+                                                settings.temp_frame_format === f
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-neutral-500 hover:text-neutral-300"
+                                            )}
+                                        >
+                                            {f.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Execution Threads */}
                                 <div className="space-y-3">
@@ -1400,6 +1308,41 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <span className="text-xs font-bold uppercase">Keep Temp Files</span>
                                     <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-blue-600" : "bg-neutral-700")}>
                                         <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
+                                    </div>
+                                </button>
+                            </div>
+
+                            {/* Hard Debugging / Troubleshooting */}
+                            <div className="space-y-4 pt-4 border-t border-neutral-800/50">
+                                <div className="flex items-center gap-2">
+                                    <Bug size={14} className="text-neutral-500" />
+                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                        Hard Debugging
+                                    </label>
+                                </div>
+                                <button
+                                    onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
+                                    className={cn(
+                                        "w-full flex items-center justify-between p-3 rounded-xl border transition-all",
+                                        settings.export_problem_frames
+                                            ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                            : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
+                                    )}
+                                >
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
+                                            Export Failure Frames
+                                        </span>
+                                        <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
+                                    </div>
+                                    <div className={cn(
+                                        "w-10 h-5 rounded-full relative transition-colors",
+                                        settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
+                                    )}>
+                                        <div className={cn(
+                                            "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
+                                            settings.export_problem_frames ? "left-6" : "left-1"
+                                        )} />
                                     </div>
                                 </button>
                             </div>

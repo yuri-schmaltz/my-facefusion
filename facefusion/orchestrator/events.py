@@ -86,10 +86,13 @@ class EventBus:
                             lambda q=queue, e=event: q.put_nowait(e)
                         )
                     else:
+                        # This is likely where it fails if called from a thread
+                        print(f"DEBUG: EventBus.publish called from thread WITHOUT loop set for event {event.event_type}")
                         queue.put_nowait(event)
                 except asyncio.QueueFull:
                     pass  # Drop if queue is full
-                except Exception:
+                except Exception as e:
+                    print(f"DEBUG: EventBus.publish error: {e}")
                     pass
     
     def add_callback(self, callback: Callable[[JobEvent], None]) -> None:
@@ -110,6 +113,13 @@ class EventBus:
             async for event in event_bus.subscribe("job-123"):
                 print(event)
         """
+        # Automatically register loop if not already set
+        if not self._loop:
+            try:
+                self.set_event_loop(asyncio.get_running_loop())
+            except Exception:
+                pass
+
         queue: asyncio.Queue = asyncio.Queue(maxsize=max_size)
         
         with self._lock:
@@ -144,6 +154,13 @@ class EventBus:
     
     def create_queue(self, job_id: Optional[str] = None, max_size: int = 100) -> asyncio.Queue:
         """Create a queue for receiving events (for manual polling)."""
+        # Automatically register loop if not already set
+        if not self._loop:
+            try:
+                self.set_event_loop(asyncio.get_running_loop())
+            except Exception:
+                pass
+
         queue: asyncio.Queue = asyncio.Queue(maxsize=max_size)
         
         with self._lock:

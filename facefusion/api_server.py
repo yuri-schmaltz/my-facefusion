@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
         import asyncio
         loop = asyncio.get_running_loop()
         orch.event_bus.set_event_loop(loop)
-        logger.debug(f"Registered event loop {loop} with orchestrator", __name__)
+        logger.error(f"SUCCESS: Registered event loop {loop} with orchestrator", __name__)
     except Exception as e:
         logger.error(f"Failed to register event loop: {e}", __name__)
     
