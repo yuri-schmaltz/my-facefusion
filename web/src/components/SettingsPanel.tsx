@@ -216,22 +216,22 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         className={cn(
                             "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
                             activeTab === tab.id
-                                ? "text-blue-500 bg-blue-500/5"
+                                ? "text-emerald-500 bg-emerald-500/5"
                                 : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
                         )}
                     >
                         <tab.icon size={14} />
                         <span className="hidden sm:inline">{tab.label}</span>
                         {activeTab === tab.id && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 animate-in fade-in slide-in-from-bottom-1" />
                         )}
                     </button>
                 ))}
             </div>
 
-            <div className="p-2 space-y-3 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-1.5 space-y-2 overflow-y-auto custom-scrollbar flex-1">
                 {activeTab === "faces" && (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="space-y-2 animate-in fade-in slide-in-from-left-2 duration-300">
                         {/* Face Selector Mode */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                             <div className="space-y-1.5 mt-1">
                                 {/* Top Row: Reference, Single, Many */}
-                                <div className="grid grid-cols-3 gap-1.5">
+                                <div className="toggle-group">
                                     {[
                                         { id: 'reference', label: 'Reference', icon: Target },
                                         { id: 'one', label: 'Single', icon: User },
@@ -257,60 +257,48 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             key={mode.id}
                                             onClick={() => handleChange("face_selector_mode", mode.id)}
                                             className={cn(
-                                                "flex items-center justify-center gap-2 p-1.5 rounded-lg border transition-all relative overflow-hidden group h-8",
-                                                settings.face_selector_mode === mode.id
-                                                    ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                                    : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
+                                                "toggle-group-item",
+                                                settings.face_selector_mode === mode.id && "active"
                                             )}
                                         >
-                                            <mode.icon size={12} className={cn(settings.face_selector_mode === mode.id ? "text-blue-500" : "text-neutral-500")} />
-                                            <span className={cn("text-[9px] font-bold uppercase", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
-                                                {mode.label}
-                                            </span>
-                                            {settings.face_selector_mode === mode.id && (
-                                                <Sparkles size={8} className="absolute top-1 right-1 text-blue-500 opacity-50" />
-                                            )}
+                                            <mode.icon size={11} />
+                                            <span>{mode.label}</span>
                                         </button>
                                     ))}
                                 </div>
 
                                 {/* Bottom Row: Automatic */}
-                                <button
-                                    onClick={() => {
-                                        handleChange("face_selector_mode", 'automatic');
-                                        setWizardOpen(true);
-                                    }}
-                                    className={cn(
-                                        "w-full flex items-center justify-center gap-2 p-1.5 rounded-lg border transition-all relative overflow-hidden group h-8",
-                                        settings.face_selector_mode === 'automatic'
-                                            ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                            : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
-                                    )}
-                                >
-                                    <Zap size={12} className={cn(settings.face_selector_mode === 'automatic' ? "text-blue-500" : "text-neutral-500")} />
-                                    <span className={cn("text-[10px] font-bold uppercase", settings.face_selector_mode === 'automatic' ? "text-white" : "text-neutral-400")}>
-                                        Automatic
-                                    </span>
-                                    {settings.face_selector_mode === 'automatic' && (
-                                        <Sparkles size={8} className="absolute top-1 right-1 text-blue-500 opacity-50" />
-                                    )}
-                                </button>
+                                <div className="toggle-group">
+                                    <button
+                                        onClick={() => {
+                                            handleChange("face_selector_mode", 'automatic');
+                                            setWizardOpen(true);
+                                        }}
+                                        className={cn(
+                                            "toggle-group-item",
+                                            settings.face_selector_mode === 'automatic' && "active"
+                                        )}
+                                    >
+                                        <Zap size={11} />
+                                        <span>Automatic</span>
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Reference Options */}
                             {(settings.face_selector_mode === 'reference' || settings.face_selector_mode === 'automatic') && (
-                                <div className="bg-neutral-800/20 rounded-lg p-2 border border-neutral-700/30 space-y-1 animate-in fade-in slide-in-from-top-1">
+                                <div className="section-glass space-y-1 animate-in fade-in slide-in-from-top-1 mt-2">
                                     <div className="space-y-1">
                                         <label className="text-[9px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Similarity Threshold</span>
-                                            <span className="text-blue-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
+                                            <span className="text-emerald-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="1.5" step="0.05"
                                             value={settings.reference_face_distance || 0.6}
                                             onChange={(e) => handleChange("reference_face_distance", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600 block"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600 block"
                                         />
                                     </div>
                                 </div>
@@ -330,7 +318,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <select
                                         value={settings.face_selector_order || "large-small"}
                                         onChange={(e) => handleChange("face_selector_order", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:bg-neutral-800"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-neutral-800"
                                     >
                                         {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
                                             <option key={order} value={order}>
@@ -350,7 +338,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <select
                                         value={settings.face_detector_model || "yolo_face"}
                                         onChange={(e) => handleChange("face_detector_model", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:bg-neutral-800"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-1.5 text-xs focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-neutral-800"
                                     >
                                         {(() => {
                                             const modelHints: Record<string, string> = {
@@ -425,19 +413,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 className={cn(
                                     "w-full flex items-center justify-between p-2 rounded-lg border transition-all h-9 px-3",
                                     settings.face_detector_ensemble
-                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                        ? "bg-emerald-600/10 border-emerald-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                         : "bg-neutral-800/30 border-neutral-700/50 text-neutral-400"
                                 )}
                             >
                                 <div className="flex items-center gap-2">
-                                    <Users size={14} className={cn(settings.face_detector_ensemble ? "text-blue-500" : "text-neutral-500")} />
+                                    <Users size={14} className={cn(settings.face_detector_ensemble ? "text-emerald-500" : "text-neutral-500")} />
                                     <span className={cn("text-[10px] font-bold uppercase", settings.face_detector_ensemble ? "text-white" : "text-neutral-400")}>
                                         Ensemble Detection
                                     </span>
                                 </div>
                                 <div className={cn(
                                     "w-8 h-4 rounded-full relative transition-colors",
-                                    settings.face_detector_ensemble ? "bg-blue-500" : "bg-neutral-700"
+                                    settings.face_detector_ensemble ? "bg-emerald-500" : "bg-neutral-700"
                                 )}>
                                     <div className={cn(
                                         "absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all",
@@ -463,7 +451,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 {/* Gender Filter */}
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Gender</label>
-                                    <div className="flex bg-neutral-800/50 border border-neutral-700/50 rounded-md p-0.5 h-7">
+                                    <div className="toggle-group">
                                         {[
                                             { id: '', label: 'All' },
                                             { id: 'male', label: 'Male' },
@@ -473,10 +461,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 key={g.id}
                                                 onClick={() => handleChange("face_selector_gender", g.id)}
                                                 className={cn(
-                                                    "flex-1 text-xs font-bold rounded flex items-center justify-center transition-all",
-                                                    settings.face_selector_gender === g.id
-                                                        ? "bg-blue-600 text-white shadow-sm"
-                                                        : "text-neutral-400 hover:text-neutral-200"
+                                                    "toggle-group-item",
+                                                    settings.face_selector_gender === g.id && "active"
                                                 )}
                                             >
                                                 {g.label}
@@ -492,7 +478,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <select
                                             value={settings.face_selector_race || ""}
                                             onChange={(e) => handleChange("face_selector_race", e.target.value)}
-                                            className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md pl-2 pr-6 py-1 text-xs focus:ring-1 focus:ring-blue-500 outline-none h-7 appearance-none"
+                                            className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md pl-2 pr-6 py-1 text-xs focus:ring-1 focus:ring-emerald-500 outline-none h-7 appearance-none"
                                         >
                                             <option value="">All Ethnicities</option>
                                             <option value="white">White</option>
@@ -520,14 +506,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         type="number"
                                         value={settings.face_selector_age_start || 0}
                                         onChange={(e) => handleChange("face_selector_age_start", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-blue-500 outline-none h-7"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-emerald-500 outline-none h-7"
                                         placeholder="Min"
                                     />
                                     <input
                                         type="number"
                                         value={settings.face_selector_age_end || 100}
                                         onChange={(e) => handleChange("face_selector_age_end", e.target.value)}
-                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-blue-500 outline-none h-7"
+                                        className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md p-1 text-xs text-center focus:ring-emerald-500 outline-none h-7"
                                         placeholder="Max"
                                     />
                                 </div>
@@ -547,43 +533,41 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Detector Score</span>
-                                        <span className="text-blue-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
+                                        <span className="text-emerald-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
                                         type="range"
                                         min="0" max="1" step="0.05"
                                         value={settings.face_detector_score || 0.5}
                                         onChange={(e) => handleChange("face_detector_score", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                     />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         <span>Landmarker Score</span>
-                                        <span className="text-blue-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
+                                        <span className="text-emerald-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
                                         type="range"
                                         min="0" max="1" step="0.05"
                                         value={settings.face_landmarker_score || 0.5}
                                         onChange={(e) => handleChange("face_landmarker_score", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase">Detector Angles</label>
-                                <div className="flex gap-2">
+                                <div className="toggle-group">
                                     {[0, 90, 180, 270].map((angle: number) => (
                                         <button
                                             key={angle}
                                             onClick={() => toggleArrayItem("face_detector_angles", angle as any)}
                                             className={cn(
-                                                "flex-1 py-0.5 text-[10px] font-bold rounded-md border transition-all h-6",
-                                                (settings.face_detector_angles || [0]).includes(angle)
-                                                    ? "bg-blue-600 border-blue-500 text-white"
-                                                    : "bg-neutral-800/50 border-neutral-700 text-neutral-500"
+                                                "toggle-group-item",
+                                                (settings.face_detector_angles || [0]).includes(angle) && "active"
                                             )}
                                         >
                                             {angle}°
@@ -642,7 +626,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             className={cn(
                                                 "flex-1 p-2 rounded-lg border transition-all flex flex-col items-center gap-0.5",
                                                 (settings.face_mask_types || []).includes(type)
-                                                    ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20"
+                                                    ? "bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-blue-900/20"
                                                     : "bg-neutral-800/50 border-neutral-700/50 text-neutral-400 hover:border-neutral-600"
                                             )}
                                         >
@@ -728,7 +712,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className={cn(
                                             "px-2 py-1.5 text-[10px] font-medium rounded-md border transition-all truncate text-center w-full",
                                             (settings.face_mask_regions || []).includes(region)
-                                                ? "bg-blue-600 border-blue-500 text-white"
+                                                ? "bg-emerald-600 border-emerald-500 text-white"
                                                 : "bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                         )}
                                     >
@@ -743,14 +727,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                     <span>Mask Blur</span>
-                                    <span className="text-blue-400 font-mono">{(settings.face_mask_blur || 0.3).toFixed(2)}</span>
+                                    <span className="text-emerald-400 font-mono">{(settings.face_mask_blur || 0.3).toFixed(2)}</span>
                                 </label>
                                 <input
                                     type="range"
                                     min="0" max="1" step="0.05"
                                     value={settings.face_mask_blur || 0.3}
                                     onChange={(e) => handleChange("face_mask_blur", e.target.value)}
-                                    className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                    className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                 />
                             </div>
                             <div className="space-y-3">
@@ -800,14 +784,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                             Audio Quality
-                                            <span className="text-blue-500">{settings.output_audio_quality || 80}</span>
+                                            <span className="text-emerald-500">{settings.output_audio_quality || 80}</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="100"
                                             value={settings.output_audio_quality || 80}
                                             onChange={(e) => handleChange("output_audio_quality", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                         />
                                     </div>
                                 </div>
@@ -821,7 +805,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         min="0" max="200"
                                         value={settings.output_audio_volume || 100}
                                         onChange={(e) => handleChange("output_audio_volume", e.target.value)}
-                                        className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                     />
                                 </div>
                                 {/* Voice Extractor */}
@@ -902,27 +886,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Video Quality</span>
-                                            <span className="text-blue-500 font-bold">{settings.output_video_quality || 80}%</span>
+                                            <span className="text-emerald-500 font-bold">{settings.output_video_quality || 80}%</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="100"
                                             value={settings.output_video_quality || 80}
                                             onChange={(e) => handleChange("output_video_quality", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                         />
                                     </div>
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Scale Factor</span>
-                                            <span className="text-blue-500 font-bold">{settings.output_video_scale || 1.0}x</span>
+                                            <span className="text-emerald-500 font-bold">{settings.output_video_scale || 1.0}x</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0.25" max="4" step="0.25"
                                             value={settings.output_video_scale || 1.0}
                                             onChange={(e) => handleChange("output_video_scale", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                         />
                                     </div>
                                 </div>
@@ -937,7 +921,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 className={cn(
                                                     "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
                                                     settings.temp_frame_format === f
-                                                        ? "bg-blue-600 text-white"
+                                                        ? "bg-emerald-600 text-white"
                                                         : "text-neutral-500 hover:text-neutral-300"
                                                 )}
                                             >
@@ -1014,7 +998,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 className={cn(
                                     "px-3 py-1.5 text-[10px] font-bold uppercase rounded transition-colors flex items-center gap-1.5 whitespace-nowrap",
                                     selectedJobs.size > 0
-                                        ? "bg-blue-600 hover:bg-blue-500 text-white"
+                                        ? "bg-emerald-600 hover:bg-emerald-500 text-white"
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
@@ -1049,9 +1033,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     const isSelected = selectedJobs.has(job.id);
                                     const statusColors: Record<string, string> = {
                                         drafted: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
-                                        queued: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+                                        queued: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
                                         completed: "bg-green-500/20 text-green-500 border-green-500/30",
-                                        failed: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+                                        failed: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
                                     };
                                     return (
                                         <div
@@ -1060,7 +1044,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             className={cn(
                                                 "p-3 rounded-lg border transition-all cursor-pointer",
                                                 isSelected
-                                                    ? "bg-blue-600/10 border-blue-500/50"
+                                                    ? "bg-emerald-600/10 border-emerald-500/50"
                                                     : "bg-neutral-800/50 border-neutral-700 hover:border-neutral-600",
                                                 (job.status !== 'drafted' && job.status !== 'queued') && "opacity-60 cursor-default"
                                             )}
@@ -1069,7 +1053,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 {/* Checkbox */}
                                                 <div className={cn(
                                                     "w-4 h-4 rounded border-2 flex items-center justify-center transition-colors",
-                                                    isSelected ? "bg-blue-600 border-blue-600" : "border-neutral-600",
+                                                    isSelected ? "bg-emerald-600 border-emerald-600" : "border-neutral-600",
                                                     (job.status !== 'drafted' && job.status !== 'queued') && "invisible"
                                                 )}>
                                                     {isSelected && <CheckSquare size={10} className="text-white" />}
@@ -1131,7 +1115,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         placeholder="Preset Name (e.g. Ultra Quality)"
                                         value={newPresetName}
                                         onChange={(e) => setNewPresetName(e.target.value)}
-                                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 placeholder:text-neutral-600"
+                                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder:text-neutral-600"
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
                                                 savePreset(newPresetName);
@@ -1145,7 +1129,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             setNewPresetName("");
                                         }}
                                         disabled={!newPresetName.trim()}
-                                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
                                         Save
                                     </button>
@@ -1166,7 +1150,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => loadPreset(preset.id)}
-                                                        className="p-1.5 hover:bg-blue-500/20 text-blue-500 rounded transition-colors"
+                                                        className="p-1.5 hover:bg-emerald-500/20 text-emerald-500 rounded transition-colors"
                                                         title="Load Preset"
                                                     >
                                                         <FolderDown size={14} />
@@ -1228,7 +1212,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     className={cn(
                                                         "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
                                                         isSelected
-                                                            ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                            ? "bg-emerald-600/10 border-emerald-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                                             : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
                                                         !isAvailable && "opacity-50 cursor-not-allowed"
                                                     )}
@@ -1255,7 +1239,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     <Info size={12} className="text-neutral-500 cursor-help" />
                                                 </Tooltip>
                                             </div>
-                                            <span className="text-xs font-bold text-blue-500">{settings.execution_thread_count || 4}</span>
+                                            <span className="text-xs font-bold text-emerald-500">{settings.execution_thread_count || 4}</span>
                                         </div>
                                         <input
                                             type="range"
@@ -1264,7 +1248,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             step="1"
                                             value={settings.execution_thread_count || 4}
                                             onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                         />
                                         <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
                                             <span>1</span>
@@ -1291,14 +1275,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                             Memory Limit
-                                            <span className="text-blue-500">{settings.system_memory_limit || 0} GB</span>
+                                            <span className="text-emerald-500">{settings.system_memory_limit || 0} GB</span>
                                         </label>
                                         <input
                                             type="range"
                                             min="0" max="128" step="4"
                                             value={settings.system_memory_limit || 0}
                                             onChange={(e) => handleChange("system_memory_limit", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                         />
                                     </div>
                                 </div>
@@ -1326,12 +1310,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className={cn(
                                             "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
                                             settings.keep_temp
-                                                ? "bg-blue-600/10 border-blue-500/50 text-blue-500"
+                                                ? "bg-emerald-600/10 border-emerald-500/50 text-emerald-500"
                                                 : "bg-neutral-800 border-neutral-700 text-neutral-400"
                                         )}
                                     >
                                         <span className="text-xs font-bold uppercase">Keep Temp Files</span>
-                                        <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-blue-600" : "bg-neutral-700")}>
+                                        <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-emerald-600" : "bg-neutral-700")}>
                                             <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
                                         </div>
                                     </button>
@@ -1350,7 +1334,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         className={cn(
                                             "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
                                             settings.export_problem_frames
-                                                ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                ? "bg-emerald-600/10 border-emerald-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                                 : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
                                         )}
                                     >
@@ -1362,7 +1346,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         </div>
                                         <div className={cn(
                                             "w-10 h-5 rounded-full relative transition-colors",
-                                            settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
+                                            settings.export_problem_frames ? "bg-emerald-500" : "bg-neutral-700"
                                         )}>
                                             <div className={cn(
                                                 "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
@@ -1390,7 +1374,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             {/* Header */}
                             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
                                 <div className="flex items-center gap-3">
-                                    <FileText size={20} className="text-blue-500" />
+                                    <FileText size={20} className="text-emerald-500" />
                                     <div>
                                         <h3 className="text-lg font-bold text-white">Job Details</h3>
                                         <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
@@ -1416,9 +1400,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <span className={cn(
                                             "text-sm font-bold uppercase",
                                             selectedJobDetails.status === 'drafted' && "text-yellow-500",
-                                            selectedJobDetails.status === 'queued' && "text-blue-500",
+                                            selectedJobDetails.status === 'queued' && "text-emerald-500",
                                             selectedJobDetails.status === 'completed' && "text-green-500",
-                                            selectedJobDetails.status === 'failed' && "text-blue-500",
+                                            selectedJobDetails.status === 'failed' && "text-emerald-500",
                                         )}>
                                             {selectedJobDetails.status}
                                         </span>
@@ -1448,7 +1432,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     <span className={cn(
                                                         "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
                                                         step.status === 'completed' ? "bg-green-500/20 text-green-500" :
-                                                            step.status === 'failed' ? "bg-blue-500/20 text-blue-500" :
+                                                            step.status === 'failed' ? "bg-emerald-500/20 text-emerald-500" :
                                                                 "bg-neutral-700 text-neutral-400"
                                                     )}>
                                                         {step.status}
@@ -1480,7 +1464,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                             <span className="text-neutral-500 w-16">Processors:</span>
                                                             <div className="flex flex-wrap gap-1">
                                                                 {step.processors.map((p: string, i: number) => (
-                                                                    <span key={i} className="px-1.5 py-0.5 bg-blue-600/20 text-blue-400 rounded text-[9px]">
+                                                                    <span key={i} className="px-1.5 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-[9px]">
                                                                         {p}
                                                                     </span>
                                                                 ))}

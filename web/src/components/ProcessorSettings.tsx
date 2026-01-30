@@ -57,10 +57,10 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
     if (loading || !choices || activeProcessors.length === 0) return null;
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 text-neutral-400 px-1 mb-2">
-                <Settings2 className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Processor Settings</span>
+        <div className="space-y-2">
+            <div className="flex items-center gap-2 text-neutral-400 px-1 mb-1">
+                <Settings2 className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider">Processor Settings</span>
             </div>
 
             {activeProcessors.map((proc) => {
@@ -75,8 +75,8 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
 
                 return (
                     <Card key={proc} className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm overflow-hidden">
-                        <CardHeader className="py-2 px-3 border-b border-neutral-800 bg-neutral-900/30">
-                            <CardTitle className="text-sm font-medium text-neutral-200 capitalize flex items-center gap-2">
+                        <CardHeader className="py-1.5 px-2 border-b border-neutral-800 bg-neutral-900/30">
+                            <CardTitle className="text-[11px] font-medium text-neutral-200 capitalize flex items-center gap-2">
                                 {proc.replace(/_/g, ' ')}
                             </CardTitle>
                         </CardHeader>
@@ -237,7 +237,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-emerald-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_start']?.[0] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -246,7 +246,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 />
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-emerald-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_start']?.[1] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -260,7 +260,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-emerald-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_end']?.[0] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -269,7 +269,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 />
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-blue-500 outline-none transition-colors"
+                                                    className="w-full bg-neutral-950 border border-neutral-800 rounded p-1.5 text-xs text-center focus:border-emerald-500 outline-none transition-colors"
                                                     value={currentSettings['watermark_remover_area_end']?.[1] || 0}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -305,7 +305,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                         onUpdate(`${proc}_items`, newItems);
                                                     }}
                                                     className={`px-2 py-1.5 text-[10px] rounded border text-center transition-all ${isSelected
-                                                        ? "bg-blue-600/20 border-blue-500 text-blue-500 font-bold"
+                                                        ? "bg-emerald-600/20 border-emerald-500 text-emerald-500 font-bold"
                                                         : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600"
                                                         }`}
                                                 >

@@ -51,16 +51,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                         key={toast.id}
                         className={cn(
                             "pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border backdrop-blur-md min-w-[300px] animate-in slide-in-from-right-full duration-300",
-                            toast.type === 'success' && "bg-green-500/10 border-green-500/50 text-green-200",
+                            toast.type === 'success' && "bg-emerald-500/10 border-emerald-500/50 text-emerald-200",
                             toast.type === 'error' && "bg-red-500/10 border-red-500/50 text-red-200",
                             toast.type === 'warning' && "bg-yellow-500/10 border-yellow-500/50 text-yellow-200",
-                            toast.type === 'info' && "bg-blue-500/10 border-blue-500/50 text-blue-200"
+                            toast.type === 'info' && "bg-violet-500/10 border-violet-500/50 text-violet-200"
                         )}
                     >
-                        {toast.type === 'success' && <CheckCircle size={18} className="text-green-500" />}
+                        {toast.type === 'success' && <CheckCircle size={18} className="text-emerald-500" />}
                         {toast.type === 'error' && <AlertCircle size={18} className="text-red-500" />}
                         {toast.type === 'warning' && <AlertTriangle size={18} className="text-yellow-500" />}
-                        {toast.type === 'info' && <Info size={18} className="text-blue-500" />}
+                        {toast.type === 'info' && <Info size={18} className="text-violet-500" />}
 
                         <span className="text-xs font-medium flex-1">{toast.message}</span>
 

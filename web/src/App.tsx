@@ -214,7 +214,7 @@ function App() {
   };
 
   return (
-    <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-3 gap-3" style={{ gridTemplateColumns: '30% 1fr 30%' }}>
+    <div className="grid h-screen overflow-hidden bg-neutral-950 text-white font-sans p-2 gap-2" style={{ gridTemplateColumns: '28% 1fr 28%' }}>
       <Terminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(false)} jobId={jobId} />
 
       {/* Column 1: Processors & Execution */}
@@ -232,14 +232,14 @@ function App() {
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
                   activeProcessorTab === tab.id
-                    ? "text-blue-500 bg-blue-500/5"
+                    ? "text-emerald-500 bg-emerald-500/5"
                     : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
                 )}
               >
                 <tab.icon size={14} />
                 <span className="hidden sm:inline">{tab.label}</span>
                 {activeProcessorTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 animate-in fade-in slide-in-from-bottom-1" />
                 )}
               </button>
             ))}
@@ -254,27 +254,29 @@ function App() {
                     {processors
                       .filter(p => !['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
                       .map((proc) => {
-                        const Icon = {
-                          face_swapper: Replace,
-                          face_enhancer: Sparkles,
-                          face_debugger: Bug,
-                          expression_restorer: Smile,
-                          age_modifier: Clock,
-                          lip_syncer: Mic2,
-                          face_accessory_manager: Box,
-                          makeup_transfer: Palette
-                        }[proc] || User;
+                        const IconData = {
+                          face_swapper: { icon: Replace, color: 'text-emerald-400' },
+                          face_enhancer: { icon: Sparkles, color: 'text-amber-400' },
+                          face_debugger: { icon: Bug, color: 'text-red-400' },
+                          expression_restorer: { icon: Smile, color: 'text-yellow-400' },
+                          age_modifier: { icon: Clock, color: 'text-violet-400' },
+                          lip_syncer: { icon: Mic2, color: 'text-pink-400' },
+                          face_accessory_manager: { icon: Box, color: 'text-cyan-400' },
+                          makeup_transfer: { icon: Palette, color: 'text-fuchsia-400' },
+                          deep_swapper: { icon: Replace, color: 'text-teal-400' }
+                        }[proc] || { icon: User, color: 'text-neutral-400' };
+                        const Icon = IconData.icon;
 
                         return (
                           <Tooltip key={proc} content={helpTexts[proc]}>
                             <button
                               onClick={() => toggleProcessor(proc)}
-                              className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                                ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/20"
-                                : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                              className={`h-14 px-3 text-xs font-semibold rounded-xl border-2 transition-all truncate flex items-center justify-center gap-2.5 ${activeProcessors.includes(proc)
+                                ? "bg-emerald-600/90 border-emerald-400 text-white shadow-lg shadow-emerald-900/30"
+                                : "bg-neutral-900/80 border-neutral-700/50 text-neutral-300 hover:border-neutral-500 hover:bg-neutral-800/80"
                                 }`}
                             >
-                              <Icon size={14} />
+                              <Icon size={20} className={activeProcessors.includes(proc) ? 'text-white' : IconData.color} />
                               <span className="truncate">
                                 {proc
                                   .split("_")
@@ -296,25 +298,30 @@ function App() {
                     {processors
                       .filter(p => ['frame_enhancer', 'background_remover', 'watermark_remover', 'frame_colorizer', 'background_blur', 'color_matcher', 'face_stabilizer', 'grain_matcher', 'privacy_blur', 'frame_expander'].includes(p))
                       .map((proc) => {
-                        const Icon = {
-                          frame_enhancer: AppWindow,
-                          background_remover: Eraser,
-                          watermark_remover: Eraser,
-                          frame_colorizer: Palette,
-                          background_blur: AppWindow,
-                          privacy_blur: AppWindow
-                        }[proc] || Box;
+                        const IconData = {
+                          frame_enhancer: { icon: AppWindow, color: 'text-sky-400' },
+                          background_remover: { icon: Eraser, color: 'text-rose-400' },
+                          watermark_remover: { icon: Eraser, color: 'text-orange-400' },
+                          frame_colorizer: { icon: Palette, color: 'text-fuchsia-400' },
+                          background_blur: { icon: AppWindow, color: 'text-indigo-400' },
+                          color_matcher: { icon: Palette, color: 'text-lime-400' },
+                          face_stabilizer: { icon: Box, color: 'text-cyan-400' },
+                          grain_matcher: { icon: Box, color: 'text-amber-400' },
+                          privacy_blur: { icon: AppWindow, color: 'text-red-400' },
+                          frame_expander: { icon: Box, color: 'text-teal-400' }
+                        }[proc] || { icon: Box, color: 'text-neutral-400' };
+                        const Icon = IconData.icon;
 
                         return (
                           <Tooltip key={proc} content={helpTexts[proc]}>
                             <button
                               onClick={() => toggleProcessor(proc)}
-                              className={`h-10 px-2 text-xs font-medium rounded-lg border transition-all truncate flex items-center justify-center gap-2 ${activeProcessors.includes(proc)
-                                ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/20"
-                                : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
+                              className={`h-14 px-3 text-xs font-semibold rounded-xl border-2 transition-all truncate flex items-center justify-center gap-2.5 ${activeProcessors.includes(proc)
+                                ? "bg-emerald-600/90 border-emerald-400 text-white shadow-lg shadow-emerald-900/30"
+                                : "bg-neutral-900/80 border-neutral-700/50 text-neutral-300 hover:border-neutral-500 hover:bg-neutral-800/80"
                                 }`}
                             >
-                              <Icon size={14} />
+                              <Icon size={20} className={activeProcessors.includes(proc) ? 'text-white' : IconData.color} />
                               <span className="truncate">
                                 {proc
                                   .split("_")
@@ -374,7 +381,7 @@ function App() {
                   await stop();
                   setShowStopConfirm(false);
                 }}
-                className="flex-1 py-2.5 font-bold rounded-lg bg-blue-600/90 text-white hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 backdrop-blur-sm text-sm"
+                className="flex-1 py-2.5 font-bold rounded-lg bg-emerald-600/90 text-white hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 backdrop-blur-sm text-sm"
               >
                 <X size={14} /> Confirm
               </button>
@@ -398,7 +405,7 @@ function App() {
               className={cn(
                 "flex-1 py-2.5 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden shadow-sm text-sm",
                 isProcessing
-                  ? "bg-blue-600/10 border border-blue-500/50 text-blue-500 hover:bg-blue-600/20 shadow-blue-500/10"
+                  ? "bg-emerald-600/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-600/20 shadow-emerald-500/10"
                   : (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath)
                     ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-transparent"
                     : "bg-white text-black hover:bg-neutral-100 border border-transparent shadow-white/5 hover:shadow-white/10")
@@ -406,7 +413,7 @@ function App() {
             >
               {isProcessing && (
                 <div
-                  className="absolute inset-0 bg-blue-500/10 transition-all duration-300 ease-linear origin-left"
+                  className="absolute inset-0 bg-emerald-500/10 transition-all duration-300 ease-linear origin-left"
                   style={{ width: `${progress}%` }}
                 />
               )}
@@ -439,14 +446,14 @@ function App() {
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
                   activeMediaTab === tab.id
-                    ? "text-blue-500 bg-blue-500/5"
+                    ? "text-emerald-500 bg-emerald-500/5"
                     : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
                 )}
               >
                 <tab.icon size={14} />
                 <span className="hidden sm:inline">{tab.label}</span>
                 {activeMediaTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 animate-in fade-in slide-in-from-bottom-1" />
                 )}
               </button>
             ))}
@@ -459,7 +466,7 @@ function App() {
                 <div
                   className={cn(
                     "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
-                    sourcePath ? "border-blue-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+                    sourcePath ? "border-emerald-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
                   )}
                 >
                   {sourcePath ? (
@@ -498,7 +505,7 @@ function App() {
                             setSourcePath(null);
                             config.update({ source_paths: [] });
                           }}
-                          className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-blue-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
+                          className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-emerald-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
                         >
                           <X size={14} />
                         </button>
@@ -509,7 +516,7 @@ function App() {
                       onClick={() => openBrowser("source")}
                       className="flex flex-col items-center justify-center w-full h-full"
                     >
-                      <Upload className="text-neutral-600 mb-4 group-hover:text-blue-500 transition-colors" size={32} />
+                      <Upload className="text-neutral-600 mb-4 group-hover:text-emerald-500 transition-colors" size={32} />
                       <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
                       <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
                     </div>
@@ -582,7 +589,7 @@ function App() {
                 </select>
 
                 {isPreviewLoading && (
-                  <Loader2 size={12} className="animate-spin text-blue-500" />
+                  <Loader2 size={12} className="animate-spin text-emerald-500" />
                 )}
               </div>
             )}
@@ -608,7 +615,7 @@ function App() {
             ) : isProcessing ? (
               <div className="flex flex-col items-center gap-4 text-neutral-400 w-full max-w-md px-8 scale-90">
                 <div className="flex flex-col items-center gap-2">
-                  <Loader2 size={32} className="animate-spin text-blue-500" />
+                  <Loader2 size={32} className="animate-spin text-emerald-500" />
                   <p className="text-sm font-medium animate-pulse">Processing...</p>
                 </div>
 
@@ -619,7 +626,7 @@ function App() {
                   </div>
                   <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 transition-all duration-300 ease-linear rounded-full"
+                      className="h-full bg-emerald-600 transition-all duration-300 ease-linear rounded-full"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -632,7 +639,7 @@ function App() {
               <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
                 <img src={previewUrl} className="w-full h-full object-contain" />
                 <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 flex items-center gap-1.5 pointer-events-none">
-                  <Sparkles size={10} className="text-blue-500" />
+                  <Sparkles size={10} className="text-emerald-500" />
                   <span className="text-[8px] font-bold uppercase tracking-widest text-white/90">Preview</span>
                 </div>
               </div>

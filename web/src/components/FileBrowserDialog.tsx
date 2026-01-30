@@ -119,7 +119,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                             <p className="text-sm">Loading...</p>
                         </div>
                     ) : error ? (
-                        <div className="flex flex-col items-center justify-center h-full text-blue-500 gap-3">
+                        <div className="flex flex-col items-center justify-center h-full text-emerald-500 gap-3">
                             <p>{error}</p>
                             <button
                                 onClick={() => loadPathRefined("")}
@@ -140,7 +140,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                     group flex flex-col items-center justify-center p-4 rounded-xl border border-transparent 
                     transition-all duration-200 gap-3
                     ${item.type === 'folder'
-                                                ? 'hover:bg-blue-500/10 hover:border-blue-500/50 text-blue-400'
+                                                ? 'hover:bg-emerald-500/10 hover:border-emerald-500/50 text-emerald-400'
                                                 : 'hover:bg-emerald-500/10 hover:border-emerald-500/50 text-neutral-300 hover:text-emerald-400'
                                             }
                   `}

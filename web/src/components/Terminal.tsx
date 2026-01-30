@@ -86,9 +86,9 @@ export function TerminalButton({ isOpen, onToggle, className, isProcessing }: Te
                 "h-full px-4 flex flex-col items-center justify-center gap-1 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded-lg hover:border-green-500 hover:text-green-500 transition-all shadow-lg shadow-black/20",
                 isOpen && "border-green-500 text-green-500",
                 // Pulse effect when processing and not open
-                (isProcessing && !isOpen) && "animate-pulse border-blue-500/50 text-blue-400",
+                (isProcessing && !isOpen) && "animate-pulse border-emerald-500/50 text-emerald-400",
                 // Active looking when open
-                (isOpen && isProcessing) && "border-blue-500 text-blue-500 bg-blue-950/20",
+                (isOpen && isProcessing) && "border-emerald-500 text-emerald-500 bg-blue-950/20",
                 className
             )}
         >
@@ -97,7 +97,7 @@ export function TerminalButton({ isOpen, onToggle, className, isProcessing }: Te
                 {isProcessing && (
                     <span className="absolute -top-1 -right-1 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                 )}
             </div>

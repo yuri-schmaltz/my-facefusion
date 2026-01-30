@@ -172,7 +172,18 @@ def main():
     # 3. Open Browser
     time.sleep(3) 
     print("Opening browser at http://localhost:5173")
-    webbrowser.open("http://localhost:5173")
+    if sys.platform == 'linux':
+        try:
+            # Attempt to use specific browsers with noise suppression first
+            # xdg-open often passes through, so we try to call it with redirected IO
+            subprocess.Popen(['xdg-open', "http://localhost:5173"], 
+                             stdout=subprocess.DEVNULL, 
+                             stderr=subprocess.DEVNULL)
+        except OSError:
+            # Fallback if xdg-open missing
+            webbrowser.open("http://localhost:5173")
+    else:
+        webbrowser.open("http://localhost:5173")
 
     try:
         # Keep alive and monitor

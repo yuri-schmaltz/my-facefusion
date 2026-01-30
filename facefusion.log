@@ -5360,3 +5360,626 @@ onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] 
 2026-01-30 00:28:17,470 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 22.22 seconds
 2026-01-30 00:28:19,089 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
 2026-01-30 00:28:24,052 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:28:44,035 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:28:44,270 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:28:44,270 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:28:44,270 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:28:44,271 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-remove-background-to-video.mp4.
+2026-01-30 00:28:44,271 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:28:44,274 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:28:44,276 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 22.03 seconds
+2026-01-30 00:28:45,917 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 2
+2026-01-30 00:28:49,413 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:28:49,530 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:28:51,331 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:28:51,446 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.04 seconds
+2026-01-30 00:28:51,452 - facefusion - INFO - [FACEFUSION.CORE] processing step 2 of 2
+2026-01-30 00:28:54,602 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:28:54,718 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:28:54,768 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:28:54,883 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 1.92 seconds
+2026-01-30 00:28:56,008 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 4
+2026-01-30 00:29:01,380 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:01,496 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:06,209 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:29:06,325 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.1 seconds
+2026-01-30 00:29:06,331 - facefusion - INFO - [FACEFUSION.CORE] processing step 2 of 4
+2026-01-30 00:29:09,788 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:09,904 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:14,517 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:29:14,638 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 6.31 seconds
+2026-01-30 00:29:14,644 - facefusion - INFO - [FACEFUSION.CORE] processing step 3 of 4
+2026-01-30 00:29:16,633 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:16,749 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:21,059 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:29:21,174 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.54 seconds
+2026-01-30 00:29:21,180 - facefusion - INFO - [FACEFUSION.CORE] processing step 4 of 4
+2026-01-30 00:29:23,196 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:23,312 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:27,299 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:29:27,414 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.22 seconds
+2026-01-30 00:29:28,646 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:29:33,979 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:34,096 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:39,003 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:29:39,014 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:29:39,129 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.35 seconds
+2026-01-30 00:29:40,820 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:29:46,319 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:29:51,522 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:29:51,739 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:29:51,739 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:29:51,739 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:29:51,739 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.
+2026-01-30 00:29:51,740 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:29:51,744 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:29:51,746 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.75 seconds
+2026-01-30 00:29:53,438 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:29:57,332 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:29:57,449 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:30:03,476 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:30:03,591 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 7.96 seconds
+2026-01-30 00:30:05,287 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:09,147 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:15,339 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:15,563 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:30:15,563 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:30:15,563 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:30:15,563 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-restore-expression-to-video.mp4.
+2026-01-30 00:30:15,563 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:30:15,566 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:30:15,567 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.15 seconds
+2026-01-30 00:30:17,227 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:22,605 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:30:22,728 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:30:27,679 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:30:28,044 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:30:28,160 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.75 seconds
+2026-01-30 00:30:29,674 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:35,106 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:40,715 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:40,933 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:30:40,934 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:30:40,934 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:30:40,934 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-manage-accessories-video.mp4.
+2026-01-30 00:30:40,934 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:30:40,938 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:30:40,940 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.12 seconds
+2026-01-30 00:30:42,314 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:45,572 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:30:45,690 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:30:47,371 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:30:47,487 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.61 seconds
+2026-01-30 00:30:48,784 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:52,131 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:53,982 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:30:54,210 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:30:54,210 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:30:54,210 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:30:54,211 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-debug-face-to-video.mp4.
+2026-01-30 00:30:54,211 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:30:54,214 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:30:54,216 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.81 seconds
+2026-01-30 00:30:55,946 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:30:59,719 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:30:59,837 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:31:06,254 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:31:06,369 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.36 seconds
+2026-01-30 00:31:07,695 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:11,579 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:18,023 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:18,244 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:31:18,245 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:31:18,245 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:31:18,245 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-edit-face-to-video.mp4.
+2026-01-30 00:31:18,245 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:31:18,248 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:31:18,249 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.46 seconds
+2026-01-30 00:31:19,816 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:23,597 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:31:23,715 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:31:27,274 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:31:27,390 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.51 seconds
+2026-01-30 00:31:28,928 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:32,698 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:36,283 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:36,505 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:31:36,505 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:31:36,505 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:31:36,506 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-enhance-face-to-video.mp4.
+2026-01-30 00:31:36,506 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:31:36,509 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:31:36,510 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 5.58 seconds
+2026-01-30 00:31:38,079 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:41,386 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:31:41,503 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:31:43,050 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:31:43,166 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.51 seconds
+2026-01-30 00:31:44,642 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:48,067 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:49,773 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:31:49,998 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:31:49,998 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:31:49,999 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:31:49,999 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-face-relighter-video.mp4.
+2026-01-30 00:31:49,999 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:31:50,006 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:31:50,008 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.74 seconds
+2026-01-30 00:31:51,479 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:31:54,820 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:31:54,939 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:31:56,490 - facefusion.orchestrator.runner - ERROR - Job job-20260130-003151-fe6c2738 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 136, in run
+    success = process_step_orchestrator(job_id, 0, len(self.job.steps), config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 381, in process_step_orchestrator
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 394, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_stabilizer/core.py", line 74, in process_frame
+    center = target_face.center
+             ^^^^^^^^^^^^^^^^^^
+AttributeError: 'Face' object has no attribute 'center'. Did you mean: 'gender'?
+
+2026-01-30 00:31:58,202 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:01,507 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:32:03,172 - facefusion.orchestrator.runner - ERROR - Job job-20260130-003158-253fd605 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 136, in run
+    success = process_step_orchestrator(job_id, 0, len(self.job.steps), config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 381, in process_step_orchestrator
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 396, in conditional_process
+    image_to_video.process(start_time)
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 36, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 103, in process_video
+    future.result()
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 188, in process_temp_frame
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/face_stabilizer/core.py", line 74, in process_frame
+    center = target_face.center
+             ^^^^^^^^^^^^^^^^^^
+AttributeError: 'Face' object has no attribute 'center'. Did you mean: 'gender'?
+
+2026-01-30 00:32:04,854 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:10,205 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:32:10,322 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:32:15,420 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:32:15,541 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.55 seconds
+2026-01-30 00:32:17,236 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:22,749 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:32:28,017 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:32:28,234 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:32:28,234 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:32:28,234 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:32:28,235 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-swap-face-to-video.mp4.
+2026-01-30 00:32:28,235 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:32:28,239 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:32:28,241 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 8.86 seconds
+2026-01-30 00:32:30,402 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:35,391 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:32:35,508 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:32:38,951 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:32:39,067 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 5.36 seconds
+2026-01-30 00:32:40,765 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:45,642 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:32:49,519 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:32:49,751 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:32:49,751 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:32:49,751 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:32:49,751 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-colorize-frame-to-video.mp4.
+2026-01-30 00:32:49,752 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:32:49,755 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:32:49,757 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 5.94 seconds
+2026-01-30 00:32:51,379 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:54,648 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:32:54,766 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:32:55,284 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:32:55,449 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.49 seconds
+2026-01-30 00:32:56,627 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:32:59,938 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:00,678 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:01,012 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:33:01,013 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:33:01,013 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:33:01,013 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-enhance-frame-to-video.mp4.
+2026-01-30 00:33:01,014 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:33:01,017 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:33:01,020 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.8 seconds
+2026-01-30 00:33:02,510 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:05,768 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:33:05,886 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:33:07,427 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:33:07,543 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.44 seconds
+2026-01-30 00:33:09,037 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:12,449 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:14,240 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:14,470 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:33:14,470 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:33:14,470 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:33:14,470 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-gaze-corrector-video.mp4.
+2026-01-30 00:33:14,470 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:33:14,480 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:33:14,482 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.84 seconds
+2026-01-30 00:33:16,341 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:19,650 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:33:19,768 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:33:19,791 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:33:19,907 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 1.97 seconds
+2026-01-30 00:33:21,258 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:24,559 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:24,706 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:24,937 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:33:24,937 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:33:24,938 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:33:24,938 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-match-grain-video.mp4.
+2026-01-30 00:33:24,938 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:33:24,943 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:33:24,944 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.1 seconds
+2026-01-30 00:33:26,731 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:30,011 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:33:30,129 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:33:30,664 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:33:30,780 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.45 seconds
+2026-01-30 00:33:32,372 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:33:35,773 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:36,489 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:33:36,725 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:33:36,725 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:33:36,726 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:33:36,726 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-hair-colorizer-video.mp4.
+2026-01-30 00:33:36,726 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:33:36,733 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:33:36,735 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.78 seconds
+2026-01-30 00:33:38,182 - facefusion - INFO - [FACEFUSION.CORE] job test-job-create created
+2026-01-30 00:33:39,180 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-create not created
+2026-01-30 00:33:40,240 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-submit not submitted
+2026-01-30 00:33:41,276 - facefusion - INFO - [FACEFUSION.CORE] job test-job-submit created
+2026-01-30 00:33:42,289 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-submit not created
+2026-01-30 00:33:43,318 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-submit
+2026-01-30 00:33:44,336 - facefusion - INFO - [FACEFUSION.CORE] job test-job-submit submitted
+2026-01-30 00:33:45,382 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-submit not submitted
+2026-01-30 00:33:46,432 - facefusion - ERROR - [FACEFUSION.CORE] jobs not submitted
+2026-01-30 00:33:47,481 - facefusion - INFO - [FACEFUSION.CORE] job test-job-submit-all-1 created
+2026-01-30 00:33:48,534 - facefusion - INFO - [FACEFUSION.CORE] job test-job-submit-all-2 created
+2026-01-30 00:33:49,572 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-submit-all-2 not created
+2026-01-30 00:33:50,636 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-submit-all-1
+2026-01-30 00:33:51,691 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-submit-all-2
+2026-01-30 00:33:52,738 - facefusion - INFO - [FACEFUSION.CORE] jobs submitted
+2026-01-30 00:33:53,774 - facefusion - ERROR - [FACEFUSION.CORE] jobs not submitted
+2026-01-30 00:33:54,829 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-delete not deleted
+2026-01-30 00:33:55,853 - facefusion - INFO - [FACEFUSION.CORE] job test-job-delete created
+2026-01-30 00:33:56,917 - facefusion - INFO - [FACEFUSION.CORE] job test-job-delete deleted
+2026-01-30 00:33:57,969 - facefusion - ERROR - [FACEFUSION.CORE] job test-job-delete not deleted
+2026-01-30 00:33:59,032 - facefusion - ERROR - [FACEFUSION.CORE] jobs not deleted
+2026-01-30 00:34:00,051 - facefusion - INFO - [FACEFUSION.CORE] job test-job-delete-all-1 created
+2026-01-30 00:34:01,080 - facefusion - INFO - [FACEFUSION.CORE] job test-job-delete-all-2 created
+2026-01-30 00:34:02,120 - facefusion - INFO - [FACEFUSION.CORE] jobs deleted
+2026-01-30 00:34:03,141 - facefusion - ERROR - [FACEFUSION.CORE] jobs not deleted
+2026-01-30 00:34:04,191 - facefusion - ERROR - [FACEFUSION.CORE] step not added to job test-job-add-step
+2026-01-30 00:34:05,213 - facefusion - INFO - [FACEFUSION.CORE] job test-job-add-step created
+2026-01-30 00:34:06,247 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-add-step
+2026-01-30 00:34:07,319 - facefusion - ERROR - [FACEFUSION.CORE] step 0 not remixed from job test-job-remix-step
+2026-01-30 00:34:08,340 - facefusion - INFO - [FACEFUSION.CORE] job test-job-remix-step created
+2026-01-30 00:34:09,394 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-remix-step
+2026-01-30 00:34:10,428 - facefusion - INFO - [FACEFUSION.CORE] step 0 remixed from job test-job-remix-step
+2026-01-30 00:34:11,489 - facefusion - INFO - [FACEFUSION.CORE] step -1 remixed from job test-job-remix-step
+2026-01-30 00:34:12,532 - facefusion - ERROR - [FACEFUSION.CORE] step 0 not inserted to job test-job-insert-step
+2026-01-30 00:34:13,583 - facefusion - INFO - [FACEFUSION.CORE] job test-job-insert-step created
+2026-01-30 00:34:14,635 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-insert-step
+2026-01-30 00:34:15,677 - facefusion - INFO - [FACEFUSION.CORE] step 0 inserted to job test-job-insert-step
+2026-01-30 00:34:16,697 - facefusion - INFO - [FACEFUSION.CORE] step -1 inserted to job test-job-insert-step
+2026-01-30 00:34:17,739 - facefusion - ERROR - [FACEFUSION.CORE] step 0 not removed from job test-job-remove-step
+2026-01-30 00:34:18,768 - facefusion - INFO - [FACEFUSION.CORE] job test-job-remove-step created
+2026-01-30 00:34:19,814 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-remove-step
+2026-01-30 00:34:20,816 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-remove-step
+2026-01-30 00:34:21,873 - facefusion - INFO - [FACEFUSION.CORE] step 0 removed from job test-job-remove-step
+2026-01-30 00:34:22,899 - facefusion - INFO - [FACEFUSION.CORE] step -1 removed from job test-job-remove-step
+2026-01-30 00:34:23,919 - facefusion - ERROR - [FACEFUSION.CORE] step -1 not removed from job test-job-remove-step
+2026-01-30 00:34:25,066 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-01-30 00:34:25,067 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run failed
+2026-01-30 00:34:26,114 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run created
+2026-01-30 00:34:27,121 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-run
+2026-01-30 00:34:28,152 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-01-30 00:34:28,152 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run failed
+2026-01-30 00:34:29,146 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run submitted
+2026-01-30 00:34:30,204 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-01-30 00:34:30,210 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:34:33,644 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:34:33,760 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:34:35,431 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:34:35,553 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.77 seconds
+2026-01-30 00:34:35,555 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run succeeded
+2026-01-30 00:34:36,694 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-01-30 00:34:36,695 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run failed
+2026-01-30 00:34:37,735 - facefusion - INFO - [FACEFUSION.CORE] running all queued jobs
+2026-01-30 00:34:37,736 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:34:38,784 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run-all-1 created
+2026-01-30 00:34:39,824 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run-all-2 created
+2026-01-30 00:34:40,873 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-run-all-1
+2026-01-30 00:34:41,917 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-run-all-2
+2026-01-30 00:34:42,984 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-run-all-2
+2026-01-30 00:34:44,033 - facefusion - INFO - [FACEFUSION.CORE] running all queued jobs
+2026-01-30 00:34:44,034 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:34:45,089 - facefusion - INFO - [FACEFUSION.CORE] jobs submitted
+2026-01-30 00:34:46,137 - facefusion - INFO - [FACEFUSION.CORE] running all queued jobs
+2026-01-30 00:34:46,152 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:34:49,432 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:34:49,550 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:34:51,147 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:34:51,262 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.5 seconds
+2026-01-30 00:34:51,276 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 2
+2026-01-30 00:34:54,450 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:34:54,640 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:34:54,858 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:34:54,858 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:34:54,858 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:34:54,859 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-job-run-all-2.mp4.
+2026-01-30 00:34:54,859 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:34:54,863 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:34:54,864 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.11 seconds
+2026-01-30 00:34:54,891 - facefusion - INFO - [FACEFUSION.CORE] processing step 2 of 2
+2026-01-30 00:34:56,418 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:34:56,562 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:34:56,779 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:34:56,780 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:34:56,780 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:34:56,780 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-job-run-all-2.mp4.
+2026-01-30 00:34:56,780 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:34:56,784 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:34:56,785 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 0.37 seconds
+2026-01-30 00:34:56,871 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs succeeded
+2026-01-30 00:34:58,022 - facefusion - INFO - [FACEFUSION.CORE] running all queued jobs
+2026-01-30 00:34:58,029 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:34:59,085 - facefusion - INFO - [FACEFUSION.CORE] retrying failed job test-job-retry
+2026-01-30 00:34:59,085 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-retry failed
+2026-01-30 00:35:00,127 - facefusion - INFO - [FACEFUSION.CORE] job test-job-retry created
+2026-01-30 00:35:01,148 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-retry
+2026-01-30 00:35:02,173 - facefusion - INFO - [FACEFUSION.CORE] retrying failed job test-job-retry
+2026-01-30 00:35:02,174 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-retry failed
+2026-01-30 00:35:03,228 - facefusion - INFO - [FACEFUSION.CORE] retrying failed job test-job-retry
+2026-01-30 00:35:03,246 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:06,693 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:35:06,809 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:35:08,558 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:35:08,673 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.87 seconds
+2026-01-30 00:35:08,675 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-retry succeeded
+2026-01-30 00:35:09,768 - facefusion - INFO - [FACEFUSION.CORE] retrying failed job test-job-retry
+2026-01-30 00:35:09,769 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-retry failed
+2026-01-30 00:35:10,818 - facefusion - INFO - [FACEFUSION.CORE] retrying all failed jobs
+2026-01-30 00:35:10,819 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:35:11,832 - facefusion - INFO - [FACEFUSION.CORE] job test-job-retry-all-1 created
+2026-01-30 00:35:12,800 - facefusion - INFO - [FACEFUSION.CORE] job test-job-retry-all-2 created
+2026-01-30 00:35:13,785 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-retry-all-1
+2026-01-30 00:35:14,838 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-retry-all-2
+2026-01-30 00:35:15,864 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-retry-all-2
+2026-01-30 00:35:16,896 - facefusion - INFO - [FACEFUSION.CORE] retrying all failed jobs
+2026-01-30 00:35:16,897 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:35:17,970 - facefusion - INFO - [FACEFUSION.CORE] retrying all failed jobs
+2026-01-30 00:35:17,985 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:21,293 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:35:21,409 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:35:23,032 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:35:23,147 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.56 seconds
+2026-01-30 00:35:23,159 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 2
+2026-01-30 00:35:26,308 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:26,542 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:26,759 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:35:26,760 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:35:26,760 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:35:26,760 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-job-retry-all-2.mp4.
+2026-01-30 00:35:26,760 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:35:26,764 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:35:26,766 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.14 seconds
+2026-01-30 00:35:26,793 - facefusion - INFO - [FACEFUSION.CORE] processing step 2 of 2
+2026-01-30 00:35:28,310 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:28,458 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:28,678 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:35:28,678 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:35:28,679 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:35:28,679 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-job-retry-all-2.mp4.
+2026-01-30 00:35:28,679 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:35:28,683 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:35:28,684 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 0.37 seconds
+2026-01-30 00:35:28,768 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs succeeded
+2026-01-30 00:35:29,897 - facefusion - INFO - [FACEFUSION.CORE] retrying all failed jobs
+2026-01-30 00:35:29,898 - facefusion - INFO - [FACEFUSION.CORE] processing of all jobs failed
+2026-01-30 00:35:31,080 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:34,627 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:35:34,745 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:35:36,295 - facefusion.orchestrator.runner - ERROR - Job job-20260130-003531-c72edda1 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 136, in run
+    success = process_step_orchestrator(job_id, 0, len(self.job.steps), config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 381, in process_step_orchestrator
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 394, in conditional_process
+    return image_to_image.process(start_time)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 29, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_image.py", line 81, in process_image
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/lip_syncer/core.py", line 294, in process_frame
+    temp_vision_frame = sync_lip(target_face, source_voice_frame, temp_vision_frame)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/lip_syncer/core.py", line 197, in sync_lip
+    area_mask = create_area_mask(crop_vision_frame, face_landmark_68, [ 'lower-face' ])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_masker.py", line 264, in create_area_mask
+    area_mask = erode_mask(area_mask, state_manager.get_item('face_mask_erosion'))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_masker.py", line 207, in erode_mask
+    erosion_amount = int(crop_size[0] * 0.5 * abs(erosion))
+                                              ^^^^^^^^^^^^
+TypeError: bad operand type for abs(): 'NoneType'
+
+2026-01-30 00:35:37,890 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:41,394 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:46,207 - facefusion.orchestrator.runner - ERROR - Job job-20260130-003537-525e9cd9 failed: Traceback (most recent call last):
+  File "/home/yurix/Documentos/my-facefusion/facefusion/orchestrator/runner.py", line 136, in run
+    success = process_step_orchestrator(job_id, 0, len(self.job.steps), config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 381, in process_step_orchestrator
+    error_code = conditional_process()
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/core.py", line 396, in conditional_process
+    image_to_video.process(start_time)
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 36, in process
+    error_code = task() # type:ignore[operator]
+                 ^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 103, in process_video
+    future.result()
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/workflows/image_to_video.py", line 188, in process_temp_frame
+    temp_vision_frame, temp_vision_mask = processor_module.process_frame(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/lip_syncer/core.py", line 294, in process_frame
+    temp_vision_frame = sync_lip(target_face, source_voice_frame, temp_vision_frame)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/processors/modules/lip_syncer/core.py", line 197, in sync_lip
+    area_mask = create_area_mask(crop_vision_frame, face_landmark_68, [ 'lower-face' ])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_masker.py", line 264, in create_area_mask
+    area_mask = erode_mask(area_mask, state_manager.get_item('face_mask_erosion'))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yurix/Documentos/my-facefusion/facefusion/face_masker.py", line 207, in erode_mask
+    erosion_amount = int(crop_size[0] * 0.5 * abs(erosion))
+                                              ^^^^^^^^^^^^
+TypeError: bad operand type for abs(): 'NoneType'
+
+2026-01-30 00:35:48,117 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:51,417 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:35:51,535 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:35:53,035 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:35:53,150 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.46 seconds
+2026-01-30 00:35:54,578 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:35:58,040 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:35:59,793 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:36:00,022 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:36:00,023 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:36:00,023 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:36:00,023 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-makeup-transfer-video.mp4.
+2026-01-30 00:36:00,023 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:36:00,031 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:36:00,033 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.83 seconds
+2026-01-30 00:36:01,489 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:04,938 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 212x112
+2026-01-30 00:36:05,055 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:36:05,290 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 212x112
+2026-01-30 00:36:05,455 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.33 seconds
+2026-01-30 00:36:06,882 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:10,240 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:36:10,357 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:36:10,921 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:36:11,087 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.62 seconds
+2026-01-30 00:36:12,656 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:15,976 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:36:16,092 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:36:16,626 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 852x452
+2026-01-30 00:36:16,792 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.55 seconds
+2026-01-30 00:36:18,432 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:21,921 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:36:22,039 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:36:22,592 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 3408x1808
+2026-01-30 00:36:22,857 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 2.74 seconds
+2026-01-30 00:36:24,456 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:27,923 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 212x112 and 25.0 frames per second
+2026-01-30 00:36:28,366 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 212x112 and 25.0 frames per second
+2026-01-30 00:36:28,621 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:36:28,621 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:36:28,621 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:36:28,621 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-output-video-scale-0.5.mp4.
+2026-01-30 00:36:28,621 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:36:28,624 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:36:28,625 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.49 seconds
+2026-01-30 00:36:29,920 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:33,360 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:36:34,108 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:36:34,449 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:36:34,450 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:36:34,450 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:36:34,450 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-output-video-scale-1.0.mp4.
+2026-01-30 00:36:34,450 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:36:34,454 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:36:34,457 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.95 seconds
+2026-01-30 00:36:35,816 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:39,219 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:36:39,962 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 852x452 and 25.0 frames per second
+2026-01-30 00:36:40,310 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:36:40,311 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:36:40,311 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:36:40,311 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-output-video-scale-2.0.mp4.
+2026-01-30 00:36:40,311 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:36:40,315 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:36:40,318 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 2.92 seconds
+2026-01-30 00:36:41,701 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:45,097 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:36:45,853 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 3408x1808 and 25.0 frames per second
+2026-01-30 00:36:46,640 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:36:46,640 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:36:46,640 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:36:46,640 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-output-video-scale-8.0.mp4.
+2026-01-30 00:36:46,641 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:36:46,644 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:36:46,647 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.28 seconds
+2026-01-30 00:36:48,319 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:51,870 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:36:52,019 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:36:53,599 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:36:53,720 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 3.74 seconds
+2026-01-30 00:36:55,126 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:36:58,613 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:37:00,337 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-01-30 00:37:00,557 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-01-30 00:37:00,557 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-01-30 00:37:00,558 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-01-30 00:37:00,558 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-privacy-blur-video.mp4.
+2026-01-30 00:37:00,558 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-01-30 00:37:00,565 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-01-30 00:37:00,566 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 3.78 seconds
+2026-01-30 00:37:03,356 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:37:09,010 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:37:09,129 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:37:14,562 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:37:14,679 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.08 seconds
+2026-01-30 00:37:16,316 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:37:21,958 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:37:22,075 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:37:27,432 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:37:27,549 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 8.98 seconds
+2026-01-30 00:37:29,184 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-01-30 00:37:34,829 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-01-30 00:37:34,946 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-01-30 00:37:40,335 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-01-30 00:37:40,450 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.04 seconds

@@ -4,20 +4,69 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+
+  /* Obsidian Emerald Theme Variables */
+  --color-primary: #10b981;
+  --color-primary-glow: rgba(16, 185, 129, 0.4);
+  --color-secondary: #8b5cf6;
+  --color-surface: #09090b;
+  --color-surface-elevated: rgba(24, 24, 27, 0.6);
+  --color-border: rgba(39, 39, 42, 0.8);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #0a0a0a;
-  /* neutral-950 matches App bg */
+  background-color: var(--color-surface);
 }
 
 #root {
   width: 100%;
 }
 
+/* Glassmorphism Panels */
+.glass-panel {
+  background: var(--color-surface-elevated);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.glass-panel-strong {
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+}
+
+/* Primary Glow Effect */
+.glow-primary {
+  box-shadow: 0 0 20px var(--color-primary-glow), 0 0 40px rgba(16, 185, 129, 0.2);
+}
+
+.glow-primary-subtle {
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+}
+
+/* Active Tab/Button Indicator */
+.active-indicator {
+  position: relative;
+}
+
+.active-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+}
+
+/* Custom Scrollbar - Emerald Accent */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -28,16 +77,211 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: #27272a;
   border-radius: 10px;
+  transition: background 0.2s;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--color-primary);
 }
 
 /* For Firefox */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #262626 transparent;
+  scrollbar-color: #27272a transparent;
+}
+
+/* Button Interactions */
+.btn-primary {
+  background: var(--color-primary);
+  color: #ecfdf5;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #059669;
+  box-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Icon Hover */
+.icon-interactive {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.icon-interactive:hover {
+  transform: scale(1.1);
+}
+
+/* Compact Layout Utilities */
+.compact-section {
+  @apply space-y-1.5;
+}
+
+.compact-section>* {
+  @apply my-0;
+}
+
+/* Standardized Typography */
+.label-section {
+  @apply text-[10px] font-bold uppercase tracking-widest text-neutral-500;
+}
+
+.label-small {
+  @apply text-[9px] font-semibold uppercase tracking-wider text-neutral-600;
+}
+
+.value-display {
+  @apply text-xs font-medium text-neutral-300;
+}
+
+/* Compact Inputs */
+.input-compact {
+  @apply h-7 text-[11px] px-2 py-1 bg-neutral-900 border border-neutral-700/50 rounded-md text-neutral-300;
+  @apply focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all;
+}
+
+/* Compact Toggle Buttons */
+.toggle-compact {
+  @apply h-7 px-2 text-[10px] font-semibold rounded-md border transition-all;
+}
+
+.toggle-compact.active {
+  @apply bg-emerald-600/80 border-emerald-500/50 text-white;
+}
+
+.toggle-compact:not(.active) {
+  @apply bg-neutral-900/50 border-neutral-700/50 text-neutral-400 hover:border-neutral-600 hover:text-neutral-300;
+}
+
+/* Premium Slider Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  height: 4px;
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
+  border-radius: 4px;
+  border: 1px solid rgba(39, 39, 42, 0.5);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px var(--color-primary-glow), 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-top: -5px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 15px var(--color-primary-glow), 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
+  border-radius: 4px;
+  border: 1px solid rgba(39, 39, 42, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px var(--color-primary-glow), 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Section Container with Glassmorphism */
+.section-glass {
+  background: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(39, 39, 42, 0.6);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+/* Premium Select Dropdown */
+select.select-premium {
+  background: rgba(24, 24, 27, 0.8);
+  border: 1px solid rgba(39, 39, 42, 0.8);
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.6875rem;
+  color: #d4d4d4;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+select.select-premium:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+select.select-premium:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Premium Toggle Group */
+.toggle-group {
+  display: flex;
+  gap: 2px;
+  background: rgba(24, 24, 27, 0.5);
+  border-radius: 0.5rem;
+  padding: 2px;
+  border: 1px solid rgba(39, 39, 42, 0.5);
+}
+
+.toggle-group-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.toggle-group-item:not(.active) {
+  color: #737373;
+  background: transparent;
+}
+
+.toggle-group-item:not(.active):hover {
+  color: #a3a3a3;
+  background: rgba(38, 38, 38, 0.5);
+}
+
+.toggle-group-item.active {
+  color: #fff;
+  background: var(--color-primary);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px var(--color-primary-glow);
 }
