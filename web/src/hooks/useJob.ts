@@ -22,13 +22,24 @@ export function useJob(initialJobId: string | null) {
         setJob(prev => {
             const newState = { ...prev };
 
-            if (event.event_type === 'status_changed') {
-                newState.status = event.data;
-            } else if (event.event_type === 'progress') {
-                newState.progress = event.data;
-            } else if (event.event_type === 'log') {
-                // Add log to local list (optional, might be handled by Terminal)
-                // For now, let's keep it simple and not duplicate logs if Terminal handles it
+            if (event.event_type === 'job_progress') {
+                newState.progress = typeof event.data === 'object' ? event.data.progress : event.data;
+            } else if ([
+                'job_queued',
+                'job_started',
+                'job_completed',
+                'job_failed',
+                'job_canceled'
+            ].includes(event.event_type)) {
+                // Map event types to status (job_started -> running, job_completed -> completed, etc.)
+                const statusMap: Record<string, JobState['status']> = {
+                    'job_queued': 'queued',
+                    'job_started': 'running',
+                    'job_completed': 'completed',
+                    'job_failed': 'failed',
+                    'job_canceled': 'canceled'
+                };
+                newState.status = statusMap[event.event_type] || prev.status;
             }
             return newState;
         });

@@ -2,7 +2,7 @@ import { api } from './api';
 
 export interface JobEvent {
     job_id: string;
-    event_type: 'status_changed' | 'progress' | 'log' | 'step_started' | 'step_completed';
+    event_type: 'job_created' | 'job_queued' | 'job_started' | 'job_progress' | 'job_completed' | 'job_failed' | 'job_canceled' | 'log' | 'step_started' | 'step_completed';
     data: any;
 }
 
