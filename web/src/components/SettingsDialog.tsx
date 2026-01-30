@@ -77,7 +77,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
                 <div className="flex items-center justify-between p-6 border-b border-neutral-800 shrink-0">
-                    <h2 className="text-lg font-semibold text-white">Settings</h2>
+                    <h2 className="text-lg font-semibold text-white">Configurações</h2>
                     <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors">
                         <X size={20} />
                     </button>
@@ -87,23 +87,23 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                     {/* Face Selector Mode */}
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-neutral-300 block">
-                            Face Selector Mode
+                            Modo de Seleção de Rosto
                         </label>
                         <select
                             value={settings.face_selector_mode || "reference"}
                             onChange={(e) => handleChange("face_selector_mode", e.target.value)}
                             className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                         >
-                            <option value="reference">Reference (One Face)</option>
-                            <option value="one">One (First Found)</option>
-                            <option value="many">Many (All Faces)</option>
+                            <option value="reference">Referência (Um Rosto)</option>
+                            <option value="one">Único (Primeiro Encontrado)</option>
+                            <option value="many">Muitos (Todos os Rostos)</option>
                         </select>
                     </div>
 
                     {/* Face Mask Types */}
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-neutral-300 block">
-                            Face Mask Types
+                            Tipos de Máscara Facial
                         </label>
                         <div className="flex flex-wrap gap-2">
                             {FACE_MASK_TYPES.map((type) => (
@@ -126,7 +126,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                     {/* Face Mask Regions */}
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-neutral-300 block">
-                            Face Mask Regions
+                            Regiões de Máscara Facial
                         </label>
                         <div className="flex flex-wrap gap-2">
                             {FACE_MASK_REGIONS.map((region) => (
@@ -150,7 +150,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         {/* Output Encoding */}
                         <div className="space-y-3">
                             <label className="text-sm font-medium text-neutral-300 block">
-                                Video Encoder
+                                Codificador de Vídeo
                             </label>
                             <select
                                 value={settings.output_video_encoder || "libx264"}
@@ -166,7 +166,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         {/* Video Quality */}
                         <div className="space-y-3">
                             <label className="text-sm font-medium text-neutral-300 flex justify-between items-center">
-                                <span>Output Quality</span>
+                                <span>Qualidade de Saída</span>
                                 <span className="text-emerald-500 font-bold">{settings.output_video_quality || 80}%</span>
                             </label>
                             <input
@@ -184,7 +184,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         {/* Execution Threads */}
                         <div className="space-y-3">
                             <label className="text-sm font-medium text-neutral-300 block">
-                                Execution Threads
+                                Threads de Execução
                             </label>
                             <input
                                 type="number"
@@ -199,7 +199,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         {/* Execution Queue */}
                         <div className="space-y-3">
                             <label className="text-sm font-medium text-neutral-300 block">
-                                Execution Queue
+                                Fila de Execução
                             </label>
                             <input
                                 type="number"
@@ -215,7 +215,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                     {/* Execution Provider */}
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-neutral-300 block">
-                            Execution Provider
+                            Provedor de Execução
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {["cuda", "cpu", "openvino", "rocm"].map((provider) => {
@@ -251,7 +251,7 @@ export function SettingsDialog({ isOpen, onClose }: SettingsDialogProps) {
                         className="px-6 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-neutral-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? <span className="animate-spin">⏳</span> : <Save size={18} />}
-                        Save Changes
+                        Salvar Alterações
                     </button>
                 </div>
             </div>

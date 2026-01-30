@@ -61,14 +61,14 @@ export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
                 <div className="bg-neutral-900 px-3 py-1 text-neutral-400 flex justify-between items-center border-b border-neutral-800">
                     <span>facefusion-core.log</span>
                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-green-500">● LIVE</span>
+                        <span className="text-[10px] text-green-500">● AO VIVO</span>
                         <button onClick={onToggle} className="text-neutral-500 hover:text-white transition-colors">
                             <X size={14} />
                         </button>
                     </div>
                 </div>
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1 text-neutral-300 custom-scrollbar">
-                    {logs.length === 0 && <span className="text-neutral-600 italic">Connected to stream...</span>}
+                    {logs.length === 0 && <span className="text-neutral-600 italic">Conectado ao fluxo...</span>}
                     {logs.map((log, i) => (
                         <div key={i} className="break-all border-b border-neutral-900/50 pb-0.5">{log}</div>
                     ))}

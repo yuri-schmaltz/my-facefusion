@@ -78,10 +78,10 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <h2 className="text-lg font-semibold text-white shrink-0">Select {type === 'source' ? 'Source' : 'Target'} File</h2>
+                        <h2 className="text-lg font-semibold text-white shrink-0">Selecionar Arquivo de {type === 'source' ? 'Origem' : 'Destino'}</h2>
                         <div className="h-6 w-px bg-neutral-800 mx-2"></div>
                         <span className="text-xs font-mono text-neutral-400 truncate dir-rtl" dir="rtl" title={currentPath}>
-                            {currentPath || "Root"}
+                            {currentPath || "Raiz"}
                         </span>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white">
@@ -95,10 +95,10 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                         onClick={() => parentPath && loadPathRefined(parentPath)}
                         disabled={!parentPath || loading}
                         className="p-2 hover:bg-neutral-800 rounded-lg text-neutral-300 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
-                        title={parentPath || "No parent"}
+                        title={parentPath || "Sem pasta pai"}
                     >
                         <ArrowUp size={18} />
-                        Up
+                        Subir
                     </button>
 
                     <button
@@ -106,7 +106,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                         disabled={loading}
                         className="p-2 hover:bg-neutral-800 rounded-lg text-neutral-300 disabled:opacity-30 flex items-center gap-2 text-sm"
                     >
-                        <Folder size={18} /> Root
+                        <Folder size={18} /> Raiz
                     </button>
                     {/* Drive shortcuts for Windows could go here */}
                 </div>
@@ -116,7 +116,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                     {loading ? (
                         <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-3">
                             <Loader2 className="animate-spin" size={32} />
-                            <p className="text-sm">Loading...</p>
+                            <p className="text-sm">Carregando...</p>
                         </div>
                     ) : error ? (
                         <div className="flex flex-col items-center justify-center h-full text-emerald-500 gap-3">
@@ -125,7 +125,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
                                 onClick={() => loadPathRefined("")}
                                 className="px-4 py-2 bg-neutral-800 rounded text-white text-sm hover:bg-neutral-700"
                             >
-                                Go to Root
+                                Ir para Raiz
                             </button>
                         </div>
                     ) : (
@@ -161,7 +161,7 @@ const FileBrowserDialog: React.FC<FileBrowserDialogProps> = ({
 
                             {items.length === 0 && (
                                 <div className="col-span-full flex flex-col items-center justify-center py-20 text-neutral-600">
-                                    <p>Folder is empty</p>
+                                    <p>A pasta está vazia</p>
                                 </div>
                             )}
                         </div>

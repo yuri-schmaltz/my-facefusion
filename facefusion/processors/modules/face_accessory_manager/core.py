@@ -31,13 +31,17 @@ def register_args(program : ArgumentParser) -> None:
 		group_processors.add_argument('--face-accessory-manager-model', help = translator.get('help.face_accessory_manager_model', __package__), default = config.get_str_value('processors', 'face_accessory_manager_model', 'replicate'), choices = face_accessory_manager_choices.face_accessory_manager_models)
 		group_processors.add_argument('--face-accessory-manager-items', help = translator.get('help.face_accessory_manager_items', __package__), default = config.get_str_list('processors', 'face_accessory_manager_items', 'occlusion'), choices = face_accessory_manager_choices.face_accessory_manager_items, nargs = '+')
 		group_processors.add_argument('--face-accessory-manager-blend', help = translator.get('help.face_accessory_manager_blend', __package__), type = int, default = config.get_int_value('processors', 'face_accessory_manager_blend', '100'), choices = range(0, 101), metavar = '[0-100]')
-		facefusion.jobs.job_store.register_step_keys([ 'face_accessory_manager_model', 'face_accessory_manager_items', 'face_accessory_manager_blend' ])
+		group_processors.add_argument('--face-accessory-manager-padding', help = translator.get('help.face_accessory_manager_padding', __package__), type = int, default = config.get_int_value('processors', 'face_accessory_manager_padding', '0'), choices = range(0, 101), metavar = '[0-100]')
+		group_processors.add_argument('--face-accessory-manager-blur', help = translator.get('help.face_accessory_manager_blur', __package__), type = int, default = config.get_int_value('processors', 'face_accessory_manager_blur', '0'), choices = range(0, 101), metavar = '[0-100]')
+		facefusion.jobs.job_store.register_step_keys([ 'face_accessory_manager_model', 'face_accessory_manager_items', 'face_accessory_manager_blend', 'face_accessory_manager_padding', 'face_accessory_manager_blur' ])
 
 
 def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 	apply_state_item('face_accessory_manager_model', args.get('face_accessory_manager_model'))
 	apply_state_item('face_accessory_manager_items', args.get('face_accessory_manager_items'))
 	apply_state_item('face_accessory_manager_blend', args.get('face_accessory_manager_blend'))
+	apply_state_item('face_accessory_manager_padding', args.get('face_accessory_manager_padding'))
+	apply_state_item('face_accessory_manager_blur', args.get('face_accessory_manager_blur'))
 
 
 def pre_check() -> bool:
@@ -64,25 +68,27 @@ def process_frame(inputs : FaceAccessoryManagerInputs) -> ProcessorOutputs:
 	model = state_manager.get_item('face_accessory_manager_model') or 'replicate'
 	items = state_manager.get_item('face_accessory_manager_items') or [ 'occlusion' ]
 	blend = (state_manager.get_item('face_accessory_manager_blend') if state_manager.get_item('face_accessory_manager_blend') is not None else 100) / 100.0
+	padding = state_manager.get_item('face_accessory_manager_padding') or 0
+	blur = (state_manager.get_item('face_accessory_manager_blur') if state_manager.get_item('face_accessory_manager_blur') is not None else 0) / 100.0
 
 	target_faces = select_faces(reference_vision_frame, target_vision_frame)
 
 	if target_faces:
 		for target_face in target_faces:
 			if model == 'replicate':
-				temp_vision_frame = replicate_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend)
+				temp_vision_frame = replicate_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend, padding, blur)
 			if model == 'remove':
-				temp_vision_frame = remove_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend)
+				temp_vision_frame = remove_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend, padding, blur)
 
 	return temp_vision_frame, temp_vision_mask
 
 
-def replicate_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend):
+def replicate_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend, padding, blur):
 	model_template = 'arcface_112_v2'
 	model_size = (256, 256)
 
 	crop_target_frame, affine_matrix = warp_face_by_face_landmark_5(target_vision_frame, target_face.landmark_set.get('5/68'), model_template, model_size)
-	accessory_mask = create_accessory_mask(crop_target_frame, items)
+	accessory_mask = create_accessory_mask(crop_target_frame, items, padding, blur)
 
 	if blend < 1.0:
 		accessory_mask = accessory_mask * blend
@@ -95,12 +101,12 @@ def replicate_accessories(target_face, target_vision_frame, temp_vision_frame, i
 	return temp_vision_frame
 
 
-def remove_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend):
+def remove_accessories(target_face, target_vision_frame, temp_vision_frame, items, blend, padding, blur):
 	model_template = 'arcface_112_v2'
 	model_size = (256, 256)
 
 	crop_temp_frame, affine_matrix = warp_face_by_face_landmark_5(temp_vision_frame, target_face.landmark_set.get('5/68'), model_template, model_size)
-	accessory_mask = create_accessory_mask(crop_temp_frame, items)
+	accessory_mask = create_accessory_mask(crop_temp_frame, items, padding, blur)
 
 	if numpy.any(accessory_mask > 0):
 		inpaint_mask = (accessory_mask * 255).astype(numpy.uint8)
@@ -115,7 +121,7 @@ def remove_accessories(target_face, target_vision_frame, temp_vision_frame, item
 	return temp_vision_frame
 
 
-def create_accessory_mask(crop_vision_frame : VisionFrame, items : List[str]) -> Mask:
+def create_accessory_mask(crop_vision_frame : VisionFrame, items : List[str], padding : int, blur : float) -> Mask:
 	masks = []
 
 	if 'occlusion' in items:
@@ -137,11 +143,31 @@ def create_accessory_mask(crop_vision_frame : VisionFrame, items : List[str]) ->
 		if item == 'mouth':
 			region_items.extend([ 'mouth', 'upper-lip', 'lower-lip' ])
 
+		if item == 'ears':
+			region_items.extend([ 'left-ear', 'right-ear', 'ear-ring' ])
+		if item == 'neck':
+			region_items.extend([ 'neck', 'neck-lace' ])
+		if item == 'skin':
+			region_items.append('skin')
+		if item == 'cloth':
+			region_items.append('cloth')
+		if item == 'hat':
+			region_items.append('hat')
+
 	if region_items:
 		masks.append(create_region_mask(crop_vision_frame, region_items))
 
 	if masks:
 		if len(masks) > 1:
-			return numpy.maximum.reduce(masks)
-		return masks[0]
+			box_mask = numpy.maximum.reduce(masks)
+		else:
+			box_mask = masks[0]
+		
+		if padding > 0:
+			kernel_size = int(padding * 2 + 1)
+			box_mask = cv2.dilate(box_mask, numpy.ones((kernel_size, kernel_size), numpy.float32))
+		if blur > 0:
+			kernel_size = int(blur * 100 * 0.1) * 2 + 1
+			box_mask = cv2.GaussianBlur(box_mask, (kernel_size, kernel_size), 0)
+		return box_mask
 	return numpy.zeros(crop_vision_frame.shape[:2], dtype = numpy.float32)

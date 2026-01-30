@@ -21,7 +21,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [currentStatus, setCurrentStatus] = useState("queued");
-    const [statusMessage, setStatusMessage] = useState("Initializing...");
+    const [statusMessage, setStatusMessage] = useState("Inicializando...");
 
     const pollInterval = useRef<any>(null);
     const [isRefining, setIsRefining] = useState(false);
@@ -98,11 +98,11 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     };
 
     const statusLabels: Record<string, string> = {
-        'detecting_scenes': 'Detecting scenes...',
-        'analyzing_faces': 'Analyzing faces in scenes...',
-        'completed': 'Analysis complete!',
-        'failed': 'Analysis failed.',
-        'queued': 'Waiting in queue...'
+        'detecting_scenes': 'Detectando cenas...',
+        'analyzing_faces': 'Analisando rostos nas cenas...',
+        'completed': 'Análise completa!',
+        'failed': 'Análise falhou.',
+        'queued': 'Aguardando na fila...'
     };
 
     // Cleanup on unmount or when closed
@@ -145,14 +145,14 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
     const startAnalysis = async () => {
         if (!targetPath) {
             setStatus('failed');
-            alert("No target video selected. Please select a video to analyze.");
+            alert("Nenhum vídeo alvo selecionado. Por favor, selecione um vídeo para analisar.");
             onClose();
             return;
         }
         setStatus('loading');
         setProgress(0);
         setCurrentStatus("queued");
-        setStatusMessage("Initializing...");
+        setStatusMessage("Inicializando...");
 
         // Clear any existing interval
         if (pollInterval.current) clearInterval(pollInterval.current);
@@ -164,7 +164,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
 
             // Upload Sources
             if (sourceFiles.length > 0) {
-                setStatusMessage("Uploading source files...");
+                setStatusMessage("Enviando arquivos de origem...");
                 const paths: string[] = [];
                 for (const file of sourceFiles) {
                     try {
@@ -196,7 +196,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     } else if (jobStatus === 'failed') {
                         if (pollInterval.current) clearInterval(pollInterval.current);
                         setStatus('failed');
-                        alert("Analysis failed: " + error);
+                        alert("Análise falhou: " + error);
                     }
                 } catch (err) {
                     console.error("Polling failed", err);
@@ -262,11 +262,11 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
         try {
             const result = await wizard.generate(jobId);
             const count = result.data?.count || 0;
-            alert(`✅ ${count} job(s) created successfully!\n\nCheck the Jobs panel to manage and run them.`);
+            alert(`✅ ${count} tarefa(s) criada(s) com sucesso!\n\nVerifique o painel de Tarefas para gerenciá-las e executá-las.`);
             onClose();
         } catch (err) {
             console.error("Failed to generate jobs", err);
-            alert("❌ Failed to generate jobs. Check the console for details.");
+            alert("❌ Falha ao gerar tarefas. Verifique o console para detalhes.");
         } finally {
             setIsGenerating(false);
         }
@@ -284,8 +284,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             <Wand2 size={20} className="text-emerald-500" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white">Automatic Wizard</h2>
-                            <p className="text-xs text-neutral-500">Smart scene detection and face grouping</p>
+                            <h2 className="text-xl font-bold text-white">Assistente Automático</h2>
+                            <p className="text-xs text-neutral-500">Detecção inteligente de cenas e agrupamento de rostos</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400">
@@ -296,11 +296,11 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                 {/* Progress Bar - Clickable Steps */}
                 <div className="flex border-b border-neutral-800">
                     {[
-                        { id: 'source' as Step, label: 'Source', icon: Upload }, // Added Source Tab
-                        { id: 'analyze' as Step, label: 'Analysis', icon: Search },
-                        { id: 'cluster' as Step, label: 'Grouping', icon: Users },
-                        { id: 'optimize' as Step, label: 'Optimization', icon: Settings },
-                        { id: 'generate' as Step, label: 'Generation', icon: Wand2 },
+                        { id: 'source' as Step, label: 'Origem', icon: Upload }, // Added Source Tab
+                        { id: 'analyze' as Step, label: 'Análise', icon: Search },
+                        { id: 'cluster' as Step, label: 'Agrupamento', icon: Users },
+                        { id: 'optimize' as Step, label: 'Otimização', icon: Settings },
+                        { id: 'generate' as Step, label: 'Geração', icon: Wand2 },
                     ].map((step) => {
                         const isClickable = canNavigateToStep(step.id) || step.id === currentStep;
                         return (
@@ -332,9 +332,9 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 <div className="p-4 bg-emerald-600/10 rounded-full inline-block">
                                     <Upload size={48} className="text-emerald-500" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white">Select Source Faces</h3>
+                                <h3 className="text-xl font-bold text-white">Selecionar Rostos de Origem</h3>
                                 <p className="text-neutral-400 max-w-md">
-                                    Upload the face(s) you want to swap into the video. You can assign these later.
+                                    Envie o(s) rosto(s) que você deseja trocar no vídeo. Você pode atribuí-los mais tarde.
                                 </p>
                             </div>
 
@@ -343,7 +343,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-neutral-800 border-dashed rounded-xl cursor-pointer hover:border-neutral-700 bg-neutral-900/50 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UserPlus className="w-8 h-8 mb-3 text-neutral-500" />
-                                        <p className="text-sm text-neutral-500 font-bold">Click to upload images</p>
+                                        <p className="text-sm text-neutral-500 font-bold">Clique para enviar imagens</p>
                                     </div>
                                     <input
                                         type="file"
@@ -380,7 +380,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 onClick={() => setCurrentStep('analyze')}
                                 className="px-8 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-all flex items-center gap-2"
                             >
-                                Continue to Analysis
+                                Continuar para Análise
                                 <ArrowRight size={18} />
                             </button>
                         </div>
@@ -395,12 +395,12 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                         <div className="p-4 bg-emerald-600/10 rounded-full inline-block">
                                             <Search size={48} className="text-emerald-500" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-white">Ready to Analyze</h3>
+                                        <h3 className="text-xl font-bold text-white">Pronto para Analisar</h3>
                                         <p className="text-neutral-400 max-w-md">
-                                            The wizard will detect scenes and analyze faces in your video to create optimized processing jobs.
+                                            O assistente detectará cenas e analisará rostos em seu vídeo para criar tarefas de processamento otimizadas.
                                         </p>
                                         <div className="text-xs text-neutral-500 bg-neutral-800/50 rounded-lg p-3 max-w-md">
-                                            <strong>Target:</strong> {targetPath.split('/').pop() || targetPath}
+                                            <strong>Alvo:</strong> {targetPath.split('/').pop() || targetPath}
                                         </div>
                                     </div>
                                     <button
@@ -408,7 +408,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                         className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20"
                                     >
                                         <Wand2 size={18} />
-                                        Start Analysis
+                                        Iniciar Análise
                                     </button>
                                 </>
                             ) : status === 'loading' ? (
@@ -421,17 +421,17 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                         <h3 className="text-lg font-bold text-white mb-2">{statusMessage}</h3>
                                         <div className="flex items-center justify-center gap-3 text-sm text-neutral-400">
                                             <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'detecting_scenes' ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500" : "border-neutral-800 bg-neutral-900")}>
-                                                Scenes
+                                                Cenas
                                             </div>
                                             <ChevronRight size={14} className="text-neutral-700" />
                                             <div className={cn("px-2 py-0.5 rounded border transition-colors", currentStatus === 'analyzing_faces' ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500" : "border-neutral-800 bg-neutral-900")}>
-                                                Faces
+                                                Rostos
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-                                                <span>Progress</span>
+                                                <span>Progresso</span>
                                                 <span>{Math.round(progress * 100)}%</span>
                                             </div>
                                             <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/50 shadow-inner">
@@ -449,15 +449,15 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     <div className="p-4 bg-green-600/10 rounded-full inline-block">
                                         <Search size={48} className="text-green-500" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white">Analysis Complete!</h3>
+                                    <h3 className="text-xl font-bold text-white">Análise Completa!</h3>
                                     <p className="text-neutral-400">
-                                        Found {analysisResult?.scenes?.length || 0} scenes with faces detected.
+                                        Encontradas {analysisResult?.scenes?.length || 0} cenas com rostos detectados.
                                     </p>
                                     <button
                                         onClick={() => setCurrentStep('cluster')}
                                         className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 mx-auto"
                                     >
-                                        Continue to Grouping
+                                        Continuar para Agrupamento
                                         <ChevronRight size={16} />
                                     </button>
                                 </div>
@@ -467,15 +467,15 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     <div className="p-4 bg-emerald-600/10 rounded-full inline-block">
                                         <X size={48} className="text-emerald-500" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white">Analysis Failed</h3>
+                                    <h3 className="text-xl font-bold text-white">Análise Falhou</h3>
                                     <p className="text-neutral-400">
-                                        Something went wrong during the analysis.
+                                        Algo deu errado durante a análise.
                                     </p>
                                     <button
                                         onClick={() => { setStatus('idle'); setJobId(null); }}
                                         className="px-6 py-2 bg-neutral-700 hover:bg-neutral-600 text-white font-bold rounded-lg transition-all"
                                     >
-                                        Try Again
+                                        Tentar Novamente
                                     </button>
                                 </div>
                             )}
@@ -485,8 +485,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                     {currentStep === 'cluster' && (
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-bold text-white">Detected Face Groups</h3>
-                                <span className="text-xs font-mono text-neutral-500 uppercase tracking-widest">{clusters.length} Unique Faces Found</span>
+                                <h3 className="text-lg font-bold text-white">Grupos de Rostos Detectados</h3>
+                                <span className="text-xs font-mono text-neutral-500 uppercase tracking-widest">{clusters.length} Rostos Únicos Encontrados</span>
                             </div>
 
                             {status === 'loading' ? (
@@ -497,7 +497,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 <>
                                     {sourceFiles.length > 0 && (
                                         <div className="mb-6 p-4 bg-neutral-900/50 border border-neutral-800 rounded-xl">
-                                            <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Assign Sources</h4>
+                                            <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Atribuir Origens</h4>
                                             <div className="flex gap-4 overflow-x-auto pb-2">
                                                 <button
                                                     onClick={() => setActiveSourceIndex(null)}
@@ -508,7 +508,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                                             : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-white"
                                                     )}
                                                 >
-                                                    Select Mode
+                                                    Modo de Seleção
                                                 </button>
                                                 {sourceFiles.map((file, i) => (
                                                     <button
@@ -533,8 +533,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                             </div>
                                             <p className="text-[10px] text-neutral-500 mt-2">
                                                 {activeSourceIndex !== null
-                                                    ? "Click on a Face Group to assign this source face."
-                                                    : "Click to select groups for merging."}
+                                                    ? "Clique em um Grupo de Rostos para atribuir este rosto de origem."
+                                                    : "Clique para selecionar grupos para fusão."}
                                             </p>
                                         </div>
                                     )}
@@ -577,8 +577,8 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-sm font-bold text-white truncate">Face Group #{idx + 1}</p>
-                                                        <p className="text-[10px] text-neutral-500 uppercase font-mono">{cluster.face_count} Appearances</p>
+                                                        <p className="text-sm font-bold text-white truncate">Grupo de Rostos #{idx + 1}</p>
+                                                        <p className="text-[10px] text-neutral-500 uppercase font-mono">{cluster.face_count} Aparências</p>
                                                         <div className="flex gap-1 mt-1">
                                                             <span className="px-1.5 py-0.5 bg-neutral-900 rounded text-[9px] text-neutral-400 capitalize">{cluster.representative.gender}</span>
                                                             <span className="px-1.5 py-0.5 bg-neutral-900 rounded text-[9px] text-neutral-400">{cluster.representative.age}y</span>
@@ -604,7 +604,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                         ) : (
                                             <Merge size={18} />
                                         )}
-                                        Merge {selectedClusters.size} Groups
+                                        Fundir {selectedClusters.size} Grupos
                                     </button>
                                 </div>
                             )}
@@ -617,26 +617,26 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-xl p-6 flex items-start gap-4">
                                 <Settings className="text-emerald-500 shrink-0" size={24} />
                                 <div>
-                                    <h4 className="font-bold text-white mb-1">Recommended Optimization</h4>
+                                    <h4 className="font-bold text-white mb-1">Otimização Recomendada</h4>
                                     <p className="text-sm text-neutral-400 leading-relaxed">
-                                        Our smart logic analyzed your system and the video content. We've selected models and thread configurations that balance quality and speed.
+                                        Nossa lógica inteligente analisou seu sistema e o conteúdo do vídeo. Selecionamos modelos e configurações de threads que equilibram qualidade e velocidade.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Recommended Processor</label>
+                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Processador Recomendado</label>
                                     <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
                                         <p className="text-sm font-bold text-white">{suggestions?.face_swapper_model || 'Standard'}</p>
-                                        <p className="text-[10px] text-neutral-500">Optimized for detected face resolution</p>
+                                        <p className="text-[10px] text-neutral-500">Otimizado para resolução de rosto detectada</p>
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Enhancement Strategy</label>
+                                    <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter">Estratégia de Melhoria</label>
                                     <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
                                         <p className="text-sm font-bold text-white">{suggestions?.face_enhancer_model || 'Enabled'}</p>
-                                        <p className="text-[10px] text-neutral-500">Based on scene lighting/compression</p>
+                                        <p className="text-[10px] text-neutral-500">Baseado na iluminação/compressão da cena</p>
                                     </div>
                                 </div>
                             </div>
@@ -644,26 +644,26 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700 relative group">
                                     <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
-                                        <Target size={14} className="text-emerald-400" /> Face Detector
+                                        <Target size={14} className="text-emerald-400" /> Detector de Rosto
                                         <div className="relative ml-auto">
                                             <Info size={12} className="text-neutral-600 cursor-help" />
                                             {/* Tooltip */}
                                             <div className="absolute right-0 top-6 w-48 p-2 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl text-[10px] text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                                                These settings control how faces are detected in the initial analysis phase. Models like 'yoloface' are faster, while 'retinaface' is more accurate.
+                                                Essas configurações controlam como os rostos são detectados na fase inicial. Modelos como 'yoloface' são mais rápidos, enquanto 'retinaface' é mais preciso.
                                             </div>
                                         </div>
                                     </h4>
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Model</span>
+                                            <span className="text-neutral-500">Modelo</span>
                                             <span className="text-white font-mono">{suggestions.face_detector_model}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Size</span>
+                                            <span className="text-neutral-500">Tamanho</span>
                                             <span className="text-white font-mono">{suggestions.face_detector_size}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Score</span>
+                                            <span className="text-neutral-500">Pontuação</span>
                                             <span className="text-white font-mono">{suggestions.face_detector_score}</span>
                                         </div>
                                     </div>
@@ -671,11 +671,11 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
 
                                 <div className="bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
                                     <h4 className="text-sm font-bold text-neutral-300 mb-2 flex items-center gap-2">
-                                        <HardDrive size={14} className="text-green-400" /> System Resources
+                                        <HardDrive size={14} className="text-green-400" /> Recursos do Sistema
                                     </h4>
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Providers</span>
+                                            <span className="text-neutral-500">Provedores</span>
                                             <span className="text-white font-mono text-right max-w-[100px] truncate" title={suggestions.execution_providers?.join(', ')}>
                                                 {suggestions.execution_providers?.map((p: string) =>
                                                     p === 'cuda' ? 'NVIDIA GPU' :
@@ -686,11 +686,11 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Memory Limit</span>
+                                            <span className="text-neutral-500">Limite de Memória</span>
                                             <span className="text-white font-mono">{suggestions.system_memory_limit > 0 ? `${suggestions.system_memory_limit} GB` : 'Auto'}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-neutral-500">Execution Threads</span>
+                                            <span className="text-neutral-500">Threads de Execução</span>
                                             <span className="text-white font-mono">{suggestions.execution_thread_count}</span>
                                         </div>
                                     </div>
@@ -700,7 +700,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex items-start gap-3">
                                 <Info className="text-emerald-400 shrink-0 mt-0.5" size={16} />
                                 <p className="text-xs text-blue-200">
-                                    These settings have been optimized based on the resolution of your video and your available system memory.
+                                    Essas configurações foram otimizadas com base na resolução do seu vídeo e na memória do sistema disponível.
                                 </p>
                             </div>
                         </div>
@@ -713,18 +713,18 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                     <Wand2 size={48} className="text-green-500" />
                                 </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-white">Ready to Generate</h3>
+                            <h3 className="text-2xl font-bold text-white">Pronto para Gerar</h3>
                             <p className="text-neutral-400 max-w-md mx-auto">
-                                We will create <strong>{clusters.length} usage jobs</strong> based on the scenes and face groups we identified.
+                                Criaremos <strong>{clusters.length} tarefas de uso</strong> com base nas cenas e grupos de rostos identificados.
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
                                 <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
-                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Scenes</span>
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Cenas</span>
                                     <span className="text-xl font-mono text-white">{Object.keys(analysisResult?.scenes || {}).length}</span>
                                 </div>
                                 <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700">
-                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Face Groups</span>
+                                    <span className="block text-xs text-neutral-500 uppercase font-bold mb-1">Grupos de Rostos</span>
                                     <span className="text-xl font-mono text-white">{clusters.length}</span>
                                 </div>
                             </div>
@@ -738,7 +738,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                         onClick={onClose}
                         className="px-6 py-2 rounded-xl text-neutral-400 hover:bg-neutral-800 transition-colors font-medium text-sm"
                     >
-                        Cancel
+                        Cancelar
                     </button>
 
 
@@ -751,7 +751,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 className="bg-neutral-800 text-white px-4 py-2 rounded-xl border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center gap-2 text-sm"
                             >
                                 {isRefining ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
-                                Refine Groups
+                                Refinar Grupos
                             </button>
                             <button
                                 onClick={runOptimization}
@@ -759,7 +759,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                                 className="bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-neutral-200 transition-colors flex items-center gap-2"
                             >
                                 {status === 'loading' && <Loader2 size={16} className="animate-spin" />}
-                                Next: Optimization
+                                Próximo: Otimização
                             </button>
                         </div>
                     )}
@@ -769,7 +769,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             onClick={() => setCurrentStep('generate')}
                             className="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-emerald-500 transition-colors flex items-center gap-2"
                         >
-                            Next: Generation
+                            Próximo: Geração
                         </button>
                     )}
 
@@ -780,7 +780,7 @@ export const WizardModal: React.FC<WizardModalProps> = ({ isOpen, onClose, targe
                             className="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-emerald-500 transition-colors flex items-center gap-2"
                         >
                             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-                            Generate Jobs
+                            Gerar Tarefas
                         </button>
                     )}
                 </div>

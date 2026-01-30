@@ -60,7 +60,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
         <div className="space-y-2">
             <div className="flex items-center gap-2 text-neutral-400 px-1 mb-1">
                 <Settings2 className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider">Processor Settings</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">Configurações do Processador</span>
             </div>
 
             {activeProcessors.map((proc) => {
@@ -85,7 +85,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                             {procChoices.models && (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-xs text-neutral-400">Model</Label>
+                                        <Label className="text-xs text-neutral-400">Modelo</Label>
                                         <Tooltip content={helpTexts[`${proc}_model`]}>
                                             <Info size={12} className="text-neutral-500 cursor-help" />
                                         </Tooltip>
@@ -96,20 +96,20 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                     >
                                         {(() => {
                                             const modelHints: Record<string, string> = {
-                                                "realesrgan": "Balanced • Quality",
-                                                "esrgan": "High Detail",
-                                                "swinir": "Premium • Slow",
-                                                "lsdir": "Sharp • Modern",
-                                                "clear_reality": "Clean • Recommended",
-                                                "ultra_sharp": "Precision Sharp",
-                                                "codeformer": "Best • Recommended",
-                                                "gfpgan": "Fast • Natural",
-                                                "restoreformer": "High Fidelity",
-                                                "yolo": "Standard • Recommended",
-                                                "scrfd": "Ultra Fast",
-                                                "retinaface": "Maximum Precision",
-                                                "inswapper": "Pro • Recommended",
-                                                "simswap": "Fast Swapper"
+                                                "realesrgan": "Equilibrado • Qualidade",
+                                                "esrgan": "Alto Detalhe",
+                                                "swinir": "Premium • Lento",
+                                                "lsdir": "Nítido • Moderno",
+                                                "clear_reality": "Limpo • Recomendado",
+                                                "ultra_sharp": "Precisão Nítida",
+                                                "codeformer": "Melhor • Recomendado",
+                                                "gfpgan": "Rápido • Natural",
+                                                "restoreformer": "Alta Fidelidade",
+                                                "yolo": "Padrão • Recomendado",
+                                                "scrfd": "Ultra Rápido",
+                                                "retinaface": "Máxima Precisão",
+                                                "inswapper": "Pro • Recomendado",
+                                                "simswap": "Troca Rápida"
                                             };
 
                                             const getHint = (name: string) => {
@@ -134,9 +134,9 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
 
                                             const groups: Record<string, string[]> = {
                                                 "Upscalers": [],
-                                                "Face Restore": [],
+                                                "Restauração Facial": [],
                                                 "Detectors & Swappers": [],
-                                                "Other": []
+                                                "Outros": []
                                             };
 
                                             procChoices.models.forEach(m => {
@@ -144,11 +144,11 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                                 if (lower.includes('esrgan') || lower.includes('swin') || lower.includes('dir') || lower.includes('sharp') || lower.includes('dat') || lower.includes('realistic') || lower.includes('nomos')) {
                                                     groups["Upscalers"].push(m);
                                                 } else if (lower.includes('codeformer') || lower.includes('gfpgan') || lower.includes('restoreformer')) {
-                                                    groups["Face Restore"].push(m);
+                                                    groups["Restauração Facial"].push(m);
                                                 } else if (lower.includes('yolo') || lower.includes('scrfd') || lower.includes('inswapper') || lower.includes('simswap') || lower.includes('retina')) {
                                                     groups["Detectors & Swappers"].push(m);
                                                 } else {
-                                                    groups["Other"].push(m);
+                                                    groups["Outros"].push(m);
                                                 }
                                             });
 
@@ -170,7 +170,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                             {procChoices.sizes && (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-xs text-neutral-400">Size</Label>
+                                        <Label className="text-xs text-neutral-400">Tamanho</Label>
                                         <Tooltip content={helpTexts[`${proc}_size`]}>
                                             <Info size={12} className="text-neutral-500 cursor-help" />
                                         </Tooltip>
@@ -215,8 +215,8 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 <div className="space-y-4 pt-2 border-t border-neutral-800/50">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <Label className="text-[10px] font-bold text-neutral-500 uppercase">Area Config</Label>
-                                            <Tooltip content="Define the rectangular area for removal using coordinates (top-left and bottom-right).">
+                                            <Label className="text-[10px] font-bold text-neutral-500 uppercase">Config. de Área</Label>
+                                            <Tooltip content="Defina a área retangular para remoção usando coordenadas (topo-esquerda e base-direita).">
                                                 <Info size={12} className="text-neutral-500 cursor-help" />
                                             </Tooltip>
                                         </div>
@@ -227,13 +227,13 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             }}
                                             className="text-[10px] text-neutral-500 hover:text-white transition-colors"
                                         >
-                                            Clear Area
+                                            Limpar Área
                                         </button>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-2">
-                                            <Label className="text-[10px] text-neutral-500 uppercase">Start (X, Y)</Label>
+                                            <Label className="text-[10px] text-neutral-500 uppercase">Início (X, Y)</Label>
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
@@ -256,7 +256,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-[10px] text-neutral-500 uppercase">End (X, Y)</Label>
+                                            <Label className="text-[10px] text-neutral-500 uppercase">Fim (X, Y)</Label>
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
@@ -286,7 +286,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                             {procChoices.items && (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2">
-                                        <Label className="text-xs text-neutral-400 mb-1">Items</Label>
+                                        <Label className="text-xs text-neutral-400 mb-1">Itens</Label>
                                         <Tooltip content={helpTexts[`${proc}_items`]}>
                                             <Info size={12} className="text-neutral-500 cursor-help" />
                                         </Tooltip>
@@ -359,7 +359,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Weight</Label>
+                                            <Label className="text-xs text-neutral-400">Peso</Label>
                                             <Tooltip content={helpTexts[`${proc}_weight`]}>
                                                 <Info size={12} className="text-neutral-500 cursor-help" />
                                             </Tooltip>
@@ -384,7 +384,7 @@ const ProcessorSettings: React.FC<ProcessorSettingsProps> = ({
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
-                                            <Label className="text-xs text-neutral-400">Blend</Label>
+                                            <Label className="text-xs text-neutral-400">Mistura</Label>
                                             <Tooltip content={helpTexts[`${proc}_blend`]}>
                                                 <Info size={12} className="text-neutral-500 cursor-help" />
                                             </Tooltip>

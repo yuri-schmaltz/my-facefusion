@@ -40,5 +40,44 @@ LOCALES : Locales =\
 			'mouth_purse_slider': 'FACE EDITOR MOUTH PURSE',
 			'mouth_smile_slider': 'FACE EDITOR MOUTH SMILE'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'model': 'escolha o modelo responsável por editar a face',
+			'eyebrow_direction': 'especifique a direção da sobrancelha',
+			'eye_gaze_horizontal': 'especifique o olhar horizontal',
+			'eye_gaze_vertical': 'especifique o olhar vertical',
+			'eye_open_ratio': 'especifique a proporção de abertura dos olhos',
+			'lip_open_ratio': 'especifique a proporção de abertura dos lábios',
+			'mouth_grim': 'especifique a careta da boca',
+			'mouth_pout': 'especifique o bico da boca',
+			'mouth_purse': 'especifique o franzir da boca',
+			'mouth_smile': 'especifique o sorriso da boca',
+			'mouth_position_horizontal': 'especifique a posição horizontal da boca',
+			'mouth_position_vertical': 'especifique a posição vertical da boca',
+			'head_pitch': 'especifique a inclinação da cabeça',
+			'head_yaw': 'especifique a guinada da cabeça',
+			'head_roll': 'especifique a rotação da cabeça'
+		},
+		'uis':
+		{
+			'eyebrow_direction_slider': 'DIREÇÃO DA SOBRANCELHA DO EDITOR FACIAL',
+			'eye_gaze_horizontal_slider': 'OLHAR HORIZONTAL DO EDITOR FACIAL',
+			'eye_gaze_vertical_slider': 'OLHAR VERTICAL DO EDITOR FACIAL',
+			'eye_open_ratio_slider': 'ABERTURA DOS OLHOS DO EDITOR FACIAL',
+			'head_pitch_slider': 'INCLINAÇÃO DA CABEÇA DO EDITOR FACIAL',
+			'head_roll_slider': 'ROTAÇÃO DA CABEÇA DO EDITOR FACIAL',
+			'head_yaw_slider': 'GUINADA DA CABEÇA DO EDITOR FACIAL',
+			'lip_open_ratio_slider': 'ABERTURA DOS LÁBIOS DO EDITOR FACIAL',
+			'model_dropdown': 'MODELO DO EDITOR FACIAL',
+			'mouth_grim_slider': 'CARETA DA BOCA DO EDITOR FACIAL',
+			'mouth_position_horizontal_slider': 'POSIÇÃO HORIZONTAL DA BOCA DO EDITOR FACIAL',
+			'mouth_position_vertical_slider': 'POSIÇÃO VERTICAL DA BOCA DO EDITOR FACIAL',
+			'mouth_pout_slider': 'BICO DA BOCA DO EDITOR FACIAL',
+			'mouth_purse_slider': 'FRANZIR DA BOCA DO EDITOR FACIAL',
+			'mouth_smile_slider': 'SORRISO DA BOCA DO EDITOR FACIAL'
+		}
 	}
 }

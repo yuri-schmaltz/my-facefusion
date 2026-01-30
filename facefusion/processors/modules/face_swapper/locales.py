@@ -16,5 +16,20 @@ LOCALES : Locales =\
 			'pixel_boost_dropdown': 'FACE SWAPPER PIXEL BOOST',
 			'weight_slider': 'FACE SWAPPER WEIGHT'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'model': 'escolha o modelo responsável pela troca da face',
+			'pixel_boost': 'escolha a resolução do pixel boost para o trocador de face',
+			'weight': 'especifique o grau de peso aplicado à face'
+		},
+		'uis':
+		{
+			'model_dropdown': 'MODELO DO TROCADOR DE FACE',
+			'pixel_boost_dropdown': 'PIXEL BOOST DO TROCADOR DE FACE',
+			'weight_slider': 'PESO DO TROCADOR DE FACE'
+		}
 	}
 }

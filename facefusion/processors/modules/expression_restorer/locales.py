@@ -16,5 +16,20 @@ LOCALES : Locales =\
 			'factor_slider': 'EXPRESSION RESTORER FACTOR',
 			'areas_checkbox_group': 'EXPRESSION RESTORER AREAS'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'model': 'escolha o modelo responsável por restaurar a expressão',
+			'factor': 'fator de restauração da expressão da face alvo',
+			'areas': 'escolha os itens usados para as áreas de expressão (opções: {choices})'
+		},
+		'uis':
+		{
+			'model_dropdown': 'MODELO DO RESTAURADOR DE EXPRESSÃO',
+			'factor_slider': 'FATOR DO RESTAURADOR DE EXPRESSÃO',
+			'areas_checkbox_group': 'ÁREAS DO RESTAURADOR DE EXPRESSÃO'
+		}
 	}
 }

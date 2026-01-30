@@ -794,7 +794,9 @@ def get_processor_choices():
         "face_accessory_manager": {
             "models": face_accessory_manager_choices.face_accessory_manager_models,
             "items": face_accessory_manager_choices.face_accessory_manager_items,
-            "blend_range": [ 0, 100 ]
+            "blend_range": [ 0, 100 ],
+            "padding_range": [ 0, 100 ],
+            "blur_range": [ 0, 100 ]
         }
     }
 

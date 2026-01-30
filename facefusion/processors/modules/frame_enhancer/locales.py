@@ -14,5 +14,18 @@ LOCALES : Locales =\
 			'blend_slider': 'FRAME ENHANCER BLEND',
 			'model_dropdown': 'FRAME ENHANCER MODEL'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'model': 'escolha o modelo responsável por aprimorar o quadro',
+			'blend': 'mistura do aprimorado no quadro anterior'
+		},
+		'uis':
+		{
+			'blend_slider': 'MISTURA DO APRIMORADOR DE QUADRO',
+			'model_dropdown': 'MODELO DO APRIMORADOR DE QUADRO'
+		}
 	}
 }

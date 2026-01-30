@@ -9,5 +9,13 @@ LOCALES : Locales =\
 			'face_relighter_type': 'method of face relighting',
 			'face_relighter_blend': 'intensity of the relighting'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'face_relighter_type': 'método de iluminação facial',
+			'face_relighter_blend': 'intensidade da iluminação'
+		}
 	}
 }

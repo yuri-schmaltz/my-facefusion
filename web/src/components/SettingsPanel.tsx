@@ -47,11 +47,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
     const tabs = [
         { id: "faces", label: "Faces", icon: User },
-        { id: "processors", label: "Processors", icon: Settings2 },
-        { id: "masks", label: "Masks", icon: Filter },
-        { id: "output", label: "Output", icon: Volume2 },
-        { id: "jobs", label: "Jobs", icon: Briefcase },
-        { id: "system", label: "System", icon: HardDrive },
+        { id: "processors", label: "Processadores", icon: Settings2 },
+        { id: "masks", label: "Máscaras", icon: Filter },
+        { id: "output", label: "Saída", icon: Volume2 },
+        { id: "jobs", label: "Tarefas", icon: Briefcase },
+        { id: "system", label: "Sistema", icon: HardDrive },
     ];
 
     // Jobs tab state
@@ -241,7 +241,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                                        Selection Strategy
+                                        Estratégia de Seleção
                                     </label>
                                     <Tooltip content={helpTexts['face_selector_mode']}>
                                         <Info size={14} className="text-neutral-400 cursor-help hover:text-neutral-300 transition-colors" />
@@ -253,9 +253,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 {/* Top Row: Reference, Single, Many */}
                                 <div className="toggle-group">
                                     {[
-                                        { id: 'reference', label: 'Reference', icon: Target },
-                                        { id: 'one', label: 'Single', icon: User },
-                                        { id: 'many', label: 'Many', icon: Users },
+                                        { id: 'reference', label: 'Referência', icon: Target },
+                                        { id: 'one', label: 'Único', icon: User },
+                                        { id: 'many', label: 'Muitos', icon: Users },
                                     ].map((mode) => (
                                         <button
                                             key={mode.id}
@@ -284,7 +284,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         )}
                                     >
                                         <Zap size={11} />
-                                        <span>Automatic</span>
+                                        <span>Automático</span>
                                     </button>
                                 </div>
                             </div>
@@ -294,7 +294,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="section-glass space-y-1 animate-in fade-in slide-in-from-top-1 mt-2">
                                     <div className="space-y-1">
                                         <label className="text-[9px] font-bold text-neutral-500 uppercase flex justify-between items-center">
-                                            <span>Similarity Threshold</span>
+                                            <span>Limite de Similaridade</span>
                                             <span className="text-emerald-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
                                         </label>
                                         <input
@@ -316,7 +316,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="flex items-center gap-2">
                                         <ArrowDownAz size={12} className="text-neutral-500" />
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                            Selection Order
+                                            Ordem de Seleção
                                         </label>
                                     </div>
                                     <select
@@ -327,7 +327,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         {(choices?.face_selector_orders || ["large-small", "small-large", "top-bottom", "bottom-top", "left-right", "right-left"]).map((order: string) => (
                                             <option key={order} value={order}>
                                                 {order.replace(/-/g, ' ').toUpperCase()}
-                                                {order === 'large-small' ? ' [Recommended]' : ''}
+                                                {order === 'large-small' ? ' [Recomendado]' : ''}
                                             </option>
                                         ))}</select>
                                 </div>
@@ -336,7 +336,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="flex items-center gap-2">
                                         <Target size={12} className="text-neutral-500" />
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                            Detector Model
+                                            Modelo de Detecção
                                         </label>
                                     </div>
                                     <select
@@ -346,11 +346,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     >
                                         {(() => {
                                             const modelHints: Record<string, string> = {
-                                                "yolo": "Standard • Recommended",
-                                                "scrfd": "Ultra Fast",
-                                                "retinaface": "Maximum Precision",
-                                                "yunet": "Lightweight",
-                                                "many": "Universal Detector"
+                                                "yolo": "Padrão • Recomendado",
+                                                "scrfd": "Ultra Rápido",
+                                                "retinaface": "Máxima Precisão",
+                                                "yunet": "Leve",
+                                                "many": "Detector Universal"
                                             };
                                             const getHint = (n: string) => {
                                                 const lower = n.toLowerCase();
@@ -378,7 +378,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Detector Size</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Tamanho do Detector</label>
                                     <select
                                         value={settings.face_detector_size || "640x640"}
                                         onChange={(e) => handleChange("face_detector_size", e.target.value)}
@@ -390,7 +390,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Landmarker Model</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Modelo Landmarker</label>
                                     <select
                                         value={settings.face_landmarker_model || "2dfan4"}
                                         onChange={(e) => handleChange("face_landmarker_model", e.target.value)}
@@ -399,7 +399,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         {(() => {
                                             const format = (n: string) => {
                                                 const name = n.replace(/2dfan4/i, '2D-FAN (4pts)').replace(/2dfan2/i, '2D-FAN (2pts)').toUpperCase();
-                                                const hint = n.includes('peppa') ? ' [Funny • Experimental]' : n.includes('many') ? ' [High Precision]' : ' [Standard]';
+                                                const hint = n.includes('peppa') ? ' [Engraçado • Experimental]' : n.includes('many') ? ' [Alta Precisão]' : ' [Padrão]';
                                                 return name + hint;
                                             };
                                             const items = choices?.face_landmarker_models || ["2dfan4"];
@@ -424,7 +424,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="flex items-center gap-2">
                                     <Users size={14} className={cn(settings.face_detector_ensemble ? "text-emerald-500" : "text-neutral-500")} />
                                     <span className={cn("text-[10px] font-bold uppercase", settings.face_detector_ensemble ? "text-white" : "text-neutral-400")}>
-                                        Ensemble Detection
+                                        Detecção em Conjunto
                                     </span>
                                 </div>
                                 <div className={cn(
@@ -438,7 +438,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </button>
                             <p className="text-[8px] text-neutral-500 mt-1 px-1 italic">
-                                Combines all models for maximum accuracy (Slower)
+                                Combina todos os modelos para precisão máxima (Mais lento)
                             </p>
                         </div>
 
@@ -447,19 +447,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="flex items-center gap-2">
                                 <Filter size={12} className="text-neutral-500" />
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                    Content Filtering
+                                    Filtragem de Conteúdo
                                 </label>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 {/* Gender Filter */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Gender</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Gênero</label>
                                     <div className="toggle-group">
                                         {[
-                                            { id: '', label: 'All' },
-                                            { id: 'male', label: 'Male' },
-                                            { id: 'female', label: 'Female' }
+                                            { id: '', label: 'Todos' },
+                                            { id: 'male', label: 'Masculino' },
+                                            { id: 'female', label: 'Feminino' }
                                         ].map((g: any) => (
                                             <button
                                                 key={g.id}
@@ -477,20 +477,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                                 {/* Race Filter */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Race</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Raça</label>
                                     <div className="relative">
                                         <select
                                             value={settings.face_selector_race || ""}
                                             onChange={(e) => handleChange("face_selector_race", e.target.value)}
                                             className="w-full bg-neutral-800/50 border border-neutral-700/50 text-white rounded-md pl-2 pr-6 py-1 text-xs focus:ring-1 focus:ring-emerald-500 outline-none h-7 appearance-none"
                                         >
-                                            <option value="">All Ethnicities</option>
-                                            <option value="white">White</option>
-                                            <option value="black">Black</option>
+                                            <option value="">Todas</option>
+                                            <option value="white">Branco</option>
+                                            <option value="black">Negro</option>
                                             <option value="latino">Latino</option>
-                                            <option value="asian">Asian</option>
-                                            <option value="indian">Indian</option>
-                                            <option value="arabic">Arabic</option>
+                                            <option value="asian">Asiático</option>
+                                            <option value="indian">Indiano</option>
+                                            <option value="arabic">Árabe</option>
                                         </select>
                                         <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
                                             <Filter size={10} strokeWidth={3} />
@@ -502,8 +502,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             {/* Age Range */}
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                    <span>Target Age Range</span>
-                                    <span className="text-neutral-300">{settings.face_selector_age_start} - {settings.face_selector_age_end} yrs</span>
+                                    <span>Faixa Etária Alvo</span>
+                                    <span className="text-neutral-300">{settings.face_selector_age_start} - {settings.face_selector_age_end} anos</span>
                                 </label>
                                 <div className="grid grid-cols-2 gap-2">
                                     <input
@@ -529,14 +529,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="flex items-center gap-2">
                                 <Sparkles size={12} className="text-neutral-500" />
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
-                                    Detector Settings
+                                    Configurações do Detector
                                 </label>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                        <span>Detector Score</span>
+                                        <span>Pontuação do Detector</span>
                                         <span className="text-emerald-400">{(settings.face_detector_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
@@ -549,7 +549,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                        <span>Landmarker Score</span>
+                                        <span>Pontuação Landmarker</span>
                                         <span className="text-emerald-400">{(settings.face_landmarker_score || 0.5).toFixed(2)}</span>
                                     </label>
                                     <input
@@ -563,7 +563,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Detector Angles</label>
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Ângulos do Detector</label>
                                 <div className="toggle-group">
                                     {[0, 90, 180, 270].map((angle: number) => (
                                         <button
@@ -581,7 +581,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Detector Margin (T R B L) </label>
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Margem do Detector (C D B E) </label>
                                 <div className="grid grid-cols-4 gap-2">
                                     {[0, 1, 2, 3].map((idx: number) => (
                                         <input
@@ -608,7 +608,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <label className="text-sm font-medium text-neutral-300 block">
-                                    Face Mask Types
+                                    Tipos de Máscara Facial
                                 </label>
                                 <Tooltip content={helpTexts['face_mask_types']}>
                                     <Info size={14} className="text-neutral-500 cursor-help" />
@@ -617,10 +617,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="flex flex-wrap gap-1.5">
                                 {(() => {
                                     const getHint = (n: string) => {
-                                        if (n === 'box') return 'Simple Rect';
-                                        if (n === 'occlusion') return 'Auto-Mask';
-                                        if (n === 'area') return 'Manual Sel.';
-                                        if (n === 'region') return 'Semantic';
+                                        if (n === 'box') return 'Ret. Simples';
+                                        if (n === 'occlusion') return 'Auto-Máscara';
+                                        if (n === 'area') return 'Sel. Manual';
+                                        if (n === 'region') return 'Semântica';
                                         return "";
                                     };
                                     return (choices?.face_mask_types || ['box', 'occlusion', 'area', 'region']).map((type: string) => (
@@ -645,7 +645,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         {/* Mask Models */}
                         <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-800/50">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Occluder Model</label>
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Modelo Oclusor</label>
                                 <select
                                     value={settings.face_occluder_model || "xseg_1"}
                                     onChange={(e) => handleChange("face_occluder_model", e.target.value)}
@@ -653,10 +653,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 >
                                     {(() => {
                                         const modelHints: Record<string, string> = {
-                                            "xseg_1": "Balanced • Fast",
-                                            "xseg_2": "Higher Quality",
-                                            "xseg_3": "Maximum Precision",
-                                            "many": "Universal Coverage"
+                                            "xseg_1": "Equilibrado • Rápido",
+                                            "xseg_2": "Alta Qualidade",
+                                            "xseg_3": "Máxima Precisão",
+                                            "many": "Cobertura Universal"
                                         };
                                         const getHint = (n: string) => {
                                             const lower = n.toLowerCase();
@@ -666,7 +666,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             return "";
                                         };
                                         const items = choices?.face_occluder_models || ["xseg_1"];
-                                        const groups: Record<string, string[]> = { "XSeg Models": [], "Special": [] };
+                                        const groups: Record<string, string[]> = { "Modelos XSeg": [], "Especial": [] };
                                         items.forEach((m: string) => {
                                             if (m === 'many') groups["Special"].push(m);
                                             else groups["XSeg Models"].push(m);
@@ -680,14 +680,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </select>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Parser Model</label>
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Modelo Analisador</label>
                                 <select
                                     value={settings.face_parser_model || "bisenet_resnet_34"}
                                     onChange={(e) => handleChange("face_parser_model", e.target.value)}
                                     className="w-full bg-neutral-800/50 border border-neutral-700/50 text-neutral-300 rounded-lg p-2 text-xs"
                                 >
                                     {(choices?.face_parser_models || ["bisenet_resnet_34"]).map((m: string) => {
-                                        const hint = m.includes('34') ? ' [High Precision • Slow]' : ' [Fast • Balanced]';
+                                        const hint = m.includes('34') ? ' [Alta Precisão • Lento]' : ' [Rápido • Equilibrado]';
                                         return (
                                             <option key={m} value={m}>
                                                 {m.replace(/bisenet_resnet_/i, 'BiseNet ').replace(/_/g, ' ').toUpperCase() + hint}
@@ -702,7 +702,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-3 pt-2 border-t border-neutral-800/50">
                             <div className="flex items-center gap-2">
                                 <label className="text-sm font-medium text-neutral-300 block">
-                                    Face Mask Regions
+                                    Regiões da Máscara Facial
                                 </label>
                                 <Tooltip content={helpTexts['face_mask_regions']}>
                                     <Info size={14} className="text-neutral-500 cursor-help" />
@@ -730,7 +730,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-800/50">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                    <span>Mask Blur</span>
+                                    <span>Desfoque da Máscara</span>
                                     <span className="text-emerald-400 font-mono">{(settings.face_mask_blur || 0.3).toFixed(2)}</span>
                                 </label>
                                 <input
@@ -742,7 +742,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase text-center block">Padding (T R B L) </label>
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase text-center block">Preenchimento (C D B E) </label>
                                 <div className="grid grid-cols-4 gap-1">
                                     {[0, 1, 2, 3].map((idx: number) => (
                                         <input
@@ -769,12 +769,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-neutral-400">
                                 <Volume2 size={16} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Audio Settings</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Configurações de Áudio</span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Audio Encoder</label>
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Codificador de Áudio</label>
                                         <select
                                             value={settings.output_audio_encoder || "aac"}
                                             onChange={(e) => handleChange("output_audio_encoder", e.target.value)}
@@ -787,7 +787,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </div>
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                            Audio Quality
+                                            Qualidade do Áudio
                                             <span className="text-emerald-500">{settings.output_audio_quality || 80}</span>
                                         </label>
                                         <input
@@ -801,7 +801,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                        Audio Volume
+                                        Volume do Áudio
                                         <span className="text-neutral-300">{settings.output_audio_volume || 100}%</span>
                                     </label>
                                     <input
@@ -814,14 +814,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                                 {/* Voice Extractor */}
                                 <div className="space-y-3 pt-2">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Voice Extractor</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Extrator de Voz</label>
                                     <select
                                         value={settings.voice_extractor_model || "kim_vocal_2"}
                                         onChange={(e) => handleChange("voice_extractor_model", e.target.value)}
                                         className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
                                     >
                                         {(choices?.voice_extractor_models || ["kim_vocal_1", "kim_vocal_2", "uwr_mdxnet"]).map((m: string) => {
-                                            const hint = m.includes('kim_vocal_2') ? ' [Best Separation]' : m.includes('uwr') ? ' [Fast • Lightweight]' : ' [Legacy]';
+                                            const hint = m.includes('kim_vocal_2') ? ' [Melhor Separação]' : m.includes('uwr') ? ' [Rápido • Leve]' : ' [Legado]';
                                             const label = m.replace(/_vocal_/i, ' Vocal v').replace(/uwr_mdxnet/i, 'MDX-Net (UWR)').toUpperCase();
                                             return (
                                                 <option key={m} value={m}>
@@ -838,13 +838,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-4 pt-4 border-t border-neutral-800">
                             <div className="flex items-center gap-2 text-neutral-400">
                                 <Sparkles size={16} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Video Settings</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Configurações de Vídeo</span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                            Video Encoder
+                                            Codificador de Vídeo
                                         </label>
                                         <select
                                             value={settings.output_video_encoder || "libx264"}
@@ -859,8 +859,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     else groups["Hardware (GPU)"].push(m);
                                                 });
                                                 const getHint = (n: string) => {
-                                                    if (n.includes('265') || n.includes('hevc')) return ' [High Efficiency]';
-                                                    if (n.includes('264')) return ' [Universally Compatible]';
+                                                    if (n.includes('265') || n.includes('hevc')) return ' [Alta Eficiência]';
+                                                    if (n.includes('264')) return ' [Universalmente Compatível]';
                                                     if (n.includes('nvenc')) return ' [NVIDIA Powered]';
                                                     return "";
                                                 };
@@ -873,7 +873,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         </select>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Video Preset</label>
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Predefinição de Vídeo</label>
                                         <select
                                             value={settings.output_video_preset || "veryfast"}
                                             onChange={(e) => handleChange("output_video_preset", e.target.value)}
@@ -889,7 +889,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
-                                            <span>Video Quality</span>
+                                            <span>Qualidade do Vídeo</span>
                                             <span className="text-emerald-500 font-bold">{settings.output_video_quality || 80}%</span>
                                         </label>
                                         <input
@@ -902,7 +902,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </div>
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
-                                            <span>Scale Factor</span>
+                                            <span>Fator de Escala</span>
                                             <span className="text-emerald-500 font-bold">{settings.output_video_scale || 1.0}x</span>
                                         </label>
                                         <input
@@ -916,7 +916,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
 
                                 <div className="space-y-3 pt-2">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Temp Frame Format</label>
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Formato de Quadro Temporário</label>
                                     <div className="flex bg-neutral-800 rounded-lg p-0.5">
                                         {(choices?.temp_frame_formats || ['png', 'bmp', 'jpg']).map((f: string) => (
                                             <button
@@ -945,8 +945,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2 text-neutral-400">
                                 <Briefcase size={16} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Job Queue</span>
-                                <span className="text-[10px] bg-neutral-800 px-2 py-0.5 rounded-full">{jobsList.length} jobs</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Fila de Tarefas</span>
+                                <span className="text-[10px] bg-neutral-800 px-2 py-0.5 rounded-full">{jobsList.length} tarefas</span>
                             </div>
                             <button
                                 onClick={loadJobs}
@@ -963,13 +963,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 onClick={selectAllJobs}
                                 className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap"
                             >
-                                <CheckSquare size={12} /> Select All
+                                <CheckSquare size={12} /> Selecionar Tudo
                             </button>
                             <button
                                 onClick={deselectAllJobs}
                                 className="px-3 py-1.5 text-[10px] font-bold uppercase bg-neutral-700 hover:bg-neutral-600 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap"
                             >
-                                <Square size={12} /> Deselect
+                                <Square size={12} /> Desmarcar
                             </button>
                             <div className="flex-1 min-w-[20px]" />
                             <button
@@ -982,7 +982,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
-                                <Play size={12} /> Submit ({selectedJobs.size})
+                                <Play size={12} /> Enviar ({selectedJobs.size})
                             </button>
                             <button
                                 onClick={unqueueSelectedJobs}
@@ -994,7 +994,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
-                                <Undo2 size={12} /> Unqueue
+                                <Undo2 size={12} /> Remover da Fila
                             </button>
                             <button
                                 onClick={deleteSelectedJobs}
@@ -1006,7 +1006,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
-                                <Trash2 size={12} /> Delete
+                                <Trash2 size={12} /> Excluir
                             </button>
                             <button
                                 onClick={runQueuedJobs}
@@ -1018,19 +1018,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
                                 )}
                             >
-                                <Rocket size={12} /> Run Queue ({jobsList.filter(j => j.status === 'queued').length})
+                                <Rocket size={12} /> Executar Fila ({jobsList.filter(j => j.status === 'queued').length})
                             </button>
                         </div>
 
                         {/* Job List - fills remaining height */}
                         <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
                             {isLoadingJobs ? (
-                                <div className="text-center py-8 text-neutral-500">Loading jobs...</div>
+                                <div className="text-center py-8 text-neutral-500">Carregando tarefas...</div>
                             ) : jobsList.length === 0 ? (
                                 <div className="text-center py-8 text-neutral-500">
                                     <Briefcase size={32} className="mx-auto mb-2 opacity-30" />
-                                    <p>No jobs in queue</p>
-                                    <p className="text-xs mt-1">Use the Wizard to create jobs</p>
+                                    <p>Nenhuma tarefa na fila</p>
+                                    <p className="text-xs mt-1">Use o Assistente para criar tarefas</p>
                                 </div>
                             ) : (
                                 jobsList.map((job: any) => {
@@ -1080,7 +1080,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                                                 {/* Steps count */}
                                                 <div className="text-[10px] text-neutral-500">
-                                                    {job.step_count} step{job.step_count !== 1 ? 's' : ''}
+                                                    {job.step_count} passo{job.step_count !== 1 ? 's' : ''}
                                                 </div>
 
                                                 {/* View Details Button */}
@@ -1090,7 +1090,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                         viewJobDetails(job.id);
                                                     }}
                                                     className="p-1.5 hover:bg-neutral-700 rounded transition-colors text-neutral-400 hover:text-white"
-                                                    title="View Details"
+                                                    title="Ver Detalhes"
                                                 >
                                                     <Eye size={14} />
                                                 </button>
@@ -1109,14 +1109,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-neutral-400">
                                 <SaveAll size={16} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Configuration Presets</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Predefinições de Configuração</span>
                             </div>
 
                             <div className="bg-neutral-950/30 rounded-lg p-3 border border-neutral-800 space-y-3">
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        placeholder="Preset Name (e.g. Ultra Quality)"
+                                        placeholder="Nome da Predefinição (ex: Ultra Qualidade)"
                                         value={newPresetName}
                                         onChange={(e) => setNewPresetName(e.target.value)}
                                         className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder:text-neutral-600"
@@ -1135,13 +1135,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         disabled={!newPresetName.trim()}
                                         className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        Save
+                                        Salvar
                                     </button>
                                 </div>
 
                                 {presets.length === 0 ? (
                                     <div className="text-center py-4 text-neutral-600 text-[10px] italic">
-                                        No saved presets found.
+                                        Nenhuma predefinição salva encontrada.
                                     </div>
                                 ) : (
                                     <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-1">
@@ -1155,14 +1155,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     <button
                                                         onClick={() => loadPreset(preset.id)}
                                                         className="p-1.5 hover:bg-emerald-500/20 text-emerald-500 rounded transition-colors"
-                                                        title="Load Preset"
+                                                        title="Carregar Predefinição"
                                                     >
                                                         <FolderDown size={14} />
                                                     </button>
                                                     <button
                                                         onClick={() => deletePreset(preset.id)}
                                                         className="p-1.5 hover:bg-red-500/20 text-red-500 rounded transition-colors"
-                                                        title="Delete Preset"
+                                                        title="Excluir Predefinição"
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
@@ -1177,7 +1177,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-neutral-400">
                                 <HardDrive size={16} />
-                                <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Desempenho e Ambiente</span>
                             </div>
 
                             <div className="grid grid-cols-1 gap-2">
@@ -1185,7 +1185,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="space-y-1 pb-2 border-b border-neutral-800/50">
                                     <div className="flex items-center gap-2">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                            Execution Provider
+                                            Provedor de Execução
                                         </label>
                                         <Tooltip content={helpTexts['execution_providers']}>
                                             <Info size={12} className="text-neutral-500 cursor-help" />
@@ -1222,7 +1222,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                     )}
                                                 >
                                                     <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
-                                                    {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
+                                                    {!isAvailable && <span className="text-[8px] text-red-500">Indisponível</span>}
                                                 </button>
                                             );
                                         })}
@@ -1237,7 +1237,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                                    Execution Threads
+                                                    Threads de Execução
                                                 </label>
                                                 <Tooltip content={helpTexts['execution_thread_count']}>
                                                     <Info size={12} className="text-neutral-500 cursor-help" />
@@ -1264,7 +1264,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="grid grid-cols-2 gap-2">
                                     {/* Memory Strategy */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Memory Strategy</label>
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Estratégia de Memória</label>
                                         <select
                                             value={settings.video_memory_strategy || "strict"}
                                             onChange={(e) => handleChange("video_memory_strategy", e.target.value)}
@@ -1278,7 +1278,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     {/* Memory Limit */}
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                            Memory Limit
+                                            Limite de Memória
                                             <span className="text-emerald-500">{settings.system_memory_limit || 0} GB</span>
                                         </label>
                                         <input
@@ -1294,7 +1294,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <div className="pt-2 border-t border-neutral-800/50">
                                     {/* Log Level */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Log Level</label>
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Nível de Log</label>
                                         <select
                                             value={settings.log_level || "info"}
                                             onChange={(e) => handleChange("log_level", e.target.value)}
@@ -1318,7 +1318,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 : "bg-neutral-800 border-neutral-700 text-neutral-400"
                                         )}
                                     >
-                                        <span className="text-xs font-bold uppercase">Keep Temp Files</span>
+                                        <span className="text-xs font-bold uppercase">Manter Arquivos Temporários</span>
                                         <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-emerald-600" : "bg-neutral-700")}>
                                             <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
                                         </div>
@@ -1330,7 +1330,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <div className="flex items-center gap-2">
                                         <Bug size={14} className="text-neutral-500" />
                                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                                            Hard Debugging
+                                            Depuração Avançada
                                         </label>
                                     </div>
                                     <button
@@ -1344,9 +1344,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     >
                                         <div className="flex flex-col items-start gap-1">
                                             <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
-                                                Export Failure Frames
+                                                Exportar Quadros com Falha
                                             </span>
-                                            <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
+                                            <span className="text-[10px] opacity-60">Salva quadros onde rostos não foram encontrados em .assets/debug</span>
                                         </div>
                                         <div className={cn(
                                             "w-10 h-5 rounded-full relative transition-colors",
@@ -1360,168 +1360,170 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </button>
                                 </div>
                             </div>
-                    )}
-
-                            {activeTab === "processors" && (
-                                <div className="animate-in fade-in slide-in-from-right-2 duration-300">
-                                    <ProcessorSettings
-                                        activeProcessors={activeProcessors}
-                                        currentSettings={settings}
-                                        onUpdate={onChange}
-                                        helpTexts={helpTexts}
-                                    />
-                                </div>
-                            )}
                         </div>
-                        <WizardModal
-                            isOpen={wizardOpen}
-                            onClose={() => setWizardOpen(false)}
-                            targetPath={currentTargetPath || settings.target_path || ""}
+                    </div>
+                )}
+
+                {activeTab === "processors" && (
+                    <div className="animate-in fade-in slide-in-from-right-2 duration-300">
+                        <ProcessorSettings
+                            activeProcessors={activeProcessors}
+                            currentSettings={settings}
+                            onUpdate={onChange}
+                            helpTexts={helpTexts}
                         />
+                    </div>
+                )}
+            </div>
+            <WizardModal
+                isOpen={wizardOpen}
+                onClose={() => setWizardOpen(false)}
+                targetPath={currentTargetPath || settings.target_path || ""}
+            />
 
-                        {/* Job Details Modal */}
-                        {selectedJobDetails && (
-                            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                                <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-                                    {/* Header */}
-                                    <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                                        <div className="flex items-center gap-3">
-                                            <FileText size={20} className="text-emerald-500" />
-                                            <div>
-                                                <h3 className="text-lg font-bold text-white">Job Details</h3>
-                                                <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={closeJobDetails}
-                                            className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
-                                        >
-                                            <X size={20} />
-                                        </button>
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                        {/* Status & Info */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-neutral-800/50 rounded-lg p-3">
-                                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                                    <Info size={12} />
-                                                    <span className="text-[10px] uppercase font-bold">Status</span>
-                                                </div>
-                                                <span className={cn(
-                                                    "text-sm font-bold uppercase",
-                                                    selectedJobDetails.status === 'drafted' && "text-yellow-500",
-                                                    selectedJobDetails.status === 'queued' && "text-emerald-500",
-                                                    selectedJobDetails.status === 'completed' && "text-green-500",
-                                                    selectedJobDetails.status === 'failed' && "text-emerald-500",
-                                                )}>
-                                                    {selectedJobDetails.status}
-                                                </span>
-                                            </div>
-                                            <div className="bg-neutral-800/50 rounded-lg p-3">
-                                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                                    <Clock size={12} />
-                                                    <span className="text-[10px] uppercase font-bold">Created</span>
-                                                </div>
-                                                <span className="text-sm text-white">
-                                                    {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Steps */}
-                                        <div>
-                                            <div className="flex items-center gap-2 text-neutral-400 mb-2">
-                                                <Cpu size={14} />
-                                                <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
-                                            </div>
-                                            <div className="space-y-3">
-                                                {selectedJobDetails.steps?.map((step: any, idx: number) => (
-                                                    <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <span className="text-xs font-bold text-white">Step {idx + 1}</span>
-                                                            <span className={cn(
-                                                                "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
-                                                                step.status === 'completed' ? "bg-green-500/20 text-green-500" :
-                                                                    step.status === 'failed' ? "bg-emerald-500/20 text-emerald-500" :
-                                                                        "bg-neutral-700 text-neutral-400"
-                                                            )}>
-                                                                {step.status}
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Target & Output */}
-                                                        <div className="space-y-1 text-[10px]">
-                                                            {step.target_path && (
-                                                                <div className="flex gap-2">
-                                                                    <span className="text-neutral-500 w-16">Target:</span>
-                                                                    <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
-                                                                        {step.target_path.split('/').pop()}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                            {step.output_path && (
-                                                                <div className="flex gap-2">
-                                                                    <span className="text-neutral-500 w-16">Output:</span>
-                                                                    <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
-                                                                        {step.output_path.split('/').pop()}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Processors */}
-                                                            {step.processors?.length > 0 && (
-                                                                <div className="flex gap-2 mt-2">
-                                                                    <span className="text-neutral-500 w-16">Processors:</span>
-                                                                    <div className="flex flex-wrap gap-1">
-                                                                        {step.processors.map((p: string, i: number) => (
-                                                                            <span key={i} className="px-1.5 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-[9px]">
-                                                                                {p}
-                                                                            </span>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Source Paths */}
-                                                            {step.source_paths?.length > 0 && (
-                                                                <div className="flex gap-2 mt-1">
-                                                                    <span className="text-neutral-500 w-16">Sources:</span>
-                                                                    <span className="text-neutral-300">
-                                                                        {step.source_paths.length} file(s)
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Frame Range */}
-                                                            {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
-                                                                <div className="flex gap-2 mt-1">
-                                                                    <span className="text-neutral-500 w-16">Frames:</span>
-                                                                    <span className="text-neutral-300">
-                                                                        {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Footer */}
-                                    <div className="p-4 border-t border-neutral-700 flex justify-end">
-                                        <button
-                                            onClick={closeJobDetails}
-                                            className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
+            {/* Job Details Modal */}
+            {selectedJobDetails && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                            <div className="flex items-center gap-3">
+                                <FileText size={20} className="text-emerald-500" />
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">Detalhes da Tarefa</h3>
+                                    <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
                                 </div>
                             </div>
-                        )}
+                            <button
+                                onClick={closeJobDetails}
+                                className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {/* Status & Info */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-neutral-800/50 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                        <Info size={12} />
+                                        <span className="text-[10px] uppercase font-bold">Status</span>
+                                    </div>
+                                    <span className={cn(
+                                        "text-sm font-bold uppercase",
+                                        selectedJobDetails.status === 'drafted' && "text-yellow-500",
+                                        selectedJobDetails.status === 'queued' && "text-emerald-500",
+                                        selectedJobDetails.status === 'completed' && "text-green-500",
+                                        selectedJobDetails.status === 'failed' && "text-emerald-500",
+                                    )}>
+                                        {selectedJobDetails.status}
+                                    </span>
+                                </div>
+                                <div className="bg-neutral-800/50 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                        <Clock size={12} />
+                                        <span className="text-[10px] uppercase font-bold">Criado</span>
+                                    </div>
+                                    <span className="text-sm text-white">
+                                        {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Steps */}
+                            <div>
+                                <div className="flex items-center gap-2 text-neutral-400 mb-2">
+                                    <Cpu size={14} />
+                                    <span className="text-xs uppercase font-bold">Passos ({selectedJobDetails.step_count})</span>
+                                </div>
+                                <div className="space-y-3">
+                                    {selectedJobDetails.steps?.map((step: any, idx: number) => (
+                                        <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-xs font-bold text-white">Passo {idx + 1}</span>
+                                                <span className={cn(
+                                                    "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
+                                                    step.status === 'completed' ? "bg-green-500/20 text-green-500" :
+                                                        step.status === 'failed' ? "bg-emerald-500/20 text-emerald-500" :
+                                                            "bg-neutral-700 text-neutral-400"
+                                                )}>
+                                                    {step.status}
+                                                </span>
+                                            </div>
+
+                                            {/* Target & Output */}
+                                            <div className="space-y-1 text-[10px]">
+                                                {step.target_path && (
+                                                    <div className="flex gap-2">
+                                                        <span className="text-neutral-500 w-16">Alvo:</span>
+                                                        <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
+                                                            {step.target_path.split('/').pop()}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {step.output_path && (
+                                                    <div className="flex gap-2">
+                                                        <span className="text-neutral-500 w-16">Saída:</span>
+                                                        <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
+                                                            {step.output_path.split('/').pop()}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Processors */}
+                                                {step.processors?.length > 0 && (
+                                                    <div className="flex gap-2 mt-2">
+                                                        <span className="text-neutral-500 w-16">Processadores:</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {step.processors.map((p: string, i: number) => (
+                                                                <span key={i} className="px-1.5 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-[9px]">
+                                                                    {p}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Source Paths */}
+                                                {step.source_paths?.length > 0 && (
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className="text-neutral-500 w-16">Origens:</span>
+                                                        <span className="text-neutral-300">
+                                                            {step.source_paths.length} arquivo(s)
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Frame Range */}
+                                                {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className="text-neutral-500 w-16">Quadros:</span>
+                                                        <span className="text-neutral-300">
+                                                            {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t border-neutral-700 flex justify-end">
+                            <button
+                                onClick={closeJobDetails}
+                                className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
+                            >
+                                Fechar
+                            </button>
+                        </div>
                     </div>
-                );
+                </div>
+            )}
+        </div>
+    );
 };

@@ -14,5 +14,18 @@ LOCALES : Locales =\
 			'direction_slider': 'AGE MODIFIER DIRECTION',
 			'model_dropdown': 'AGE MODIFIER MODEL'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'model': 'escolha o modelo responsável pelo envelhecimento da face',
+			'direction': 'especifique a direção em que a idade deve ser modificada'
+		},
+		'uis':
+		{
+			'direction_slider': 'DIREÇÃO DO MODIFICADOR DE IDADE',
+			'model_dropdown': 'MODELO DO MODIFICADOR DE IDADE'
+		}
 	}
 }

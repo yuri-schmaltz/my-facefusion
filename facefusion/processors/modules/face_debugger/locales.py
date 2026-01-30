@@ -12,5 +12,16 @@ LOCALES : Locales =\
 		{
 			'items_checkbox_group': 'FACE DEBUGGER ITEMS'
 		}
+	},
+	'pt':
+	{
+		'help':
+		{
+			'items': 'carregar um ou múltiplos processadores (opções: {choices})'
+		},
+		'uis':
+		{
+			'items_checkbox_group': 'ITENS DO DEPURADOR FACIAL'
+		}
 	}
 }

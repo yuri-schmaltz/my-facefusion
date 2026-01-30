@@ -175,7 +175,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                 }}
             >
                 <div className="absolute top-0 right-0 -mt-6 bg-emerald-600 text-white text-[9px] px-1 py-0.5 rounded font-bold">
-                    REMOVE
+                    REMOVER
                 </div>
             </div>
         );
@@ -227,7 +227,7 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                     <div className="z-20 absolute top-3 right-3 flex gap-2">
                         {isMasking && (
                             <div className="px-2 py-1.5 bg-emerald-600/90 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5 animate-pulse border border-blue-400">
-                                <Eraser size={12} /> DRAW MASK
+                                <Eraser size={12} /> DESENHAR
                             </div>
                         )}
 
@@ -257,9 +257,10 @@ export const MediaPreview: React.FC<MediaPreviewProps> = ({
                 <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none">
                     <Upload className="text-neutral-600 mb-4 group-hover:text-emerald-500 transition-colors" size={32} />
                     <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">{label}</p>
-                    <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+                    <p className="text-[10px] text-neutral-600 mt-1 italic">Imagem ou Vídeo</p>
                 </div>
             )}
         </div>
     );
+
 };

@@ -202,12 +202,12 @@ function App() {
       if (["queued", "processing", "running"].includes(res.data.status)) {
         setJobId(res.data.job_id);
       } else {
-        addToast("Unexpected job status: " + res.data.status, 'warning');
+        addToast("Status inesperado da tarefa: " + res.data.status, 'warning');
         setIsProcessing(false);
       }
     } catch (err: any) {
       console.error(err);
-      addToast(`Processing failed: ${err.response?.data?.detail || err.message}`, 'error');
+      addToast(`Falha no processamento: ${err.response?.data?.detail || err.message}`, 'error');
       setIsProcessing(false);
     }
   };
@@ -222,8 +222,8 @@ function App() {
           {/* Processor Tabs */}
           <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
             {[
-              { id: "face", label: "Face & Portrait", icon: User },
-              { id: "frame", label: "Frame & Scene", icon: Film }
+              { id: "face", label: "Face e Retrato", icon: User },
+              { id: "frame", label: "Quadro e Cena", icon: Film }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -375,13 +375,13 @@ function App() {
                 }}
                 className="flex-1 py-2.5 font-bold rounded-lg bg-emerald-600/90 text-white hover:bg-emerald-600 transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 backdrop-blur-sm text-sm"
               >
-                <X size={14} /> Confirm
+                <X size={14} /> Confirmar
               </button>
               <button
                 onClick={() => setShowStopConfirm(false)}
                 className="px-4 py-2.5 font-bold rounded-lg bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition text-sm"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
           ) : (
@@ -415,7 +415,7 @@ function App() {
                 <Play size={14} className="fill-current" />
               )}
               <span className="z-10 relative uppercase tracking-wide text-xs">
-                {isProcessing ? `Stop Processing (${Math.round(progress)}%)` : "Start Processing"}
+                {isProcessing ? `Parar Processamento (${Math.round(progress)}%)` : "INICIAR PROCESSAMENTO"}
               </span>
             </button>
           )}
@@ -429,8 +429,8 @@ function App() {
         <div className="flex-1 flex flex-col overflow-hidden bg-neutral-900 border border-neutral-800 rounded-xl min-h-0">
           <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
             {[
-              { id: 'source', label: 'Source', icon: User },
-              { id: 'target', label: 'Target', icon: Film }
+              { id: 'source', label: 'Origem', icon: User },
+              { id: 'target', label: 'Alvo', icon: Film }
             ].map((tab: any) => (
               <button
                 key={tab.id}
@@ -509,8 +509,8 @@ function App() {
                       className="flex flex-col items-center justify-center w-full h-full"
                     >
                       <Upload className="text-neutral-600 mb-4 group-hover:text-emerald-500 transition-colors" size={32} />
-                      <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
-                      <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
+                      <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Selecionar Origem</p>
+                      <p className="text-[10px] text-neutral-600 mt-1 italic">Imagem ou Vídeo</p>
                     </div>
                   )}
                 </div>
@@ -524,7 +524,7 @@ function App() {
                   <MediaPreview
                     file={targetPath}
                     type="target"
-                    label="Select Target"
+                    label="Selecionar Alvo"
                     onUpload={() => openBrowser("target")}
                     onClear={() => {
                       setTargetPath(null);
@@ -565,7 +565,7 @@ function App() {
           {/* Header for Output */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800 bg-neutral-950/20">
             <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-2">
-              <Play size={14} /> Output Preview
+              <Play size={14} /> Pré-visualização
             </span>
 
             {previewUrl && (
@@ -601,19 +601,19 @@ function App() {
                   download
                   className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs"
                 >
-                  <Upload size={14} className="rotate-180" /> Download
+                  <Upload size={14} className="rotate-180" /> Baixar
                 </a>
               </div>
             ) : isProcessing ? (
               <div className="flex flex-col items-center gap-4 text-neutral-400 w-full max-w-md px-8 scale-90">
                 <div className="flex flex-col items-center gap-2">
                   <Loader2 size={32} className="animate-spin text-emerald-500" />
-                  <p className="text-sm font-medium animate-pulse">Processing...</p>
+                  <p className="text-sm font-medium animate-pulse">Processando...</p>
                 </div>
 
                 <div className="w-full space-y-1">
                   <div className="flex justify-between text-[10px] uppercase font-bold text-neutral-500">
-                    <span>Progress</span>
+                    <span>Progresso</span>
                     <span>{Math.round(progress)}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
@@ -623,7 +623,7 @@ function App() {
                     />
                   </div>
                   <p className="text-center text-[10px] text-neutral-600">
-                    {jobStatus === 'queued' ? 'Waiting...' : 'Rendering...'}
+                    {jobStatus === 'queued' ? 'Aguardando...' : 'Renderizando...'}
                   </p>
                 </div>
               </div>
@@ -632,13 +632,13 @@ function App() {
                 <img src={previewUrl} className="w-full h-full object-contain" />
                 <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 flex items-center gap-1.5 pointer-events-none">
                   <Sparkles size={10} className="text-emerald-500" />
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-white/90">Preview</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-white/90">Prévia</span>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-neutral-700 space-y-2">
                 <Play size={32} className="opacity-20" />
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Ready</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Pronto</p>
               </div>
             )}
           </div>
