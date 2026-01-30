@@ -172,13 +172,29 @@ def get_many_faces(vision_frames : List[VisionFrame]) -> List[Face]:
 					set_static_faces(vision_frame, faces)
 
 			# 2. Face Tracking/Consistency (Link with temporal cache)
-			if many_faces:
-				ANALYSIS_STATS['faces_detected'] += len(many_faces)
-				if TEMPORAL_CACHE:
-					for face in many_faces:
-						for temp_face in TEMPORAL_CACHE:
-							if calculate_iou(face.bounding_box, temp_face.bounding_box) > 0.8:
-								pass
+			if many_faces and TEMPORAL_CACHE:
+				for face in many_faces:
+					best_iou = 0
+					best_temp_face = None
+					for temp_face in TEMPORAL_CACHE:
+						iou = calculate_iou(face.bounding_box, temp_face.bounding_box)
+						if iou > best_iou:
+							best_iou = iou
+							best_temp_face = temp_face
+					
+					if best_iou > 0.5: # Sufficient overlap to consider same person
+						# Inherit characteristics or ID if implemented later
+						pass
+				
+				# Smart Fallback: If we lost faces from last frame, try harder
+				if len(many_faces) < len(TEMPORAL_CACHE) and not state_manager.get_item('face_detector_ensemble'):
+					with DETECTION_LOCK:
+						# Force a hierarchical fallback even if we found some faces
+						additional_faces = detect_with_hierarchy(vision_frame, force_fallback = True)
+						for add_face in additional_faces:
+							# Only add if it doesn't overlap significantly with already found faces
+							if not any(calculate_iou(add_face.bounding_box, f.bounding_box) > 0.5 for f in many_faces):
+								many_faces.append(add_face)
 
 			if many_faces:
 				TEMPORAL_CACHE = many_faces
@@ -234,7 +250,7 @@ def detect_with_ensemble(vision_frame : VisionFrame) -> List[Face]:
 	
 	if all_bounding_boxes:
 		ANALYSIS_STATS['ensemble_matches'] += 1
-		faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5, original_score)
+		faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
 		state_manager.set_item('face_detector_model', original_model)
 		return faces
 	
@@ -242,11 +258,13 @@ def detect_with_ensemble(vision_frame : VisionFrame) -> List[Face]:
 	return []
 
 
-def detect_with_hierarchy(vision_frame : VisionFrame) -> List[Face]:
+def detect_with_hierarchy(vision_frame : VisionFrame, force_fallback : bool = False) -> List[Face]:
 	# 1. Initial try
 	all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
-	if all_bounding_boxes:
-		return create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+	faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+	
+	if faces and not force_fallback:
+		return faces
 
 	# 2. Fallback Models (Hierarchical)
 	ANALYSIS_STATS['fallbacks_triggered'] += 1
@@ -256,16 +274,23 @@ def detect_with_hierarchy(vision_frame : VisionFrame) -> List[Face]:
 			state_manager.set_item('face_detector_model', fallback_model)
 			all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
 			if all_bounding_boxes:
-				faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+				new_faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
 				state_manager.set_item('face_detector_model', original_model)
-				return faces
+				if force_fallback:
+					faces.extend([f for f in new_faces if not any(calculate_iou(f.bounding_box, existing.bounding_box) > 0.5 for existing in faces)])
+				else:
+					return new_faces
 	state_manager.set_item('face_detector_model', original_model)
 
 	# 3. Auto-Resolution Fallback
 	for fallback_res in FALLBACK_RESOLUTIONS:
 		all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, fallback_res)
 		if all_bounding_boxes:
-			return create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+			new_faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5)
+			if force_fallback:
+				faces.extend([f for f in new_faces if not any(calculate_iou(f.bounding_box, existing.bounding_box) > 0.5 for existing in faces)])
+			else:
+				return new_faces
 
 	# 4. Dynamic Threshold (Lower score)
 	original_score = state_manager.get_item('face_detector_score')
@@ -273,12 +298,15 @@ def detect_with_hierarchy(vision_frame : VisionFrame) -> List[Face]:
 		state_manager.set_item('face_detector_score', 0.2)
 		all_bounding_boxes, all_face_scores, all_face_landmarks_5 = detect_at_resolution(vision_frame, state_manager.get_item('face_detector_size'))
 		if all_bounding_boxes:
-			faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5, 0.2)
+			new_faces = create_faces(vision_frame, all_bounding_boxes, all_face_scores, all_face_landmarks_5, 0.2)
 			state_manager.set_item('face_detector_score', original_score)
-			return faces
+			if force_fallback:
+				faces.extend([f for f in new_faces if not any(calculate_iou(f.bounding_box, existing.bounding_box) > 0.5 for existing in faces)])
+				return faces
+			return new_faces
 		state_manager.set_item('face_detector_score', original_score)
 
-	return []
+	return faces
 
 
 def detect_at_resolution(vision_frame : VisionFrame, face_detector_size : str) -> Tuple[List[BoundingBox], List[Score], List[FaceLandmark5]]:

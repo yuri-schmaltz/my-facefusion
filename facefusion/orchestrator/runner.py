@@ -41,11 +41,22 @@ class Runner:
     def on_progress(self, progress: float, phase: str = "") -> None:
         """
         Progress callback called by the pipeline.
-        
-        Args:
-            progress: Progress value (0.0 to 1.0)
-            phase: Current processing phase (optional)
+        With throttling to prevent flooding the event bus.
         """
+        import time
+        now = time.time()
+        
+        # Initialize last_update_time if it doesn't exist
+        if not hasattr(self, '_last_update_time'):
+            self._last_update_time = 0
+            
+        # Limit updates to ~5 per second (0.2s interval)
+        # Always allow progress == 1.0 (completion)
+        if progress < 1.0 and (now - self._last_update_time) < 0.2:
+            return
+            
+        self._last_update_time = now
+        
         # Calculate global progress with weighting
         from facefusion import state_manager
         current_phase = state_manager.get_item('current_job_phase')

@@ -40,6 +40,18 @@ async def lifespan(app: FastAPI):
     job_manager.init_jobs(jobs_path)
     load_wizard_state()
     
+    # Initialize Orchestrator and register event loop
+    orch = get_orchestrator()
+    try:
+        loop = anyio.get_current_task().generator.gi_frame.f_code.co_name # complex way to get loop in async
+        # simpler way in modern fastapi lifespan is just use asyncio.get_running_loop()
+        import asyncio
+        loop = asyncio.get_running_loop()
+        orch.event_bus.set_event_loop(loop)
+        logger.debug(f"Registered event loop {loop} with orchestrator", __name__)
+    except Exception as e:
+        logger.error(f"Failed to register event loop: {e}", __name__)
+    
     
     # Initialize logger
     logger.init(state_manager.get_item('log_level') or 'info')
@@ -781,7 +793,9 @@ def get_global_choices():
         "face_mask_areas": choices.face_mask_areas,
         "voice_extractor_models": choices.voice_extractor_models,
         "temp_frame_formats": choices.temp_frame_formats,
+        "output_video_encoders": choices.output_video_encoders,
         "output_video_presets": choices.output_video_presets,
+        "output_audio_encoders": choices.output_audio_encoders,
         "video_memory_strategies": choices.video_memory_strategies,
         "log_levels": choices.log_levels,
         "ui_workflows": choices.ui_workflows,

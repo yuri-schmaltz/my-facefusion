@@ -1,5 +1,5 @@
 import React from "react";
-import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2, X, Eye, FileText, Clock, Cpu } from "lucide-react";
+import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2, X, Eye, FileText, Clock, Cpu, Bug } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { WizardModal } from "./Wizard/WizardModal";
@@ -158,6 +158,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
     const closeJobDetails = () => {
         setSelectedJobDetails(null);
+    };
+
+    const toggleExecutionProvider = (item: string) => {
+        const current = (settings.execution_providers || []);
+        const newer = current.includes(item)
+            ? current.filter((i: string) => i !== item)
+            : [...current, item];
+
+        // Ensure at least 'cpu' is always there if nothing else
+        if (newer.length === 0) newer.push('cpu');
+
+        onChange('execution_providers', newer);
     };
 
     const toggleArrayItem = (key: string, item: string) => {
@@ -394,6 +406,38 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Ensemble Detection Toggle */}
+                        <div className="pt-2">
+                            <button
+                                onClick={() => handleChange("face_detector_ensemble", !settings.face_detector_ensemble)}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-2 rounded-lg border transition-all h-9 px-3",
+                                    settings.face_detector_ensemble
+                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                        : "bg-neutral-800/30 border-neutral-700/50 text-neutral-400"
+                                )}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Users size={14} className={cn(settings.face_detector_ensemble ? "text-blue-500" : "text-neutral-500")} />
+                                    <span className={cn("text-[10px] font-bold uppercase", settings.face_detector_ensemble ? "text-white" : "text-neutral-400")}>
+                                        Ensemble Detection
+                                    </span>
+                                </div>
+                                <div className={cn(
+                                    "w-8 h-4 rounded-full relative transition-colors",
+                                    settings.face_detector_ensemble ? "bg-blue-500" : "bg-neutral-700"
+                                )}>
+                                    <div className={cn(
+                                        "absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all",
+                                        settings.face_detector_ensemble ? "left-4.5" : "left-0.5"
+                                    )} style={{ left: settings.face_detector_ensemble ? '18px' : '2px' }} />
+                                </div>
+                            </button>
+                            <p className="text-[8px] text-neutral-500 mt-1 px-1 italic">
+                                Combines all models for maximum accuracy (Slower)
+                            </p>
                         </div>
 
                         {/* Face Filter */}
@@ -892,6 +936,119 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         ))}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "system" && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="flex items-center gap-2 text-neutral-400">
+                            <HardDrive size={16} />
+                            <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6">
+                            {/* Execution Provider */}
+                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
+                                <div className="flex items-center gap-2">
+                                    <label className="text-[10px] font-bold text-neutral-500 uppercase block">
+                                        Execution Provider
+                                    </label>
+                                    <Tooltip content={helpTexts['execution_providers']}>
+                                        <Info size={12} className="text-neutral-500 cursor-help" />
+                                    </Tooltip>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
+                                        const current = settings.execution_providers || [];
+                                        const isSelected = current.includes(provider);
+                                        const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
+
+                                        const labels: Record<string, string> = {
+                                            cpu: "CPU Standard",
+                                            cuda: "NVIDIA CUDA",
+                                            tensorrt: "NVIDIA TensorRT",
+                                            rocm: "AMD ROCm",
+                                            directml: "DirectML (Windows)",
+                                            openvino: "Intel OpenVINO",
+                                            coreml: "Apple CoreML"
+                                        };
+                                        return (
+                                            <button
+                                                key={provider}
+                                                onClick={() => toggleExecutionProvider(provider)}
+                                                disabled={!isAvailable}
+                                                className={cn(
+                                                    "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
+                                                    isSelected
+                                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                        : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
+                                                    !isAvailable && "opacity-50 cursor-not-allowed"
+                                                )}
+                                            >
+                                                <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
+                                                {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Temp Frame Format */}
+                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
+                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Temp Frame Format</label>
+                                <div className="flex bg-neutral-800 rounded-lg p-0.5">
+                                    {(choices?.temp_frame_formats || ['png', 'bmp', 'jpg']).map((f: string) => (
+                                        <button
+                                            key={f}
+                                            onClick={() => handleChange("temp_frame_format", f)}
+                                            className={cn(
+                                                "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
+                                                settings.temp_frame_format === f
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-neutral-500 hover:text-neutral-300"
+                                            )}
+                                        >
+                                            {f.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Hard Debugging / Troubleshooting */}
+                            <div className="space-y-4 pt-4 border-t border-neutral-800/50">
+                                <div className="flex items-center gap-2">
+                                    <Bug size={14} className="text-neutral-500" />
+                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                        Hard Debugging
+                                    </label>
+                                </div>
+                                <button
+                                    onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
+                                    className={cn(
+                                        "w-full flex items-center justify-between p-3 rounded-xl border transition-all",
+                                        settings.export_problem_frames
+                                            ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                            : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
+                                    )}
+                                >
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
+                                            Export Failure Frames
+                                        </span>
+                                        <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
+                                    </div>
+                                    <div className={cn(
+                                        "w-10 h-5 rounded-full relative transition-colors",
+                                        settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
+                                    )}>
+                                        <div className={cn(
+                                            "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
+                                            settings.export_problem_frames ? "left-6" : "left-1"
+                                        )} />
+                                    </div>
+                                </button>
                             </div>
                         </div>
                     </div>
