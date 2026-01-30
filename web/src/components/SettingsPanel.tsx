@@ -1106,15 +1106,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 )}
 
                 {activeTab === "system" && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="space-y-2 animate-in fade-in slide-in-from-left-2 duration-300">
                         <div className="flex items-center gap-2 text-neutral-400">
                             <HardDrive size={16} />
                             <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 gap-2">
                             {/* Execution Provider */}
-                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
+                            <div className="space-y-1 pb-2 border-b border-neutral-800/50">
                                 <div className="flex items-center gap-2">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase block">
                                         Execution Provider
@@ -1123,7 +1123,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         <Info size={12} className="text-neutral-500 cursor-help" />
                                     </Tooltip>
                                 </div>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-1">
                                     {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
                                         const current = settings.execution_providers || [];
                                         const isSelected = current.includes(provider);
@@ -1139,68 +1139,33 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             coreml: "Apple CoreML"
                                         };
 
-                                        const hints: Record<string, string> = {
-                                            cpu: "Slowest • Universal",
-                                            cuda: "Recommended for NVIDIA",
-                                            tensorrt: "Fastest • Long Load",
-                                            rocm: "Best for AMD Linux",
-                                            directml: "Standard for Windows GPUs",
-                                            openvino: "Best for Intel Arc/CPUs",
-                                            coreml: "Best for Silicon Mac"
-                                        };
+
                                         return (
                                             <button
                                                 key={provider}
                                                 disabled={!isAvailable}
-                                                onClick={() => {
-                                                    const newValue = current.includes(provider)
-                                                        ? current.filter((p: string) => p !== provider)
-                                                        : [...current, provider];
-                                                    onChange("execution_providers", newValue);
-                                                }}
+                                                onClick={() => toggleExecutionProvider(provider)}
                                                 className={cn(
-                                                    "px-2 py-2 text-[10px] font-bold rounded-lg border text-center transition-all",
+                                                    "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
                                                     isSelected
-                                                        ? "bg-blue-600/20 border-blue-500 text-blue-500"
-                                                        : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-300",
-                                                    !isAvailable && "opacity-20 cursor-not-allowed grayscale border-neutral-800"
+                                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                        : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
+                                                    !isAvailable && "opacity-50 cursor-not-allowed"
                                                 )}
                                             >
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] font-bold">{labels[provider]}</span>
-                                                    <span className="text-[8px] opacity-60 font-medium">{hints[provider]}</span>
-                                                </div>
-                                                {!isAvailable && <span className="block text-[8px] opacity-50">N/A</span>}
+                                                <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
+                                                {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
                                             </button>
-                                        )
+                                        );
                                     })}
                                 </div>
                             </div>
 
-                            {/* Temp Frame Format */}
-                            <div className="space-y-3 pb-4 border-b border-neutral-800/50">
-                                <label className="text-[10px] font-bold text-neutral-500 uppercase">Temp Frame Format</label>
-                                <div className="flex bg-neutral-800 rounded-lg p-0.5">
-                                    {(choices?.temp_frame_formats || ['png', 'bmp', 'jpg']).map((f: string) => (
-                                        <button
-                                            key={f}
-                                            onClick={() => handleChange("temp_frame_format", f)}
-                                            className={cn(
-                                                "flex-1 py-1 text-[10px] font-bold rounded-md transition-all",
-                                                settings.temp_frame_format === f
-                                                    ? "bg-blue-600 text-white"
-                                                    : "text-neutral-500 hover:text-neutral-300"
-                                            )}
-                                        >
-                                            {f.toUpperCase()}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+
+                            <div className="grid grid-cols-2 gap-2">
                                 {/* Execution Threads */}
-                                <div className="space-y-3">
+                                <div className="space-y-1">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <label className="text-[10px] font-bold text-neutral-500 uppercase block">
@@ -1228,9 +1193,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-2">
                                 {/* Memory Strategy */}
-                                <div className="space-y-3">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Memory Strategy</label>
                                     <select
                                         value={settings.video_memory_strategy || "strict"}
@@ -1243,7 +1208,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </select>
                                 </div>
                                 {/* Memory Limit */}
-                                <div className="space-y-3">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
                                         Memory Limit
                                         <span className="text-blue-500">{settings.system_memory_limit || 0} GB</span>
@@ -1258,9 +1223,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-800/50">
+                            <div className="pt-2 border-t border-neutral-800/50">
                                 {/* Log Level */}
-                                <div className="space-y-3">
+                                <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-neutral-500 uppercase">Log Level</label>
                                     <select
                                         value={settings.log_level || "info"}
@@ -1272,26 +1237,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         ))}
                                     </select>
                                 </div>
-                                {/* Face Parser Model */}
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Face Parser Model</label>
-                                    <select
-                                        value={settings.face_parser_model || "bisenet_resnet_18"}
-                                        onChange={(e) => handleChange("face_parser_model", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
-                                    >
-                                        {(() => {
-                                            const getHint = (n: string) => {
-                                                if (n.includes('resnet_18')) return ' [Balanced • Fast]';
-                                                if (n.includes('resnet_34')) return ' [High Precision]';
-                                                return "";
-                                            };
-                                            return (choices?.face_parser_models || ["bisenet_resnet_18"]).map((m: string) => (
-                                                <option key={m} value={m}>{m.replace(/_/g, ' ').toUpperCase() + getHint(m)}</option>
-                                            ));
-                                        })()}
-                                    </select>
-                                </div>
                             </div>
 
 
@@ -1299,7 +1244,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <button
                                     onClick={() => handleChange("keep_temp", !settings.keep_temp)}
                                     className={cn(
-                                        "w-full flex items-center justify-between p-3 rounded-lg border transition-all",
+                                        "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
                                         settings.keep_temp
                                             ? "bg-blue-600/10 border-blue-500/50 text-blue-500"
                                             : "bg-neutral-800 border-neutral-700 text-neutral-400"
@@ -1313,7 +1258,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </div>
 
                             {/* Hard Debugging / Troubleshooting */}
-                            <div className="space-y-4 pt-4 border-t border-neutral-800/50">
+                            <div className="space-y-2 pt-2 border-t border-neutral-800/50">
                                 <div className="flex items-center gap-2">
                                     <Bug size={14} className="text-neutral-500" />
                                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -1323,7 +1268,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <button
                                     onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
                                     className={cn(
-                                        "w-full flex items-center justify-between p-3 rounded-xl border transition-all",
+                                        "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
                                         settings.export_problem_frames
                                             ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                             : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
