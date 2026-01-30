@@ -154,7 +154,7 @@ function App() {
     } else if (job.status === 'failed' || job.status === 'canceled') {
       setIsProcessing(false);
       setJobStatus(job.status);
-      if (job.status === 'failed') addToast("Job failed.", 'error');
+      if (job.status === 'failed') addToast("A tarefa falhou.", 'error');
     }
   }, [job.status, job.progress, jobId]);
 

@@ -37,7 +37,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
             setFaces(res.data.faces);
         } catch (err) {
             console.error("Failed to detect faces:", err);
-            setError("Could not detect faces");
+            setError("Não foi possível detectar rostos");
         } finally {
             setLoading(false);
         }
@@ -65,7 +65,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 text-neutral-400">
                     <User size={14} />
-                    <span className="text-xs font-bold uppercase tracking-wider">Detected Faces</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">Rostos Detectados</span>
                     {loading && <Loader2 size={12} className="animate-spin ml-2" />}
                 </div>
                 <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                             ? "bg-emerald-500/20 border-emerald-500 text-emerald-500"
                             : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-neutral-300"
                             } ${!targetPath ? "opacity-30 cursor-not-allowed" : ""}`}
-                        title="Auto-scan faces while scrubbing video"
+                        title="Escanear rostos automaticamente ao percorrer o vídeo"
                     >
                         <ScanEye size={12} /> Auto
                     </button>
@@ -84,9 +84,9 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                         onClick={() => fetchFaces(currentTime || 0)}
                         disabled={!targetPath || loading}
                         className={`text-[10px] bg-neutral-800 border border-neutral-700 text-neutral-300 px-2 py-1 rounded flex items-center gap-1 transition-all ${(!targetPath || loading) ? "opacity-30 cursor-not-allowed" : "hover:bg-neutral-700"}`}
-                        title="Scan current frame"
+                        title="Escanear quadro atual"
                     >
-                        <RotateCw size={12} className={loading ? "animate-spin" : ""} /> Scan
+                        <RotateCw size={12} className={loading ? "animate-spin" : ""} /> Escanear
                     </button>
                 </div>
             </div>
@@ -96,17 +96,17 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
                     <div className="flex flex-col items-center justify-center text-neutral-600 gap-2 grayscale opacity-30 h-full">
                         <ScanEye size={24} strokeWidth={1.5} />
                         <div className="flex flex-col items-center gap-1">
-                            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full">Ready for Detection</span>
+                            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full">Pronto para Detecção</span>
                         </div>
                     </div>
                 ) : error ? (
                     <div className="text-xs text-emerald-500 italic px-2">{error}</div>
                 ) : faces.length === 0 && !loading ? (
-                    <div className="text-xs text-neutral-600 italic px-2">No faces found</div>
+                    <div className="text-xs text-neutral-600 italic px-2">Nenhum rosto encontrado</div>
                 ) : (
                     <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 pb-1 overflow-x-auto custom-scrollbar">
                         {faces.map((face) => (
-                            <Tooltip key={face.index} content={`Age: ${face.age} | ${face.gender} | Score: ${(face.score * 100).toFixed(0)}%`}>
+                            <Tooltip key={face.index} content={`Idade: ${face.age} | ${face.gender === 'male' ? 'Masculino' : face.gender === 'female' ? 'Feminino' : face.gender} | Pontuação: ${(face.score * 100).toFixed(0)}%`}>
                                 <div
                                     className="relative group cursor-pointer"
                                     onClick={() => onSelect?.(face.index)}
