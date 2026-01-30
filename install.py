@@ -58,6 +58,7 @@ def main():
     # Check for --cli flag to skip GUI
     if '--cli' in sys.argv:
         print("Running CLI installer (--cli flag detected)")
+        sys.argv.remove('--cli')
         run_cli_installer()
         return
     

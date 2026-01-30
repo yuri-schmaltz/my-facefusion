@@ -118,7 +118,7 @@ class Runner:
             state_manager.set_item('is_canceled_callback', self.is_canceled)
             
             # 3. Execute Pipeline
-            from facefusion.core import process_step
+            from facefusion.core import process_step_orchestrator
             from facefusion.time_helper import get_current_date_time
             
             # We use the existing process_step but pass our runner context (implicitly via state_manager)
@@ -133,7 +133,7 @@ class Runner:
             # Run the process
             # Note: conditional_process will be called which checks for is_stopping()
             # We need to make sure loop checks runner.is_canceled() too.
-            success = process_step(job_id, 0, config)
+            success = process_step_orchestrator(job_id, 0, len(self.job.steps), config)
             
             if self.is_canceled():
                 self.log("info", "Job canceled by user")

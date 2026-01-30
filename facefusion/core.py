@@ -369,6 +369,10 @@ def force_download() -> ErrorCode:
 
 def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	step_total = job_manager.count_step_total(job_id)
+	return process_step_orchestrator(job_id, step_index, step_total, step_args)
+
+
+def process_step_orchestrator(job_id : str, step_index : int, step_total : int, step_args : Args) -> bool:
 	step_args.update(collect_job_args())
 	apply_args(step_args, state_manager.set_item)
 

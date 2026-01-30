@@ -164,6 +164,57 @@ def run(program : ArgumentParser) -> None:
 		print("Starting force-download of assets...")
 		subprocess.call([ sys.executable, 'facefusion.py', 'force-download' ])
 
+	verify_installation()
+
+
+def verify_installation() -> None:
+	"""Verify that critical dependencies are installed and functioning."""
+	print("Verifying installation...")
+	failed = []
+	
+	# 1. Check OpenCV
+	try:
+		import cv2
+		print(f"  [OK] OpenCV {cv2.__version__}")
+	except ImportError as e:
+		print(f"  [FAIL] OpenCV Import Error: {e}")
+		failed.append("opencv-python")
+	except Exception as e:
+		print(f"  [FAIL] OpenCV Error: {e}")
+		failed.append("opencv-python")
+
+	# 2. Check ONNX Runtime
+	try:
+		import onnxruntime
+		print(f"  [OK] ONNX Runtime {onnxruntime.__version__}")
+	except ImportError as e:
+		print(f"  [FAIL] ONNX Runtime Import Error: {e}")
+		failed.append("onnxruntime")
+	except Exception as e:
+		print(f"  [FAIL] ONNX Runtime Error: {e}")
+		failed.append("onnxruntime")
+
+	# 3. Check Numpy
+	try:
+		import numpy
+		print(f"  [OK] Numpy {numpy.__version__}")
+	except ImportError as e:
+		print(f"  [FAIL] Numpy Import Error: {e}")
+		failed.append("numpy")
+		
+	if failed:
+		print("\n" + "!" * 40)
+		print("WARNING: Some dependencies failed to load.")
+		print("!" * 40)
+		print(f"Failed packages: {', '.join(failed)}")
+		print("You may need to reinstall manually:")
+		print(f"  {sys.executable} -m pip install --force-reinstall {' '.join(failed)}")
+		if is_linux() and "opencv-python" in failed:
+			print("\nIf OpenCV failed on Linux, you might need system libraries:")
+			print("  sudo apt-get install libgl1 libglib2.0-0")
+	else:
+		print("\nInstallation verified successfully!")
+
 
 def get_platform() -> str:
 	if sys.platform.startswith('linux'):

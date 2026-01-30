@@ -15,7 +15,8 @@ import numpy
 
 from facefusion import state_manager, execution, logger
 import facefusion.metadata as metadata
-from facefusion.jobs import job_manager, job_runner
+# Legacy job_manager/job_runner removed in favor of Orchestrator
+
 from facefusion.filesystem import is_image, is_video, resolve_file_paths, get_file_name
 from facefusion.processors.core import get_processors_modules, load_processor_module
 from facefusion.scene_detector import get_scene_timeframes
@@ -37,7 +38,7 @@ async def lifespan(app: FastAPI):
     
     # Startup
     jobs_path = os.path.join(get_temp_path(), "jobs")
-    job_manager.init_jobs(jobs_path)
+    # Orchestrator handles its own storage initialization now
     load_wizard_state()
     
     # Initialize Orchestrator and register event loop
@@ -1512,77 +1513,71 @@ async def wizard_generate(req: WizardGenerateRequest):
 @app.get("/api/v1/jobs")
 async def list_jobs():
     """List all jobs with their status and details."""
-    all_jobs = []
+    orch = get_orchestrator()
+    all_jobs = orch.list_jobs(limit=100)
     
-    for status in ['drafted', 'queued', 'completed', 'failed']:
-        job_ids = job_manager.find_job_ids(status)
-        for job_id in job_ids:
-            job_data = job_manager.read_job_file(job_id)
-            if job_data:
-                steps = job_data.get('steps', [])
-                # Extract key info from first step if available
-                first_step_args = steps[0].get('args', {}) if steps else {}
-                all_jobs.append({
-                    'id': job_id,
-                    'status': status,
-                    'date_created': job_data.get('date_created'),
-                    'date_updated': job_data.get('date_updated'),
-                    'step_count': len(steps),
-                    'target_path': first_step_args.get('target_path'),
-                    'output_path': first_step_args.get('output_path'),
-                })
+    response = []
+    for job in all_jobs:
+        # Extract key info for table view
+        response.append({
+            'id': job.job_id,
+            'status': job.status.value,
+            'date_created': job.created_at.isoformat(),
+            'date_updated': job.completed_at.isoformat() if job.completed_at else (job.started_at.isoformat() if job.started_at else None),
+            'step_count': len(job.steps),
+            'target_path': job.config.get('target_path'),
+            'output_path': job.config.get('output_path'),
+        })
     
-    return {"jobs": all_jobs}
+    return {"jobs": response}
 
 
 @app.get("/api/v1/jobs/{job_id}")
 async def get_job_details(job_id: str):
     """Get full details of a specific job including all steps and settings."""
-    job_data = job_manager.read_job_file(job_id)
+    orch = get_orchestrator()
+    job = orch.get_job(job_id)
     
-    if not job_data:
+    if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    
-    # Find job status
-    job_status = None
-    for status in ['drafted', 'queued', 'completed', 'failed']:
-        if job_id in job_manager.find_job_ids(status):
-            job_status = status
-            break
-    
-    steps = job_data.get('steps', [])
     
     # Build detailed response
     detailed_steps = []
-    for idx, step in enumerate(steps):
-        args = step.get('args', {})
+    for step in job.steps:
+        # In Orchestrator, step.args isn't explicitly stored on Step model separate from config 
+        # for single-step jobs, but let's assume arguments are in job.config for now 
+        # or we look at how Step is defined.
+        # Check Step definition in models.py? 
+        # Actually in orchestrator.py: job.steps.append(Step(index=0, name="Processing"))
+        # It doesn't seem to hold args separately.
+        # But legacy UI expects it.
+        # We'll use job.config as the source of truth for the single step.
         detailed_steps.append({
-            'index': idx,
-            'status': step.get('status', 'unknown'),
-            'target_path': args.get('target_path'),
-            'output_path': args.get('output_path'),
-            'source_paths': args.get('source_paths', []),
-            'processors': args.get('processors', []),
-            'face_selector_mode': args.get('face_selector_mode'),
-            'face_selector_gender': args.get('face_selector_gender'),
-            'face_selector_age_start': args.get('face_selector_age_start'),
-            'face_selector_age_end': args.get('face_selector_age_end'),
-            'output_video_quality': args.get('output_video_quality'),
-            'output_video_encoder': args.get('output_video_encoder'),
-            'execution_providers': args.get('execution_providers', []),
-            'trim_frame_start': args.get('trim_frame_start'),
-            'trim_frame_end': args.get('trim_frame_end'),
-            # Include all other args for full transparency
-            'all_args': args,
+            'index': step.index,
+            'status': step.status.value,
+            'target_path': job.config.get('target_path'),
+            'output_path': job.config.get('output_path'),
+            'source_paths': job.config.get('source_paths', []),
+            'processors': job.config.get('processors', []),
+            'face_selector_mode': job.config.get('face_selector_mode'),
+            'face_selector_gender': job.config.get('face_selector_gender'),
+            'face_selector_age_start': job.config.get('face_selector_age_start'),
+            'face_selector_age_end': job.config.get('face_selector_age_end'),
+            'output_video_quality': job.config.get('output_video_quality'),
+            'output_video_encoder': job.config.get('output_video_encoder'),
+            'execution_providers': job.config.get('execution_providers', []),
+            'trim_frame_start': job.config.get('trim_frame_start'),
+            'trim_frame_end': job.config.get('trim_frame_end'),
+            'all_args': job.config,
         })
     
     return {
-        'id': job_id,
-        'status': job_status,
-        'version': job_data.get('version'),
-        'date_created': job_data.get('date_created'),
-        'date_updated': job_data.get('date_updated'),
-        'step_count': len(steps),
+        'id': job.job_id,
+        'status': job.status.value,
+        'version': 1, # Schema version
+        'date_created': job.created_at.isoformat(),
+        'date_updated': job.completed_at.isoformat() if job.completed_at else None,
+        'step_count': len(job.steps),
         'steps': detailed_steps,
     }
 
@@ -1592,10 +1587,11 @@ class SubmitJobsRequest(BaseModel):
 
 @app.post("/api/v1/jobs/submit")
 async def submit_jobs(req: SubmitJobsRequest):
-    """Submit drafted jobs to the queue for processing."""
+    """Submit drafted jobs to the queue via Orchestrator."""
+    orch = get_orchestrator()
     results = {}
     for job_id in req.job_ids:
-        success = job_manager.submit_job(job_id)
+        success = orch.queue_job(job_id)
         results[job_id] = success
     
     return {"results": results, "submitted": sum(1 for v in results.values() if v)}
@@ -1607,15 +1603,20 @@ class UnqueueJobsRequest(BaseModel):
 @app.post("/api/v1/jobs/unqueue")
 async def unqueue_jobs(req: UnqueueJobsRequest):
     """Return queued jobs back to drafted status."""
+    orch = get_orchestrator()
     results = {}
+    
     for job_id in req.job_ids:
-        queued_job_ids = job_manager.find_job_ids('queued')
-        if job_id in queued_job_ids:
-            # Move job from queued back to drafted
-            success = job_manager.set_steps_status(job_id, 'drafted') and job_manager.move_job_file(job_id, 'drafted')
-            results[job_id] = success
+        job = orch.get_job(job_id)
+        if job and job.status == JobStatus.QUEUED:
+             # Manually reset to DRAFTED via store
+             job.status = JobStatus.DRAFTED
+             orch.store.update_job(job)
+             from facefusion.orchestrator.events import create_status_event
+             orch.event_bus.publish(create_status_event(job_id, "drafted"))
+             results[job_id] = True
         else:
-            results[job_id] = False
+             results[job_id] = False
     
     return {"results": results, "unqueued": sum(1 for v in results.values() if v)}
 
@@ -1626,9 +1627,11 @@ class DeleteJobsRequest(BaseModel):
 @app.delete("/api/v1/jobs")
 async def delete_jobs(req: DeleteJobsRequest):
     """Delete specified jobs."""
+    orch = get_orchestrator()
     results = {}
     for job_id in req.job_ids:
-        success = job_manager.delete_job(job_id)
+        # Note: This only deletes DB records. File cleanup should handled if needed.
+        success = orch.store.delete_job(job_id)
         results[job_id] = success
     
     return {"results": results, "deleted": sum(1 for v in results.values() if v)}
@@ -1637,44 +1640,49 @@ async def delete_jobs(req: DeleteJobsRequest):
 @app.post("/api/v1/jobs/run")
 async def run_queued_jobs(background_tasks: BackgroundTasks):
     """Run all queued jobs in the background."""
-    from facefusion.core import process_step
+    orch = get_orchestrator()
     
-    queued_job_ids = job_manager.find_job_ids('queued')
+    queued_jobs = orch.list_jobs(status=JobStatus.QUEUED)
     
-    if not queued_job_ids:
+    if not queued_jobs:
         return {"status": "no_jobs", "message": "No queued jobs to run"}
     
-    # Process each job in background
-    for job_id in queued_job_ids:
-        job_data = job_manager.read_job_file(job_id)
-        if job_data:
-            steps = job_data.get('steps', [])
-            output_path = steps[0].get('args', {}).get('output_path', '') if steps else ''
-            
-            # Initialize progress tracking
-            job_progress[job_id] = {
-                "status": "running",
-                "progress": 0.0,
-                "preview_url": None
-            }
-            
-            # Add to background tasks
-            background_tasks.add_task(process_job_background, job_id, output_path)
+    started_count = 0
+    started_ids = []
+    
+    for job in queued_jobs:
+        if orch.run_job(job.job_id):
+            started_count += 1
+            started_ids.append(job.job_id)
     
     return {
         "status": "started",
-        "jobs_started": len(queued_job_ids),
-        "job_ids": queued_job_ids
+        "jobs_started": started_count,
+        "job_ids": started_ids
     }
 
 
 @app.get("/api/v1/jobs/status")
 async def get_queue_status():
     """Get the current status of all jobs being processed."""
+    orch = get_orchestrator()
+    
+    running_jobs = orch.list_jobs(status=JobStatus.RUNNING)
+    completed_jobs = orch.list_jobs(status=JobStatus.COMPLETED)
+    failed_jobs = orch.list_jobs(status=JobStatus.FAILED)
+    
+    running_map = {}
+    for job in running_jobs:
+        running_map[job.job_id] = {
+            "status": "running",
+            "progress": job.progress,
+            "preview_url": None
+        }
+    
     return {
-        "running": {jid: data for jid, data in job_progress.items() if data.get("status") == "running"},
-        "completed": len([1 for data in job_progress.values() if data.get("status") == "completed"]),
-        "failed": len([1 for data in job_progress.values() if data.get("status") == "failed"]),
+        "running": running_map,
+        "completed": len(completed_jobs),
+        "failed": len(failed_jobs),
     }
 
 
