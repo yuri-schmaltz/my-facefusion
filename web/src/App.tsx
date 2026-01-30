@@ -4,6 +4,7 @@ import { files, execute, system, config } from "@/services/api";
 import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/ToastContext";
 import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
 import ProcessorSettings from "@/components/ProcessorSettings";
@@ -22,6 +23,7 @@ const isVideo = (path: string) => {
 
 function App() {
   console.log("App Rendering...");
+  const { addToast } = useToast();
   const [processors, setProcessors] = useState<string[]>([]);
   const [activeMediaTab, setActiveMediaTab] = useState<'source' | 'target'>('target');
   const [activeProcessorTab, setActiveProcessorTab] = useState("face");
@@ -153,7 +155,7 @@ function App() {
     } else if (job.status === 'failed' || job.status === 'canceled') {
       setIsProcessing(false);
       setJobStatus(job.status);
-      if (job.status === 'failed') alert("Job failed.");
+      if (job.status === 'failed') addToast("Job failed.", 'error');
     }
   }, [job.status, job.progress, jobId]);
 
@@ -201,12 +203,12 @@ function App() {
       if (["queued", "processing", "running"].includes(res.data.status)) {
         setJobId(res.data.job_id);
       } else {
-        alert("Unexpected job status: " + res.data.status);
+        addToast("Unexpected job status: " + res.data.status, 'warning');
         setIsProcessing(false);
       }
     } catch (err: any) {
       console.error(err);
-      alert(`Processing failed: ${err.response?.data?.detail || err.message}`);
+      addToast(`Processing failed: ${err.response?.data?.detail || err.message}`, 'error');
       setIsProcessing(false);
     }
   };

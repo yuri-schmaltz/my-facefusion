@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { WizardModal } from "./Wizard/WizardModal";
 import { jobs as jobsApi } from "@/services/api";
+import { useToast } from '@/components/ui/ToastContext';
+import { usePresets } from '@/hooks/usePresets';
+import { FolderDown, SaveAll } from 'lucide-react';
 
 
 interface SettingsPanelProps {
@@ -29,6 +32,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onChange,
     currentTargetPath
 }) => {
+    const { addToast } = useToast();
+    const { presets, savePreset, loadPreset, deletePreset } = usePresets(settings, (newSettings) => {
+        Object.entries(newSettings).forEach(([key, val]) => onChange(key, val));
+    });
+
+    const [newPresetName, setNewPresetName] = React.useState("");
+
     const [wizardOpen, setWizardOpen] = React.useState(false);
     const [activeTab, setActiveTab] = React.useState("faces");
 
@@ -90,12 +100,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         if (queuedSelected.length === 0) return;
         try {
             await jobsApi.unqueue(queuedSelected);
-            alert(`↩️ ${queuedSelected.length} job(s) returned to drafted!`);
+            addToast(`↩️ ${queuedSelected.length} job(s) returned to drafted!`, 'info');
             setSelectedJobs(new Set());
             loadJobs();
         } catch (err) {
             console.error("Failed to unqueue jobs", err);
-            alert("❌ Failed to unqueue jobs");
+            addToast("Failed to unqueue jobs", 'error');
         }
     };
 
@@ -103,12 +113,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         if (selectedJobs.size === 0) return;
         try {
             await jobsApi.submit(Array.from(selectedJobs));
-            alert(`✅ ${selectedJobs.size} job(s) submitted to queue!`);
+            addToast(`✅ ${selectedJobs.size} job(s) submitted to queue!`, 'success');
             setSelectedJobs(new Set());
             loadJobs();
         } catch (err) {
             console.error("Failed to submit jobs", err);
-            alert("❌ Failed to submit jobs");
+            addToast("Failed to submit jobs", 'error');
         }
     };
 
@@ -117,28 +127,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         if (!confirm(`Delete ${selectedJobs.size} job(s)?`)) return;
         try {
             await jobsApi.delete(Array.from(selectedJobs));
-            alert(`🗑️ ${selectedJobs.size} job(s) deleted!`);
+            addToast(`🗑️ ${selectedJobs.size} job(s) deleted!`, 'success');
             setSelectedJobs(new Set());
             loadJobs();
         } catch (err) {
             console.error("Failed to delete jobs", err);
-            alert("❌ Failed to delete jobs");
+            addToast("Failed to delete jobs", 'error');
         }
     };
 
     const runQueuedJobs = async () => {
         const queuedCount = jobsList.filter(j => j.status === 'queued').length;
         if (queuedCount === 0) {
-            alert("No queued jobs to run");
+            addToast("No queued jobs to run", 'warning');
             return;
         }
         try {
             const res = await jobsApi.run();
-            alert(`🚀 Started processing ${res.data.jobs_started || queuedCount} job(s)!\n\nCheck the console for progress.`);
+            addToast(`🚀 Started processing ${res.data.jobs_started || queuedCount} job(s)!`, 'success');
             loadJobs();
         } catch (err) {
             console.error("Failed to run queue", err);
-            alert("❌ Failed to start queue processing");
+            addToast("Failed to start queue processing", 'error');
         }
     };
 
@@ -152,7 +162,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             setSelectedJobDetails(res.data);
         } catch (err) {
             console.error("Failed to load job details", err);
-            alert("❌ Failed to load job details");
+            addToast("Failed to load job details", 'error');
         }
     };
 
@@ -1106,190 +1116,261 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 )}
 
                 {activeTab === "system" && (
-                    <div className="space-y-2 animate-in fade-in slide-in-from-left-2 duration-300">
-                        <div className="flex items-center gap-2 text-neutral-400">
-                            <HardDrive size={16} />
-                            <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
+                    <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300 p-1">
+                        {/* Presets */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <SaveAll size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Configuration Presets</span>
+                            </div>
+
+                            <div className="bg-neutral-950/30 rounded-lg p-3 border border-neutral-800 space-y-3">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Preset Name (e.g. Ultra Quality)"
+                                        value={newPresetName}
+                                        onChange={(e) => setNewPresetName(e.target.value)}
+                                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 placeholder:text-neutral-600"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                savePreset(newPresetName);
+                                                setNewPresetName("");
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            savePreset(newPresetName);
+                                            setNewPresetName("");
+                                        }}
+                                        disabled={!newPresetName.trim()}
+                                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+
+                                {presets.length === 0 ? (
+                                    <div className="text-center py-4 text-neutral-600 text-[10px] italic">
+                                        No saved presets found.
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-1">
+                                        {presets.map((preset) => (
+                                            <div key={preset.id} className="flex items-center justify-between bg-neutral-900 border border-neutral-800 rounded p-2 group hover:border-neutral-700 transition-colors">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-medium text-neutral-300">{preset.name}</span>
+                                                    <span className="text-[9px] text-neutral-600">{new Date(preset.timestamp).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => loadPreset(preset.id)}
+                                                        className="p-1.5 hover:bg-blue-500/20 text-blue-500 rounded transition-colors"
+                                                        title="Load Preset"
+                                                    >
+                                                        <FolderDown size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deletePreset(preset.id)}
+                                                        className="p-1.5 hover:bg-red-500/20 text-red-500 rounded transition-colors"
+                                                        title="Delete Preset"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2">
-                            {/* Execution Provider */}
-                            <div className="space-y-1 pb-2 border-b border-neutral-800/50">
-                                <div className="flex items-center gap-2">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                        Execution Provider
-                                    </label>
-                                    <Tooltip content={helpTexts['execution_providers']}>
-                                        <Info size={12} className="text-neutral-500 cursor-help" />
-                                    </Tooltip>
-                                </div>
-                                <div className="grid grid-cols-3 gap-1">
-                                    {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
-                                        const current = settings.execution_providers || [];
-                                        const isSelected = current.includes(provider);
-                                        const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
-
-                                        const labels: Record<string, string> = {
-                                            cpu: "CPU Standard",
-                                            cuda: "NVIDIA CUDA",
-                                            tensorrt: "NVIDIA TensorRT",
-                                            rocm: "AMD ROCm",
-                                            directml: "DirectML (Windows)",
-                                            openvino: "Intel OpenVINO",
-                                            coreml: "Apple CoreML"
-                                        };
-
-
-                                        return (
-                                            <button
-                                                key={provider}
-                                                disabled={!isAvailable}
-                                                onClick={() => toggleExecutionProvider(provider)}
-                                                className={cn(
-                                                    "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
-                                                    isSelected
-                                                        ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                                        : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
-                                                    !isAvailable && "opacity-50 cursor-not-allowed"
-                                                )}
-                                            >
-                                                <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
-                                                {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <HardDrive size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Performance & Environment</span>
                             </div>
 
+                            <div className="grid grid-cols-1 gap-2">
+                                {/* Execution Provider */}
+                                <div className="space-y-1 pb-2 border-b border-neutral-800/50">
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase block">
+                                            Execution Provider
+                                        </label>
+                                        <Tooltip content={helpTexts['execution_providers']}>
+                                            <Info size={12} className="text-neutral-500 cursor-help" />
+                                        </Tooltip>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-1">
+                                        {["cpu", "cuda", "tensorrt", "rocm", "directml", "openvino", "coreml"].map((provider: string) => {
+                                            const current = settings.execution_providers || [];
+                                            const isSelected = current.includes(provider);
+                                            const isAvailable = (systemInfo?.execution_providers || ['cpu']).includes(provider);
+
+                                            const labels: Record<string, string> = {
+                                                cpu: "CPU Standard",
+                                                cuda: "NVIDIA CUDA",
+                                                tensorrt: "NVIDIA TensorRT",
+                                                rocm: "AMD ROCm",
+                                                directml: "DirectML (Windows)",
+                                                openvino: "Intel OpenVINO",
+                                                coreml: "Apple CoreML"
+                                            };
 
 
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Execution Threads */}
-                                <div className="space-y-1">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <label className="text-[10px] font-bold text-neutral-500 uppercase block">
-                                                Execution Threads
-                                            </label>
-                                            <Tooltip content={helpTexts['execution_thread_count']}>
-                                                <Info size={12} className="text-neutral-500 cursor-help" />
-                                            </Tooltip>
+                                            return (
+                                                <button
+                                                    key={provider}
+                                                    disabled={!isAvailable}
+                                                    onClick={() => toggleExecutionProvider(provider)}
+                                                    className={cn(
+                                                        "flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all",
+                                                        isSelected
+                                                            ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                            : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400",
+                                                        !isAvailable && "opacity-50 cursor-not-allowed"
+                                                    )}
+                                                >
+                                                    <span className="text-[10px] font-bold uppercase">{labels[provider] || provider}</span>
+                                                    {!isAvailable && <span className="text-[8px] text-red-500">Unavailable</span>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    {/* Execution Threads */}
+                                    <div className="space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <label className="text-[10px] font-bold text-neutral-500 uppercase block">
+                                                    Execution Threads
+                                                </label>
+                                                <Tooltip content={helpTexts['execution_thread_count']}>
+                                                    <Info size={12} className="text-neutral-500 cursor-help" />
+                                                </Tooltip>
+                                            </div>
+                                            <span className="text-xs font-bold text-blue-500">{settings.execution_thread_count || 4}</span>
                                         </div>
-                                        <span className="text-xs font-bold text-blue-500">{settings.execution_thread_count || 4}</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max={Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}
-                                        step="1"
-                                        value={settings.execution_thread_count || 4}
-                                        onChange={(e) => handleChange("execution_thread_count", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                    />
-                                    <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
-                                        <span>1</span>
-                                        <span>{Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}</span>
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max={Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}
+                                            step="1"
+                                            value={settings.execution_thread_count || 4}
+                                            onChange={(e) => handleChange("execution_thread_count", e.target.value)}
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        />
+                                        <div className="flex justify-between text-[10px] text-neutral-600 font-mono px-1">
+                                            <span>1</span>
+                                            <span>{Math.floor((systemInfo?.cpu_count || navigator.hardwareConcurrency || 16) * 0.8)}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Memory Strategy */}
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Memory Strategy</label>
-                                    <select
-                                        value={settings.video_memory_strategy || "strict"}
-                                        onChange={(e) => handleChange("video_memory_strategy", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                <div className="grid grid-cols-2 gap-2">
+                                    {/* Memory Strategy */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Memory Strategy</label>
+                                        <select
+                                            value={settings.video_memory_strategy || "strict"}
+                                            onChange={(e) => handleChange("video_memory_strategy", e.target.value)}
+                                            className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                        >
+                                            {(choices?.video_memory_strategies || ["strict", "moderate", "tolerant"]).map((s: string) => (
+                                                <option key={s} value={s}>{s}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {/* Memory Limit */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
+                                            Memory Limit
+                                            <span className="text-blue-500">{settings.system_memory_limit || 0} GB</span>
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="0" max="128" step="4"
+                                            value={settings.system_memory_limit || 0}
+                                            onChange={(e) => handleChange("system_memory_limit", e.target.value)}
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 border-t border-neutral-800/50">
+                                    {/* Log Level */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-neutral-500 uppercase">Log Level</label>
+                                        <select
+                                            value={settings.log_level || "info"}
+                                            onChange={(e) => handleChange("log_level", e.target.value)}
+                                            className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                        >
+                                            {(choices?.log_levels || ["error", "warn", "info", "debug"]).map((l: string) => (
+                                                <option key={l} value={l}>{l.toUpperCase()}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div className="pt-2 border-t border-neutral-800/50">
+                                    <button
+                                        onClick={() => handleChange("keep_temp", !settings.keep_temp)}
+                                        className={cn(
+                                            "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
+                                            settings.keep_temp
+                                                ? "bg-blue-600/10 border-blue-500/50 text-blue-500"
+                                                : "bg-neutral-800 border-neutral-700 text-neutral-400"
+                                        )}
                                     >
-                                        {(choices?.video_memory_strategies || ["strict", "moderate", "tolerant"]).map((s: string) => (
-                                            <option key={s} value={s}>{s}</option>
-                                        ))}
-                                    </select>
+                                        <span className="text-xs font-bold uppercase">Keep Temp Files</span>
+                                        <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-blue-600" : "bg-neutral-700")}>
+                                            <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
+                                        </div>
+                                    </button>
                                 </div>
-                                {/* Memory Limit */}
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between">
-                                        Memory Limit
-                                        <span className="text-blue-500">{settings.system_memory_limit || 0} GB</span>
-                                    </label>
-                                    <input
-                                        type="range"
-                                        min="0" max="128" step="4"
-                                        value={settings.system_memory_limit || 0}
-                                        onChange={(e) => handleChange("system_memory_limit", e.target.value)}
-                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="pt-2 border-t border-neutral-800/50">
-                                {/* Log Level */}
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-neutral-500 uppercase">Log Level</label>
-                                    <select
-                                        value={settings.log_level || "info"}
-                                        onChange={(e) => handleChange("log_level", e.target.value)}
-                                        className="w-full bg-neutral-800 border-neutral-700 text-white rounded-lg p-2 text-xs"
+                                {/* Hard Debugging / Troubleshooting */}
+                                <div className="space-y-2 pt-2 border-t border-neutral-800/50">
+                                    <div className="flex items-center gap-2">
+                                        <Bug size={14} className="text-neutral-500" />
+                                        <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                                            Hard Debugging
+                                        </label>
+                                    </div>
+                                    <button
+                                        onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
+                                        className={cn(
+                                            "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
+                                            settings.export_problem_frames
+                                                ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
+                                        )}
                                     >
-                                        {(choices?.log_levels || ["error", "warn", "info", "debug"]).map((l: string) => (
-                                            <option key={l} value={l}>{l.toUpperCase()}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-
-                            <div className="pt-2 border-t border-neutral-800/50">
-                                <button
-                                    onClick={() => handleChange("keep_temp", !settings.keep_temp)}
-                                    className={cn(
-                                        "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
-                                        settings.keep_temp
-                                            ? "bg-blue-600/10 border-blue-500/50 text-blue-500"
-                                            : "bg-neutral-800 border-neutral-700 text-neutral-400"
-                                    )}
-                                >
-                                    <span className="text-xs font-bold uppercase">Keep Temp Files</span>
-                                    <div className={cn("w-10 h-5 rounded-full relative transition-colors", settings.keep_temp ? "bg-blue-600" : "bg-neutral-700")}>
-                                        <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", settings.keep_temp ? "left-6" : "left-1")} />
-                                    </div>
-                                </button>
-                            </div>
-
-                            {/* Hard Debugging / Troubleshooting */}
-                            <div className="space-y-2 pt-2 border-t border-neutral-800/50">
-                                <div className="flex items-center gap-2">
-                                    <Bug size={14} className="text-neutral-500" />
-                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                                        Hard Debugging
-                                    </label>
-                                </div>
-                                <button
-                                    onClick={() => handleChange("export_problem_frames", !settings.export_problem_frames)}
-                                    className={cn(
-                                        "w-full flex items-center justify-between p-2 rounded-lg border transition-all",
-                                        settings.export_problem_frames
-                                            ? "bg-blue-600/10 border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                            : "bg-neutral-800/20 border-neutral-700/30 text-neutral-400"
-                                    )}
-                                >
-                                    <div className="flex flex-col items-start gap-1">
-                                        <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
-                                            Export Failure Frames
-                                        </span>
-                                        <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
-                                    </div>
-                                    <div className={cn(
-                                        "w-10 h-5 rounded-full relative transition-colors",
-                                        settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
-                                    )}>
+                                        <div className="flex flex-col items-start gap-1">
+                                            <span className={cn("text-xs font-bold uppercase", settings.export_problem_frames ? "text-white" : "text-neutral-400")}>
+                                                Export Failure Frames
+                                            </span>
+                                            <span className="text-[10px] opacity-60">Saves frames where no faces are found to .assets/debug</span>
+                                        </div>
                                         <div className={cn(
-                                            "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
-                                            settings.export_problem_frames ? "left-6" : "left-1"
-                                        )} />
-                                    </div>
-                                </button>
+                                            "w-10 h-5 rounded-full relative transition-colors",
+                                            settings.export_problem_frames ? "bg-blue-500" : "bg-neutral-700"
+                                        )}>
+                                            <div className={cn(
+                                                "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
+                                                settings.export_problem_frames ? "left-6" : "left-1"
+                                            )} />
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
