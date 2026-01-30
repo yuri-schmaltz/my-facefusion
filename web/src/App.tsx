@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { files, execute, system, config } from "@/services/api";
-import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film } from "lucide-react";
+import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film, Glasses } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/ToastContext";
@@ -261,7 +261,7 @@ function App() {
                           expression_restorer: { icon: Smile, color: 'text-yellow-400' },
                           age_modifier: { icon: Clock, color: 'text-violet-400' },
                           lip_syncer: { icon: Mic2, color: 'text-pink-400' },
-                          face_accessory_manager: { icon: Box, color: 'text-cyan-400' },
+                          face_accessory_manager: { icon: Glasses, color: 'text-violet-400' },
                           makeup_transfer: { icon: Palette, color: 'text-fuchsia-400' },
                           deep_swapper: { icon: Replace, color: 'text-teal-400' }
                         }[proc] || { icon: User, color: 'text-neutral-400' };

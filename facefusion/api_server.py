@@ -184,6 +184,13 @@ async def lifespan(app: FastAPI):
             state_manager.init_item('expression_restorer_model', 'live_portrait')
         if state_manager.get_item('expression_restorer_factor') is None:
             state_manager.init_item('expression_restorer_factor', 80)
+
+        if state_manager.get_item('face_accessory_manager_model') is None:
+            state_manager.init_item('face_accessory_manager_model', 'replicate')
+        if state_manager.get_item('face_accessory_manager_items') is None:
+            state_manager.init_item('face_accessory_manager_items', [ 'occlusion' ])
+        if state_manager.get_item('face_accessory_manager_blend') is None:
+            state_manager.init_item('face_accessory_manager_blend', 100)
     
     # Global Progress Phase
     state_manager.init_item('current_job_phase', None)
@@ -247,6 +254,10 @@ class ConfigUpdate(BaseModel):
     # face masker
     face_mask_types: Optional[List[str]] = None
     face_mask_regions: Optional[List[str]] = None
+    # face accessory manager
+    face_accessory_manager_model: Optional[str] = None
+    face_accessory_manager_items: Optional[List[str]] = None
+    face_accessory_manager_blend: Optional[int] = None
     # output
     output_video_quality: Optional[int] = None
     output_video_encoder: Optional[str] = None
@@ -376,6 +387,9 @@ def update_config(config: ConfigUpdate):
         'watermark_remover_area_end': config.watermark_remover_area_end,
         'face_mask_types': config.face_mask_types,
         'face_mask_regions': config.face_mask_regions,
+        'face_accessory_manager_model': config.face_accessory_manager_model,
+        'face_accessory_manager_items': config.face_accessory_manager_items,
+        'face_accessory_manager_blend': config.face_accessory_manager_blend,
         'output_video_quality': config.output_video_quality,
         'output_video_encoder': config.output_video_encoder,
         'execution_providers': config.execution_providers,
@@ -710,8 +724,8 @@ def get_processor_choices():
     from facefusion.processors.modules.face_editor import choices as face_editor_choices
     from facefusion.processors.modules.frame_colorizer import choices as frame_colorizer_choices
     from facefusion.processors.modules.background_remover import choices as background_remover_choices
-    from facefusion.processors.modules.deep_swapper import choices as deep_swapper_choices
     from facefusion.processors.modules.watermark_remover import choices as watermark_remover_choices
+    from facefusion.processors.modules.face_accessory_manager import choices as face_accessory_manager_choices
 
     return {
         "watermark_remover": {
@@ -775,6 +789,11 @@ def get_processor_choices():
         "deep_swapper": {
             "models": deep_swapper_choices.deep_swapper_models,
             "morph_range": list(deep_swapper_choices.deep_swapper_morph_range)
+        },
+        "face_accessory_manager": {
+            "models": face_accessory_manager_choices.face_accessory_manager_modes,
+            "items": face_accessory_manager_choices.face_accessory_manager_items,
+            "blend_range": [ 0, 100 ]
         }
     }
 
