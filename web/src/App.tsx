@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/ToastContext";
 import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
-import ProcessorSettings from "@/components/ProcessorSettings";
 import FaceSelector from "@/components/FaceSelector";
 import { MediaPreview } from "@/components/MediaPreview";
 import { useJob } from "@/hooks/useJob";
@@ -337,14 +336,6 @@ function App() {
               )}
             </section>
 
-            <section className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 min-h-0">
-              <ProcessorSettings
-                activeProcessors={activeProcessors}
-                currentSettings={allSettings}
-                onUpdate={updateSetting}
-                helpTexts={helpTexts}
-              />
-            </section>
 
 
           </div>
@@ -363,6 +354,7 @@ function App() {
             systemInfo={systemInfo}
             onChange={updateSetting}
             currentTargetPath={targetPath}
+            activeProcessors={activeProcessors}
           />
         </div>
 

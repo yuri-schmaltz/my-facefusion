@@ -29,7 +29,7 @@ def register_args(program : ArgumentParser) -> None:
 	group_processors = find_argument_group(program, 'processors')
 	if group_processors:
 		group_processors.add_argument('--face-accessory-manager-model', help = translator.get('help.face_accessory_manager_model', __package__), default = config.get_str_value('processors', 'face_accessory_manager_model', 'replicate'), choices = face_accessory_manager_choices.face_accessory_manager_models)
-		group_processors.add_argument('--face-accessory-manager-items', help = translator.get('help.face_accessory_manager_items', __package__), default = config.get_str_list_value('processors', 'face_accessory_manager_items', [ 'occlusion' ]), choices = face_accessory_manager_choices.face_accessory_manager_items, nargs = '+')
+		group_processors.add_argument('--face-accessory-manager-items', help = translator.get('help.face_accessory_manager_items', __package__), default = config.get_str_list('processors', 'face_accessory_manager_items', 'occlusion'), choices = face_accessory_manager_choices.face_accessory_manager_items, nargs = '+')
 		group_processors.add_argument('--face-accessory-manager-blend', help = translator.get('help.face_accessory_manager_blend', __package__), type = int, default = config.get_int_value('processors', 'face_accessory_manager_blend', '100'), choices = range(0, 101), metavar = '[0-100]')
 		facefusion.jobs.job_store.register_step_keys([ 'face_accessory_manager_model', 'face_accessory_manager_items', 'face_accessory_manager_blend' ])
 

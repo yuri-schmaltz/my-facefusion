@@ -724,6 +724,7 @@ def get_processor_choices():
     from facefusion.processors.modules.face_editor import choices as face_editor_choices
     from facefusion.processors.modules.frame_colorizer import choices as frame_colorizer_choices
     from facefusion.processors.modules.background_remover import choices as background_remover_choices
+    from facefusion.processors.modules.deep_swapper import choices as deep_swapper_choices
     from facefusion.processors.modules.watermark_remover import choices as watermark_remover_choices
     from facefusion.processors.modules.face_accessory_manager import choices as face_accessory_manager_choices
 
@@ -791,7 +792,7 @@ def get_processor_choices():
             "morph_range": list(deep_swapper_choices.deep_swapper_morph_range)
         },
         "face_accessory_manager": {
-            "models": face_accessory_manager_choices.face_accessory_manager_modes,
+            "models": face_accessory_manager_choices.face_accessory_manager_models,
             "items": face_accessory_manager_choices.face_accessory_manager_items,
             "blend_range": [ 0, 100 ]
         }

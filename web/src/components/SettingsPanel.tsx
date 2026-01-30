@@ -1,5 +1,5 @@
 import React from "react";
-import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2, X, Eye, FileText, Clock, Cpu, Bug } from "lucide-react";
+import { Info, Volume2, HardDrive, Target, Zap, User, Users, ArrowDownAz, Filter, Sparkles, Briefcase, Trash2, CheckSquare, Square, Play, RefreshCw, Rocket, Undo2, X, Eye, FileText, Clock, Cpu, Bug, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { WizardModal } from "./Wizard/WizardModal";
@@ -7,6 +7,7 @@ import { jobs as jobsApi } from "@/services/api";
 import { useToast } from '@/components/ui/ToastContext';
 import { usePresets } from '@/hooks/usePresets';
 import { FolderDown, SaveAll } from 'lucide-react';
+import ProcessorSettings from "./ProcessorSettings";
 
 
 interface SettingsPanelProps {
@@ -22,6 +23,7 @@ interface SettingsPanelProps {
     } | null;
     onChange: (key: string, value: any) => void;
     currentTargetPath?: string | null;
+    activeProcessors: string[];
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -30,7 +32,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     helpTexts = {},
     systemInfo,
     onChange,
-    currentTargetPath
+    currentTargetPath,
+    activeProcessors
 }) => {
     const { addToast } = useToast();
     const { presets, savePreset, loadPreset, deletePreset } = usePresets(settings, (newSettings) => {
@@ -40,10 +43,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     const [newPresetName, setNewPresetName] = React.useState("");
 
     const [wizardOpen, setWizardOpen] = React.useState(false);
-    const [activeTab, setActiveTab] = React.useState("faces");
+    const [activeTab, setActiveTab] = React.useState<string>("faces");
 
     const tabs = [
         { id: "faces", label: "Faces", icon: User },
+        { id: "processors", label: "Processors", icon: Settings2 },
         { id: "masks", label: "Masks", icon: Filter },
         { id: "output", label: "Output", icon: Volume2 },
         { id: "jobs", label: "Jobs", icon: Briefcase },
@@ -1356,161 +1360,168 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     </button>
                                 </div>
                             </div>
+                    )}
+
+                            {activeTab === "processors" && (
+                                <div className="animate-in fade-in slide-in-from-right-2 duration-300">
+                                    <ProcessorSettings
+                                        activeProcessors={activeProcessors}
+                                        currentSettings={settings}
+                                        onUpdate={onChange}
+                                        helpTexts={helpTexts}
+                                    />
+                                </div>
+                            )}
                         </div>
-                    </div>
-                )}
-            </div>
-            <WizardModal
-                isOpen={wizardOpen}
-                onClose={() => setWizardOpen(false)}
-                targetPath={currentTargetPath || settings.target_path || ""}
-            />
+                        <WizardModal
+                            isOpen={wizardOpen}
+                            onClose={() => setWizardOpen(false)}
+                            targetPath={currentTargetPath || settings.target_path || ""}
+                        />
 
-            {/* Job Details Modal */}
-            {
-                selectedJobDetails && (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-                            {/* Header */}
-                            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                                <div className="flex items-center gap-3">
-                                    <FileText size={20} className="text-emerald-500" />
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">Job Details</h3>
-                                        <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={closeJobDetails}
-                                    className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            {/* Content */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                {/* Status & Info */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-neutral-800/50 rounded-lg p-3">
-                                        <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                            <Info size={12} />
-                                            <span className="text-[10px] uppercase font-bold">Status</span>
-                                        </div>
-                                        <span className={cn(
-                                            "text-sm font-bold uppercase",
-                                            selectedJobDetails.status === 'drafted' && "text-yellow-500",
-                                            selectedJobDetails.status === 'queued' && "text-emerald-500",
-                                            selectedJobDetails.status === 'completed' && "text-green-500",
-                                            selectedJobDetails.status === 'failed' && "text-emerald-500",
-                                        )}>
-                                            {selectedJobDetails.status}
-                                        </span>
-                                    </div>
-                                    <div className="bg-neutral-800/50 rounded-lg p-3">
-                                        <div className="flex items-center gap-2 text-neutral-400 mb-1">
-                                            <Clock size={12} />
-                                            <span className="text-[10px] uppercase font-bold">Created</span>
-                                        </div>
-                                        <span className="text-sm text-white">
-                                            {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Steps */}
-                                <div>
-                                    <div className="flex items-center gap-2 text-neutral-400 mb-2">
-                                        <Cpu size={14} />
-                                        <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {selectedJobDetails.steps?.map((step: any, idx: number) => (
-                                            <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-xs font-bold text-white">Step {idx + 1}</span>
-                                                    <span className={cn(
-                                                        "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
-                                                        step.status === 'completed' ? "bg-green-500/20 text-green-500" :
-                                                            step.status === 'failed' ? "bg-emerald-500/20 text-emerald-500" :
-                                                                "bg-neutral-700 text-neutral-400"
-                                                    )}>
-                                                        {step.status}
-                                                    </span>
-                                                </div>
-
-                                                {/* Target & Output */}
-                                                <div className="space-y-1 text-[10px]">
-                                                    {step.target_path && (
-                                                        <div className="flex gap-2">
-                                                            <span className="text-neutral-500 w-16">Target:</span>
-                                                            <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
-                                                                {step.target_path.split('/').pop()}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                    {step.output_path && (
-                                                        <div className="flex gap-2">
-                                                            <span className="text-neutral-500 w-16">Output:</span>
-                                                            <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
-                                                                {step.output_path.split('/').pop()}
-                                                            </span>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Processors */}
-                                                    {step.processors?.length > 0 && (
-                                                        <div className="flex gap-2 mt-2">
-                                                            <span className="text-neutral-500 w-16">Processors:</span>
-                                                            <div className="flex flex-wrap gap-1">
-                                                                {step.processors.map((p: string, i: number) => (
-                                                                    <span key={i} className="px-1.5 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-[9px]">
-                                                                        {p}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Source Paths */}
-                                                    {step.source_paths?.length > 0 && (
-                                                        <div className="flex gap-2 mt-1">
-                                                            <span className="text-neutral-500 w-16">Sources:</span>
-                                                            <span className="text-neutral-300">
-                                                                {step.source_paths.length} file(s)
-                                                            </span>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Frame Range */}
-                                                    {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
-                                                        <div className="flex gap-2 mt-1">
-                                                            <span className="text-neutral-500 w-16">Frames:</span>
-                                                            <span className="text-neutral-300">
-                                                                {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
+                        {/* Job Details Modal */}
+                        {selectedJobDetails && (
+                            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                                <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                                        <div className="flex items-center gap-3">
+                                            <FileText size={20} className="text-emerald-500" />
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white">Job Details</h3>
+                                                <p className="text-xs font-mono text-neutral-400">{selectedJobDetails.id}</p>
                                             </div>
-                                        ))}
+                                        </div>
+                                        <button
+                                            onClick={closeJobDetails}
+                                            className="p-2 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-white"
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                        {/* Status & Info */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-neutral-800/50 rounded-lg p-3">
+                                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                                    <Info size={12} />
+                                                    <span className="text-[10px] uppercase font-bold">Status</span>
+                                                </div>
+                                                <span className={cn(
+                                                    "text-sm font-bold uppercase",
+                                                    selectedJobDetails.status === 'drafted' && "text-yellow-500",
+                                                    selectedJobDetails.status === 'queued' && "text-emerald-500",
+                                                    selectedJobDetails.status === 'completed' && "text-green-500",
+                                                    selectedJobDetails.status === 'failed' && "text-emerald-500",
+                                                )}>
+                                                    {selectedJobDetails.status}
+                                                </span>
+                                            </div>
+                                            <div className="bg-neutral-800/50 rounded-lg p-3">
+                                                <div className="flex items-center gap-2 text-neutral-400 mb-1">
+                                                    <Clock size={12} />
+                                                    <span className="text-[10px] uppercase font-bold">Created</span>
+                                                </div>
+                                                <span className="text-sm text-white">
+                                                    {selectedJobDetails.date_created ? new Date(selectedJobDetails.date_created).toLocaleString() : 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Steps */}
+                                        <div>
+                                            <div className="flex items-center gap-2 text-neutral-400 mb-2">
+                                                <Cpu size={14} />
+                                                <span className="text-xs uppercase font-bold">Steps ({selectedJobDetails.step_count})</span>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {selectedJobDetails.steps?.map((step: any, idx: number) => (
+                                                    <div key={idx} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className="text-xs font-bold text-white">Step {idx + 1}</span>
+                                                            <span className={cn(
+                                                                "text-[9px] px-2 py-0.5 rounded font-bold uppercase",
+                                                                step.status === 'completed' ? "bg-green-500/20 text-green-500" :
+                                                                    step.status === 'failed' ? "bg-emerald-500/20 text-emerald-500" :
+                                                                        "bg-neutral-700 text-neutral-400"
+                                                            )}>
+                                                                {step.status}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Target & Output */}
+                                                        <div className="space-y-1 text-[10px]">
+                                                            {step.target_path && (
+                                                                <div className="flex gap-2">
+                                                                    <span className="text-neutral-500 w-16">Target:</span>
+                                                                    <span className="text-neutral-300 truncate flex-1" title={step.target_path}>
+                                                                        {step.target_path.split('/').pop()}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {step.output_path && (
+                                                                <div className="flex gap-2">
+                                                                    <span className="text-neutral-500 w-16">Output:</span>
+                                                                    <span className="text-neutral-300 truncate flex-1" title={step.output_path}>
+                                                                        {step.output_path.split('/').pop()}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Processors */}
+                                                            {step.processors?.length > 0 && (
+                                                                <div className="flex gap-2 mt-2">
+                                                                    <span className="text-neutral-500 w-16">Processors:</span>
+                                                                    <div className="flex flex-wrap gap-1">
+                                                                        {step.processors.map((p: string, i: number) => (
+                                                                            <span key={i} className="px-1.5 py-0.5 bg-emerald-600/20 text-emerald-400 rounded text-[9px]">
+                                                                                {p}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Source Paths */}
+                                                            {step.source_paths?.length > 0 && (
+                                                                <div className="flex gap-2 mt-1">
+                                                                    <span className="text-neutral-500 w-16">Sources:</span>
+                                                                    <span className="text-neutral-300">
+                                                                        {step.source_paths.length} file(s)
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Frame Range */}
+                                                            {(step.trim_frame_start !== null || step.trim_frame_end !== null) && (
+                                                                <div className="flex gap-2 mt-1">
+                                                                    <span className="text-neutral-500 w-16">Frames:</span>
+                                                                    <span className="text-neutral-300">
+                                                                        {step.trim_frame_start ?? 0} - {step.trim_frame_end ?? 'end'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="p-4 border-t border-neutral-700 flex justify-end">
+                                        <button
+                                            onClick={closeJobDetails}
+                                            className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
+                                        >
+                                            Close
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Footer */}
-                            <div className="p-4 border-t border-neutral-700 flex justify-end">
-                                <button
-                                    onClick={closeJobDetails}
-                                    className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-sm font-bold transition-colors"
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
-                )}
-        </div>
-    );
+                );
 };
-
