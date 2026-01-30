@@ -23,7 +23,7 @@ const isVideo = (path: string) => {
 function App() {
   console.log("App Rendering...");
   const [processors, setProcessors] = useState<string[]>([]);
-  const [activeMediaTab, setActiveMediaTab] = useState<'source' | 'target' | 'output'>('target');
+  const [activeMediaTab, setActiveMediaTab] = useState<'source' | 'target'>('target');
   const [activeProcessorTab, setActiveProcessorTab] = useState("face");
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [allSettings, setAllSettings] = useState<any>({});
@@ -131,13 +131,13 @@ function App() {
     if (job.status === 'queued' || job.status === 'running') {
       setIsProcessing(true);
       setJobStatus(job.status);
-      setProgress(job.progress * 100); // job.progress is 0.0-1.0, UI expects 0-100
-      setActiveMediaTab('output');
+      setProgress(job.progress * 100);
+      // setActiveMediaTab('output'); // Output is now fixed
     } else if (job.status === 'completed') {
       setIsProcessing(false);
       setJobStatus('completed');
       setProgress(100);
-      setActiveMediaTab('output');
+      // setActiveMediaTab('output'); // Output is now fixed
       // Fetch final details to get preview URL if needed, 
       // or we can rely on what useJob fetched (it fetches status on init/update)
       // useJob updates 'job' state. 
@@ -193,7 +193,7 @@ function App() {
     setProgress(0);
     setJobStatus("queued");
     setOutputUrl(null);
-    setActiveMediaTab('output');
+    // setActiveMediaTab('output'); // Output is now fixed
 
     try {
       const res = await execute.run();
@@ -422,223 +422,225 @@ function App() {
       </div>
 
       {/* Column 3: Source / Target / Preview */}
-      <div className="h-full flex flex-col overflow-hidden bg-neutral-900 border border-neutral-800 rounded-xl">
-        {/* Media Tabs */}
-        <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
-          {[
-            { id: 'source', label: 'Source', icon: User },
-            { id: 'target', label: 'Target', icon: Film },
-            { id: 'output', label: 'Output', icon: Play }
-          ].map((tab: any) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveMediaTab(tab.id as any)}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
-                activeMediaTab === tab.id
-                  ? "text-blue-500 bg-blue-500/5"
-                  : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
-              )}
-            >
-              <tab.icon size={14} />
-              <span className="hidden sm:inline">{tab.label}</span>
-              {activeMediaTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
-              )}
-            </button>
-          ))}
-        </div>
+      <div className="h-full flex flex-col gap-3 min-w-0">
 
-        <div className="flex-1 overflow-hidden relative p-3">
-          {/* Source Tab */}
-          {activeMediaTab === 'source' && (
-            <div className="h-full animate-in fade-in slide-in-from-left-2 duration-300">
-              <div
+        {/* TOP HALF: Source / Target Tabs */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-neutral-900 border border-neutral-800 rounded-xl min-h-0">
+          <div className="flex border-b border-neutral-800 bg-neutral-950/20 shrink-0">
+            {[
+              { id: 'source', label: 'Source', icon: User },
+              { id: 'target', label: 'Target', icon: Film }
+            ].map((tab: any) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMediaTab(tab.id as any)}
                 className={cn(
-                  "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
-                  sourcePath ? "border-blue-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+                  "flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative",
+                  activeMediaTab === tab.id
+                    ? "text-blue-500 bg-blue-500/5"
+                    : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30"
                 )}
               >
-                {sourcePath ? (
-                  <>
-                    <div className="absolute inset-0 z-0">
-                      {isVideo(sourcePath) ? (
-                        <video
-                          src={files.preview(sourcePath)}
-                          className="w-full h-full object-contain pointer-events-auto"
-                          controls
-                          muted
-                          loop
-                        />
-                      ) : (
-                        <img
-                          src={files.preview(sourcePath)}
-                          className="w-full h-full object-contain"
-                        />
-                      )}
-                    </div>
+                <tab.icon size={14} />
+                <span className="hidden sm:inline">{tab.label}</span>
+                {activeMediaTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 animate-in fade-in slide-in-from-bottom-1" />
+                )}
+              </button>
+            ))}
+          </div>
 
-                    <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
-                      <div
-                        onClick={() => openBrowser("source")}
-                        className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
-                      >
-                        <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
-                          {sourcePath.split('/').pop()}
-                        </span>
-                        <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+          <div className="flex-1 overflow-hidden relative p-3">
+            {/* Source Tab */}
+            {activeMediaTab === 'source' && (
+              <div className="h-full animate-in fade-in slide-in-from-left-2 duration-300">
+                <div
+                  className={cn(
+                    "bg-neutral-900 rounded-xl border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer transition-all h-full group relative overflow-hidden",
+                    sourcePath ? "border-blue-500/30 bg-black/40" : "hover:border-neutral-700 hover:bg-neutral-800/50"
+                  )}
+                >
+                  {sourcePath ? (
+                    <>
+                      <div className="absolute inset-0 z-0">
+                        {isVideo(sourcePath) ? (
+                          <video
+                            src={files.preview(sourcePath)}
+                            className="w-full h-full object-contain pointer-events-auto"
+                            controls
+                            muted
+                            loop
+                          />
+                        ) : (
+                          <img
+                            src={files.preview(sourcePath)}
+                            className="w-full h-full object-contain"
+                          />
+                        )}
                       </div>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSourcePath(null);
-                          config.update({ source_paths: [] });
-                        }}
-                        className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-blue-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
-                      >
-                        <X size={14} />
-                      </button>
+                      <div className="z-10 flex flex-col p-3 w-full h-full justify-start items-start pointer-events-none">
+                        <div
+                          onClick={() => openBrowser("source")}
+                          className="group/filename flex items-center gap-2 cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 px-2 py-1 rounded backdrop-blur-sm transition-colors border border-white/5 hover:border-white/20"
+                        >
+                          <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[150px] drop-shadow-md">
+                            {sourcePath.split('/').pop()}
+                          </span>
+                          <Replace size={10} className="text-white/50 group-hover:text-white transition-colors" />
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSourcePath(null);
+                            config.update({ source_paths: [] });
+                          }}
+                          className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-blue-600 hover:text-white transition-colors pointer-events-auto shadow-lg backdrop-blur-sm z-20"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div
+                      onClick={() => openBrowser("source")}
+                      className="flex flex-col items-center justify-center w-full h-full"
+                    >
+                      <Upload className="text-neutral-600 mb-4 group-hover:text-blue-500 transition-colors" size={32} />
+                      <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
+                      <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
                     </div>
-                  </>
-                ) : (
-                  <div
-                    onClick={() => openBrowser("source")}
-                    className="flex flex-col items-center justify-center w-full h-full"
-                  >
-                    <Upload className="text-neutral-600 mb-4 group-hover:text-blue-500 transition-colors" size={32} />
-                    <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Select Source</p>
-                    <p className="text-[10px] text-neutral-600 mt-1 italic">Image or Video</p>
-                  </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Target Tab */}
+            {activeMediaTab === 'target' && (
+              <div className="h-full flex flex-col gap-3 animate-in fade-in duration-300">
+                <div className="flex-1 min-h-0">
+                  <MediaPreview
+                    file={targetPath}
+                    type="target"
+                    label="Select Target"
+                    onUpload={() => openBrowser("target")}
+                    onClear={() => {
+                      setTargetPath(null);
+                      config.update({ target_path: null });
+                    }}
+                    isMasking={activeProcessors.includes('watermark_remover')}
+                    maskArea={[
+                      allSettings.watermark_remover_area_start?.[0] || 0,
+                      allSettings.watermark_remover_area_start?.[1] || 0,
+                      allSettings.watermark_remover_area_end?.[0] || 0,
+                      allSettings.watermark_remover_area_end?.[1] || 0
+                    ]}
+                    onMaskChange={(area) => {
+                      updateSetting('watermark_remover_area_start', [area[0], area[1]]);
+                      updateSetting('watermark_remover_area_end', [area[2], area[3]]);
+                    }}
+                    onTimeUpdate={setCurrentVideoTime}
+                    className="h-full"
+                  />
+                </div>
+
+                {/* Detected Faces Card */}
+                {/* Conditionally render height or make it collapsible if space is tight */}
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 h-[120px] shrink-0 flex flex-col">
+                  <FaceSelector
+                    targetPath={targetPath}
+                    currentTime={currentVideoTime}
+                    onSelect={(index) => updateSetting("reference_face_position", index)}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* BOTTOM HALF: Output / Preview */}
+        <div className="h-[45%] bg-neutral-900 rounded-xl border border-neutral-800 flex flex-col relative overflow-hidden shadow-inner shrink-0">
+          {/* Header for Output */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800 bg-neutral-950/20">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-2">
+              <Play size={14} /> Output Preview
+            </span>
+
+            {previewUrl && (
+              <div className="flex items-center gap-2">
+                <select
+                  value={previewResolution}
+                  onChange={(e) => setPreviewResolution(e.target.value)}
+                  className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
+                >
+                  {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
+                    <option key={res} value={res} className="bg-neutral-900">{res}</option>
+                  ))}
+                </select>
+
+                {isPreviewLoading && (
+                  <Loader2 size={12} className="animate-spin text-blue-500" />
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Target Tab */}
-          {activeMediaTab === 'target' && (
-            <div className="h-full flex flex-col gap-3 animate-in fade-in duration-300">
-              <div className="flex-1 min-h-0">
-                <MediaPreview
-                  file={targetPath}
-                  type="target"
-                  label="Select Target"
-                  onUpload={() => openBrowser("target")}
-                  onClear={() => {
-                    setTargetPath(null);
-                    config.update({ target_path: null });
-                  }}
-                  isMasking={activeProcessors.includes('watermark_remover')}
-                  maskArea={[
-                    allSettings.watermark_remover_area_start?.[0] || 0,
-                    allSettings.watermark_remover_area_start?.[1] || 0,
-                    allSettings.watermark_remover_area_end?.[0] || 0,
-                    allSettings.watermark_remover_area_end?.[1] || 0
-                  ]}
-                  onMaskChange={(area) => {
-                    updateSetting('watermark_remover_area_start', [area[0], area[1]]);
-                    updateSetting('watermark_remover_area_end', [area[2], area[3]]);
-                  }}
-                  onTimeUpdate={setCurrentVideoTime}
-                  className="h-full"
+          <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-black/20">
+            {outputUrl ? (
+              <div className="w-full h-full relative group">
+                <video
+                  src={`http://localhost:8002${outputUrl}`}
+                  controls
+                  className="w-full h-full object-contain"
+                  autoPlay
                 />
+                <a
+                  href={`http://localhost:8002${outputUrl}`}
+                  download
+                  className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs"
+                >
+                  <Upload size={14} className="rotate-180" /> Download
+                </a>
               </div>
+            ) : isProcessing ? (
+              <div className="flex flex-col items-center gap-4 text-neutral-400 w-full max-w-md px-8 scale-90">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 size={32} className="animate-spin text-blue-500" />
+                  <p className="text-sm font-medium animate-pulse">Processing...</p>
+                </div>
 
-              {/* Detected Faces Card - Only shown in Target tab as it relates to target */}
-              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 min-h-[140px] flex flex-col">
-                <FaceSelector
-                  targetPath={targetPath}
-                  currentTime={currentVideoTime}
-                  onSelect={(index) => updateSetting("reference_face_position", index)}
-                />
+                <div className="w-full space-y-1">
+                  <div className="flex justify-between text-[10px] uppercase font-bold text-neutral-500">
+                    <span>Progress</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-600 transition-all duration-300 ease-linear rounded-full"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-center text-[10px] text-neutral-600">
+                    {jobStatus === 'queued' ? 'Waiting...' : 'Rendering...'}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Output Tab */}
-          {activeMediaTab === 'output' && (
-            <div className="h-full bg-neutral-900 rounded-xl border border-neutral-800 flex items-center justify-center relative overflow-hidden flex-1 min-h-0 shadow-inner animate-in fade-in slide-in-from-right-2 duration-300">
-              {/* Preview Toolbar */}
-              {previewUrl && (
-                <div className="absolute top-4 right-4 z-20 flex gap-2">
-                  <select
-                    value={previewResolution}
-                    onChange={(e) => setPreviewResolution(e.target.value)}
-                    className="bg-black/60 backdrop-blur-md text-white/90 text-[10px] font-bold uppercase rounded-lg border border-white/10 px-2 py-1 outline-none hover:bg-black/80 transition-colors"
-                  >
-                    {(globalChoices?.preview_resolutions || ["512x512"]).map((res: string) => (
-                      <option key={res} value={res} className="bg-neutral-900">{res}</option>
-                    ))}
-                  </select>
-
-                  {isPreviewLoading && (
-                    <div className="bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
-                      <Loader2 size={16} className="animate-spin text-blue-500" />
-                    </div>
-                  )}
+            ) : previewUrl ? (
+              <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
+                <img src={previewUrl} className="w-full h-full object-contain" />
+                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 flex items-center gap-1.5 pointer-events-none">
+                  <Sparkles size={10} className="text-blue-500" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-white/90">Preview</span>
                 </div>
-              )}
-
-              {outputUrl ? (
-                <div className="w-full h-full relative group">
-                  <video
-                    src={`http://localhost:8002${outputUrl}`}
-                    controls
-                    className="w-full h-full object-contain"
-                    autoPlay
-                  />
-                  <a
-                    href={`http://localhost:8002${outputUrl}`}
-                    download
-                    className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
-                  >
-                    <Upload size={16} className="rotate-180" /> Download
-                  </a>
-                </div>
-              ) : isProcessing ? (
-                <div className="flex flex-col items-center gap-6 text-neutral-400 w-full max-w-md px-8">
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 size={48} className="animate-spin text-blue-500" />
-                    <p className="text-lg font-medium animate-pulse">Generating Deepfake...</p>
-                  </div>
-
-                  <div className="w-full space-y-2">
-                    <div className="flex justify-between text-xs uppercase font-bold text-neutral-500">
-                      <span>Progress</span>
-                      <span>{Math.round(progress)}%</span>
-                    </div>
-                    <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-blue-600 transition-all duration-300 ease-linear rounded-full"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <p className="text-center text-xs text-neutral-600 pt-2">
-                      {jobStatus === 'queued' ? 'Waiting in queue...' : 'Processing frames...'}
-                    </p>
-                  </div>
-                </div>
-              ) : previewUrl ? (
-                <div className="w-full h-full relative group animate-in fade-in duration-500 flex items-center justify-center">
-                  <img src={previewUrl} className="w-full h-full object-contain" />
-                  {isPreviewLoading && (
-                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl z-20">
-                      <Loader2 size={16} className="animate-spin text-blue-500" />
-                    </div>
-                  )}
-                  <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                    <Sparkles size={14} className="text-blue-500" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/90">Live Preview</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-neutral-600">
-                  <Play size={48} className="mb-4 opacity-20" />
-                  <p className="text-sm font-bold uppercase tracking-widest opacity-50">No Output</p>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-neutral-700 space-y-2">
+                <Play size={32} className="opacity-20" />
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Ready</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div >

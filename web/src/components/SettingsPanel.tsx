@@ -219,11 +219,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 ))}
             </div>
 
-            <div className="p-4 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-2 space-y-3 overflow-y-auto custom-scrollbar flex-1">
                 {activeTab === "faces" && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
                         {/* Face Selector Mode */}
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -235,9 +235,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
 
-                            <div className="space-y-2 mt-2">
+                            <div className="space-y-1.5 mt-1">
                                 {/* Top Row: Reference, Single, Many */}
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-1.5">
                                     {[
                                         { id: 'reference', label: 'Reference', icon: Target },
                                         { id: 'one', label: 'Single', icon: User },
@@ -247,18 +247,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             key={mode.id}
                                             onClick={() => handleChange("face_selector_mode", mode.id)}
                                             className={cn(
-                                                "flex items-center justify-center gap-2 p-2 rounded-lg border transition-all relative overflow-hidden group h-9",
+                                                "flex items-center justify-center gap-2 p-1.5 rounded-lg border transition-all relative overflow-hidden group h-8",
                                                 settings.face_selector_mode === mode.id
                                                     ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                                     : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
                                             )}
                                         >
-                                            <mode.icon size={14} className={cn(settings.face_selector_mode === mode.id ? "text-blue-500" : "text-neutral-500")} />
-                                            <span className={cn("text-[10px] font-bold uppercase", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
+                                            <mode.icon size={12} className={cn(settings.face_selector_mode === mode.id ? "text-blue-500" : "text-neutral-500")} />
+                                            <span className={cn("text-[9px] font-bold uppercase", settings.face_selector_mode === mode.id ? "text-white" : "text-neutral-400")}>
                                                 {mode.label}
                                             </span>
                                             {settings.face_selector_mode === mode.id && (
-                                                <Sparkles size={10} className="absolute top-1 right-1 text-blue-500 opacity-50" />
+                                                <Sparkles size={8} className="absolute top-1 right-1 text-blue-500 opacity-50" />
                                             )}
                                         </button>
                                     ))}
@@ -271,27 +271,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         setWizardOpen(true);
                                     }}
                                     className={cn(
-                                        "w-full flex items-center justify-center gap-2 p-2 rounded-lg border transition-all relative overflow-hidden group h-9",
+                                        "w-full flex items-center justify-center gap-2 p-1.5 rounded-lg border transition-all relative overflow-hidden group h-8",
                                         settings.face_selector_mode === 'automatic'
                                             ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                             : "bg-neutral-800/30 border-neutral-700/50 hover:border-neutral-600 text-neutral-400"
                                     )}
                                 >
-                                    <Zap size={14} className={cn(settings.face_selector_mode === 'automatic' ? "text-blue-500" : "text-neutral-500")} />
-                                    <span className={cn("text-xs font-bold uppercase", settings.face_selector_mode === 'automatic' ? "text-white" : "text-neutral-400")}>
+                                    <Zap size={12} className={cn(settings.face_selector_mode === 'automatic' ? "text-blue-500" : "text-neutral-500")} />
+                                    <span className={cn("text-[10px] font-bold uppercase", settings.face_selector_mode === 'automatic' ? "text-white" : "text-neutral-400")}>
                                         Automatic
                                     </span>
                                     {settings.face_selector_mode === 'automatic' && (
-                                        <Sparkles size={10} className="absolute top-1 right-1 text-blue-500 opacity-50" />
+                                        <Sparkles size={8} className="absolute top-1 right-1 text-blue-500 opacity-50" />
                                     )}
                                 </button>
                             </div>
 
                             {/* Reference Options */}
                             {(settings.face_selector_mode === 'reference' || settings.face_selector_mode === 'automatic') && (
-                                <div className="bg-neutral-800/20 rounded-lg p-3 border border-neutral-700/30 space-y-3 animate-in fade-in slide-in-from-top-1">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-neutral-500 uppercase flex justify-between items-center">
+                                <div className="bg-neutral-800/20 rounded-lg p-2 border border-neutral-700/30 space-y-1 animate-in fade-in slide-in-from-top-1">
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-neutral-500 uppercase flex justify-between items-center">
                                             <span>Similarity Threshold</span>
                                             <span className="text-blue-400 font-mono">{(settings.reference_face_distance || 0.6).toFixed(2)}</span>
                                         </label>
@@ -300,7 +300,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             min="0" max="1.5" step="0.05"
                                             value={settings.reference_face_distance || 0.6}
                                             onChange={(e) => handleChange("reference_face_distance", e.target.value)}
-                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-600 block"
                                         />
                                     </div>
                                 </div>
@@ -308,7 +308,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </div>
 
                         {/* Face Sorting */}
-                        <div className="space-y-2 pt-2">
+                        <div className="space-y-1.5 pt-1">
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1.5">
                                     <div className="flex items-center gap-2">

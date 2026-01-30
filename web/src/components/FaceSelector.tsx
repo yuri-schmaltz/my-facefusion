@@ -93,11 +93,10 @@ const FaceSelector: React.FC<FaceSelectorProps> = ({ targetPath, currentTime = 0
 
             <div className="flex-1 flex flex-col justify-center">
                 {!targetPath ? (
-                    <div className="flex flex-col items-center justify-center py-6 text-neutral-700 gap-3 grayscale opacity-30">
-                        <ScanEye size={32} strokeWidth={1.5} />
+                    <div className="flex flex-col items-center justify-center text-neutral-600 gap-2 grayscale opacity-30 h-full">
+                        <ScanEye size={24} strokeWidth={1.5} />
                         <div className="flex flex-col items-center gap-1">
-                            <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Ready for Detection</span>
-                            <span className="text-[9px] italic opacity-60">Select a target media to scan faces</span>
+                            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full">Ready for Detection</span>
                         </div>
                     </div>
                 ) : error ? (
