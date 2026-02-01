@@ -23,6 +23,7 @@ const isVideo = (path: string) => {
 function App() {
   console.log("App Rendering...");
   const { addToast } = useToast();
+  const backendOrigin = import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8002";
   const [processors, setProcessors] = useState<string[]>([]);
   const [activeMediaTab, setActiveMediaTab] = useState<'source' | 'target'>('target');
   const [activeProcessorTab, setActiveProcessorTab] = useState("face");
@@ -591,13 +592,13 @@ function App() {
             {outputUrl ? (
               <div className="w-full h-full relative group">
                 <video
-                  src={`http://localhost:8002${outputUrl}`}
+                  src={`${backendOrigin}${outputUrl}`}
                   controls
                   className="w-full h-full object-contain"
                   autoPlay
                 />
                 <a
-                  href={`http://localhost:8002${outputUrl}`}
+                  href={`${backendOrigin}${outputUrl}`}
                   download
                   className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs"
                 >
