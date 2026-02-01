@@ -6328,3 +6328,6 @@ AttributeError: 'NoneType' object has no attribute 'shape'
 2026-02-01 02:26:07,039 - facefusion - INFO - [FACEFUSION.CORE] processing step 4 of 4
 2026-02-01 02:26:09,176 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
 2026-02-01 02:26:09,293 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-02-01 02:26:13,668 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-02-01 02:26:13,783 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.61 seconds
+2026-02-01 02:26:15,005 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1

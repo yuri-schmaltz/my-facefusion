@@ -2625,3 +2625,6 @@
 {"asctime": "2026-02-01 02:26:07,039", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 4 of 4", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:26:09,176", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:26:09,293", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:13,668", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:13,783", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.61 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:15,005", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 1", "module": "logger", "lineno": 49}
