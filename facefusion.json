@@ -3050,3 +3050,17 @@
 {"asctime": "2026-02-01 02:39:20,854", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] job test-job-remove-step created", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:39:21,907", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] step added to job test-job-remove-step", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:39:22,926", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] step added to job test-job-remove-step", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:24,011", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] step 0 removed from job test-job-remove-step", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:25,076", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] step -1 removed from job test-job-remove-step", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:26,124", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.CORE] step -1 not removed from job test-job-remove-step", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:39:27,321", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] running queued job test-job-run", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:27,321", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing of job test-job-run failed", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:28,336", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] job test-job-run created", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:29,364", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] step added to job test-job-run", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:30,411", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] running queued job test-job-run", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:30,412", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing of job test-job-run failed", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:31,443", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] job test-job-run submitted", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:32,525", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] running queued job test-job-run", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:32,531", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 1", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:36,097", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:39:36,214", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}

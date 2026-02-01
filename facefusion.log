@@ -7207,3 +7207,17 @@ AttributeError: 'Face' object has no attribute 'center'. Did you mean: 'gender'?
 2026-02-01 02:39:20,854 - facefusion - INFO - [FACEFUSION.CORE] job test-job-remove-step created
 2026-02-01 02:39:21,907 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-remove-step
 2026-02-01 02:39:22,926 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-remove-step
+2026-02-01 02:39:24,011 - facefusion - INFO - [FACEFUSION.CORE] step 0 removed from job test-job-remove-step
+2026-02-01 02:39:25,076 - facefusion - INFO - [FACEFUSION.CORE] step -1 removed from job test-job-remove-step
+2026-02-01 02:39:26,124 - facefusion - ERROR - [FACEFUSION.CORE] step -1 not removed from job test-job-remove-step
+2026-02-01 02:39:27,321 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-02-01 02:39:27,321 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run failed
+2026-02-01 02:39:28,336 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run created
+2026-02-01 02:39:29,364 - facefusion - INFO - [FACEFUSION.CORE] step added to job test-job-run
+2026-02-01 02:39:30,411 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-02-01 02:39:30,412 - facefusion - INFO - [FACEFUSION.CORE] processing of job test-job-run failed
+2026-02-01 02:39:31,443 - facefusion - INFO - [FACEFUSION.CORE] job test-job-run submitted
+2026-02-01 02:39:32,525 - facefusion - INFO - [FACEFUSION.CORE] running queued job test-job-run
+2026-02-01 02:39:32,531 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-02-01 02:39:36,097 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-02-01 02:39:36,214 - facefusion - INFO - [FACEFUSION.CORE] processing
