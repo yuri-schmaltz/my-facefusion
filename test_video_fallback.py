@@ -4,6 +4,10 @@ import sys
 import os
 import glob
 
+if __name__ != "__main__":
+    import pytest
+    pytest.skip("Manual video fallback script (requires local media).", allow_module_level=True)
+
 sys.path.append(".")
 
 from facefusion import state_manager
