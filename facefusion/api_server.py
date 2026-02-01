@@ -332,7 +332,7 @@ def get_help():
     return help_dict
 
 @app.get("/system/select-file")
-async def select_file(multiple: bool = False, initial_path: Optional[str] = None, request: Request):
+async def select_file(request: Request, multiple: bool = False, initial_path: Optional[str] = None):
     """Triggers a native OS file selection dialog using Zenity."""
     require_local(request)
     def run_zenity():
