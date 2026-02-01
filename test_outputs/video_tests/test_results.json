@@ -2,7 +2,12 @@
   {
     "video": "The Runaways - Cherry Bomb.mp4",
     "status": "\u274c FAIL",
-    "error": "n/facefusion/face_detector.py\", line 434, in forward_with_yolo_face\n    detection = face_detector.run(None,\n                ^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'run'\n\n"
+    "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
+  },
+  {
+    "video": "barry manilow - can't take my eyes off of you (official video).mp4",
+    "status": "\u274c FAIL",
+    "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
   },
   {
     "video": "frankie valli - can't take my eyes off you (live).mp4",
@@ -10,13 +15,8 @@
     "output_size": 176048
   },
   {
-    "video": "barry manilow - can't take my eyes off of you (official video).mp4",
+    "video": "Blondie - Heart Of Glass.mp4",
     "status": "\u274c FAIL",
-    "error": "/facefusion/face_detector.py\", line 410, in forward_with_retinaface\n    detection = face_detector.run(None,\n                ^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'run'\n\n"
-  },
-  {
-    "video": "test_fallback_output.mp4",
-    "status": "\u2705 PASS",
-    "output_size": 176381
+    "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
   }
 ]

@@ -72,31 +72,35 @@ all_processors_tests = [
     {"id": "watermark_remover", "name": "Watermark Remover", "args": ["-t", TARGET_IMAGE, "--processors", "watermark_remover", "--watermark-remover-area-start", "0", "0", "--watermark-remover-area-end", "10", "10"]}
 ]
 
-failed_tests = []
+def main() -> int:
+    failed_tests = []
 
-print(f"Testing {len(all_processors_tests)} processors on {PROVIDERS}...")
+    print(f"Testing {len(all_processors_tests)} processors on {PROVIDERS}...")
 
-for provider in PROVIDERS:
-    print(f"\\n=== Testing Provider: {provider.upper()} ===")
-    for test in all_processors_tests:
-        # Determine output filename
-        ext = "mp4" if "mp4" in str(test.get("args")) else "jpg"
-        # Overwrite -o if specific test didn't hardcode it (some video tests did)
-        if "-o" not in test["args"]:
-             output_file = os.path.join(OUTPUT_DIR, f"{provider}_{test['id']}.{ext}")
-             current_args = test["args"] + ["-o", output_file]
-        else:
-             current_args = test["args"]
-        
-        if not run_test(test["name"], current_args, provider):
-            failed_tests.append(f"{provider} - {test['name']}")
+    for provider in PROVIDERS:
+        print(f"\\n=== Testing Provider: {provider.upper()} ===")
+        for test in all_processors_tests:
+            # Determine output filename
+            ext = "mp4" if "mp4" in str(test.get("args")) else "jpg"
+            # Overwrite -o if specific test didn't hardcode it (some video tests did)
+            if "-o" not in test["args"]:
+                 output_file = os.path.join(OUTPUT_DIR, f"{provider}_{test['id']}.{ext}")
+                 current_args = test["args"] + ["-o", output_file]
+            else:
+                 current_args = test["args"]
+            
+            if not run_test(test["name"], current_args, provider):
+                failed_tests.append(f"{provider} - {test['name']}")
 
-print("\\n" + "="*30)
-if failed_tests:
-    print(f"FAIL: {len(failed_tests)} tests failed.")
-    for t in failed_tests:
-        print(f" - {t}")
-    sys.exit(1)
-else:
+    print("\\n" + "="*30)
+    if failed_tests:
+        print(f"FAIL: {len(failed_tests)} tests failed.")
+        for t in failed_tests:
+            print(f" - {t}")
+        return 1
     print("ALL TESTS PASSED")
-    sys.exit(0)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
