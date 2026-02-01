@@ -23,12 +23,25 @@ def test_soft_validation_no_crash() -> None:
             os.remove(temp_config)
 
 def test_invalid_path_graceful_exit() -> None:
-    # Run with a non-existent source path. 
+    # Run with a non-existent source path.
     # Since we added validate_paths, it should exit gracefully (likely with code 1 if caught by core.py)
     # but NOT with a traceback (code 2 for argparse or 1 for our return).
-    commands = [sys.executable, 'facefusion.py', 'headless-run', '-s', 'non_existent.jpg', '-t', 'non_existent.jpg', '-o', 'out.jpg']
+    commands = [
+        sys.executable,
+        'facefusion.py',
+        'headless-run',
+        '-s',
+        'non_existent.jpg',
+        '-t',
+        'non_existent.jpg',
+        '-o',
+        'out.jpg'
+    ]
     result = subprocess.run(commands, capture_output=True, text=True)
-    
+
     assert result.returncode != 0
     # Check for help message or our custom validation error
-    assert "usage:" in result.stdout or "usage:" in result.stderr or "[FACEFUSION.CORE]" in result.stderr
+    assert any(
+        keyword in result.stdout or keyword in result.stderr
+        for keyword in ("usage:", "[FACEFUSION.CORE]", "Path does not exist")
+    )

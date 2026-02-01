@@ -24,7 +24,7 @@ def get(notation : str, module_name : str = 'facefusion') -> Optional[str]:
 		__autoload__(module_name)
 
 	if module_name not in LOCALE_POOL_SET:
-		return ''
+		return None
 
 	current = LOCALE_POOL_SET.get(module_name).get(CURRENT_LANGUAGE)
 
@@ -35,4 +35,4 @@ def get(notation : str, module_name : str = 'facefusion') -> Optional[str]:
 			if isinstance(current, str):
 				return current
 
-	return ''
+	return None

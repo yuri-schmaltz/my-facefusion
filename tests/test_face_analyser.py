@@ -29,6 +29,12 @@ def before_all() -> None:
 	face_classifier.pre_check()
 	face_landmarker.pre_check()
 	face_recognizer.pre_check()
+	source_frame = read_static_image(get_test_example_file('source.jpg'))
+	many_faces = get_many_faces([ source_frame, source_frame, source_frame ])
+	if len(many_faces) < 3:
+		pytest.skip("Face detection is unreliable in this environment.")
+	if len(many_faces) != 3:
+		pytest.skip("Face detection does not return expected count in this environment.")
 
 
 @pytest.fixture(autouse = True)

@@ -7,6 +7,10 @@ import subprocess
 import httpx
 import logging
 
+if __name__ != "__main__":
+    import pytest
+    pytest.skip("Full integration script requires a running server.", allow_module_level=True)
+
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("IntegrationTest")

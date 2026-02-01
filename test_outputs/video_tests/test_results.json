@@ -1,11 +1,6 @@
 [
   {
-    "video": "The Runaways - Cherry Bomb.mp4",
-    "status": "\u274c FAIL",
-    "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
-  },
-  {
-    "video": "barry manilow - can't take my eyes off of you (official video).mp4",
+    "video": "Blondie - Heart Of Glass.mp4",
     "status": "\u274c FAIL",
     "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
   },
@@ -15,7 +10,12 @@
     "output_size": 176048
   },
   {
-    "video": "Blondie - Heart Of Glass.mp4",
+    "video": "barry manilow - can't take my eyes off of you (official video).mp4",
+    "status": "\u274c FAIL",
+    "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
+  },
+  {
+    "video": "The Runaways - Cherry Bomb.mp4",
     "status": "\u274c FAIL",
     "error": "ion/facefusion/vision.py\", line 259, in fit_contain_frame\n    height, width = vision_frame.shape[:2]\n                    ^^^^^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'shape'\n\n"
   }

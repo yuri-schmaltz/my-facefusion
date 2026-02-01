@@ -201,7 +201,7 @@ def create_box_mask(crop_vision_frame : VisionFrame, face_mask_blur : float, fac
 
 
 def erode_mask(mask : Mask, erosion : float) -> Mask:
-	if erosion == 0:
+	if erosion is None or erosion == 0:
 		return mask
 	crop_size = mask.shape[:2][::-1]
 	erosion_amount = int(crop_size[0] * 0.5 * abs(erosion))

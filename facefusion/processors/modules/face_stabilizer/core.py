@@ -71,7 +71,10 @@ def process_frame(inputs : FaceStabilizerInputs) -> ProcessorOutputs:
 	if not target_face:
 		return temp_vision_frame, temp_vision_mask
 	
-	center = target_face.center
+	bbox = target_face.bounding_box
+	if hasattr(bbox, 'tolist'):
+		bbox = bbox.tolist()
+	center = numpy.array([(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2])
 	h, w, c = temp_vision_frame.shape
 	frame_center = numpy.array([w / 2, h / 2])
 	

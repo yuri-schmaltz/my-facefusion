@@ -4,6 +4,25 @@ import tempfile
 from facefusion.filesystem import create_directory, is_directory, is_file, remove_directory
 from facefusion.types import JobStatus
 
+try:
+	import cv2
+except ImportError:
+	cv2 = None
+
+
+def can_open_video(video_name: str = "target-240p.mp4") -> bool:
+	if not cv2:
+		return False
+
+	video_path = get_test_example_file(video_name)
+	if not os.path.exists(video_path):
+		return False
+
+	cap = cv2.VideoCapture(video_path)
+	opened = cap.isOpened()
+	cap.release()
+	return opened
+
 
 def is_test_job_file(file_path : str, job_status : JobStatus) -> bool:
 	return is_file(get_test_job_file(file_path, job_status))

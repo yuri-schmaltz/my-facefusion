@@ -11,7 +11,7 @@ from facefusion.ffmpeg import concat_video, extract_frames, merge_video, read_au
 from facefusion.filesystem import copy_file
 from facefusion.temp_helper import clear_temp_directory, create_temp_directory, get_temp_file_path, resolve_temp_frame_paths
 from facefusion.types import EncoderSet
-from .helper import get_test_example_file, get_test_examples_directory, get_test_output_file, prepare_test_output_directory
+from .helper import can_open_video, get_test_example_file, get_test_examples_directory, get_test_output_file, prepare_test_output_directory
 
 
 @pytest.fixture(scope = 'module', autouse = True)
@@ -40,6 +40,8 @@ def before_all() -> None:
 	state_manager.init_item('output_video_encoder', 'libx264')
 	state_manager.init_item('output_video_quality', 100)
 	state_manager.init_item('output_video_preset', 'ultrafast')
+	if not can_open_video():
+		pytest.skip("Video capture (h264) is unavailable; skipping ffmpeg-heavy tests.")
 
 
 @pytest.fixture(scope = 'function', autouse = True)
@@ -101,7 +103,12 @@ def test_merge_video() -> None:
 		get_test_example_file('target-240p-16khz.webm'),
 		get_test_example_file('target-240p-16khz.wmv')
 	]
-	output_video_encoders = get_available_encoder_set().get('video')
+	output_video_encoders = [
+		encoder for encoder in get_available_encoder_set().get('video')
+		if not any(hw in encoder for hw in ('qsv', 'nvenc', 'amf', 'videotoolbox'))
+	]
+	if not output_video_encoders:
+		pytest.skip("No supported software video encoders available in this environment.")
 
 	for target_path in target_paths:
 		for output_video_encoder in output_video_encoders:
