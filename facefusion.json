@@ -2628,3 +2628,18 @@
 {"asctime": "2026-02-01 02:26:13,668", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:26:13,783", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.61 seconds", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 02:26:15,005", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 1", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:20,713", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:20,836", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:26,599", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:26,611", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:26,727", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.49 seconds", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:28,388", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 1", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:34,231", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:39,731", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-01 02:26:39,954", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:26:39,954", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:26:39,955", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:26:39,955", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:26:39,955", "name": "facefusion", "levelname": "ERROR", "message": "[FACEFUSION.FFMPEG] Error opening output files: Invalid argument", "module": "logger", "lineno": 57}
+{"asctime": "2026-02-01 02:26:39,959", "name": "facefusion", "levelname": "WARNING", "message": "[FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped", "module": "logger", "lineno": 53}
+{"asctime": "2026-02-01 02:26:39,961", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.29 seconds", "module": "logger", "lineno": 49}

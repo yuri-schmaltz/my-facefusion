@@ -6331,3 +6331,18 @@ AttributeError: 'NoneType' object has no attribute 'shape'
 2026-02-01 02:26:13,668 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
 2026-02-01 02:26:13,783 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 4.61 seconds
 2026-02-01 02:26:15,005 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-02-01 02:26:20,713 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] copying image with a resolution of 426x226
+2026-02-01 02:26:20,836 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-02-01 02:26:26,599 - facefusion - INFO - [FACEFUSION.CORE] processing
+2026-02-01 02:26:26,611 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] finalizing image with a resolution of 426x226
+2026-02-01 02:26:26,727 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 9.49 seconds
+2026-02-01 02:26:28,388 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
+2026-02-01 02:26:34,231 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-02-01 02:26:39,731 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] merging video with a resolution of 426x226 and 25.0 frames per second
+2026-02-01 02:26:39,954 - facefusion - ERROR - [FACEFUSION.FFMPEG] Stream map '1:a:0' matches no streams.
+2026-02-01 02:26:39,954 - facefusion - ERROR - [FACEFUSION.FFMPEG] To ignore this, add a trailing '?' to the map.
+2026-02-01 02:26:39,955 - facefusion - ERROR - [FACEFUSION.FFMPEG] Failed to set value '1:a:0' for option 'map': Invalid argument
+2026-02-01 02:26:39,955 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error parsing options for output file /tmp/facefusion-test-outputs/test-color-match-face-to-video.mp4.
+2026-02-01 02:26:39,955 - facefusion - ERROR - [FACEFUSION.FFMPEG] Error opening output files: Invalid argument
+2026-02-01 02:26:39,959 - facefusion - WARNING - [FACEFUSION.IMAGE_TO_VIDEO] restoring audio skipped
+2026-02-01 02:26:39,961 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] processing to video succeeded in 9.29 seconds
