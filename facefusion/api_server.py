@@ -4,7 +4,7 @@ import time
 import pickle
 from typing import List, Optional, Dict
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -25,6 +25,26 @@ from facefusion.auto_tuner import suggest_settings
 from facefusion.orchestrator import get_orchestrator, RunRequest, JobStatus
 
 
+ALLOW_REMOTE = os.environ.get("FACEFUSION_ALLOW_REMOTE", "0") in ("1", "true", "True", "yes", "YES")
+LOCAL_HOSTS = {"127.0.0.1", "::1", "testclient"}
+
+def is_local_host(host: str) -> bool:
+    if not host:
+        return False
+    if host in LOCAL_HOSTS:
+        return True
+    if host.startswith("127."):
+        return True
+    if host.startswith("::ffff:127."):
+        return True
+    return False
+
+def require_local(request: Request) -> None:
+    if ALLOW_REMOTE:
+        return
+    client_host = request.client.host if request.client else ""
+    if not is_local_host(client_host):
+        raise HTTPException(status_code=403, detail="Local access only")
 
 
 
@@ -312,8 +332,9 @@ def get_help():
     return help_dict
 
 @app.get("/system/select-file")
-async def select_file(multiple: bool = False, initial_path: Optional[str] = None):
+async def select_file(request: Request, multiple: bool = False, initial_path: Optional[str] = None):
     """Triggers a native OS file selection dialog using Zenity."""
+    require_local(request)
     def run_zenity():
         command = ["zenity", "--file-selection", "--title=Select Media"]
         if multiple:
@@ -543,11 +564,12 @@ async def stream_job_events(job_id: str):
 
 
 @app.get("/files/preview")
-def get_preview(path: str):
+def get_preview(path: str, request: Request):
     """
     Hardened preview endpoint: Only allows files within temp_path, home, or project root.
     Uses realpath to resolve symlinks and prevent symlink-based traversal attacks.
     """
+    require_local(request)
     # Resolve symlinks BEFORE path validation to prevent symlink attacks
     path = os.path.realpath(os.path.abspath(path.strip('"\'')))
     
@@ -619,6 +641,10 @@ logging.getLogger().addHandler(queue_handler)
 
 @app.websocket("/logs")
 async def websocket_endpoint(websocket: WebSocket):
+    client_host = websocket.client.host if websocket.client else ""
+    if not ALLOW_REMOTE and not is_local_host(client_host):
+        await websocket.close(code=1008)
+        return
     await websocket.accept()
     log_broadcaster.set_loop(asyncio.get_running_loop())
     q = await log_broadcaster.subscribe()
@@ -639,7 +665,8 @@ class FilesystemRequest(BaseModel):
     path: Optional[str] = None
 
 @app.post("/filesystem/list")
-def list_filesystem(req: FilesystemRequest):
+def list_filesystem(req: FilesystemRequest, request: Request):
+    require_local(request)
     import platform
     
     input_path = req.path

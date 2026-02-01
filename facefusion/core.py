@@ -76,8 +76,16 @@ def route(args : Args) -> None:
 		import uvicorn
 		# Ensure the current directory is in the python path
 		sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-		print("Starting FaceFusion API Server on port 8002...")
-		uvicorn.run("facefusion.api_server:app", host="0.0.0.0", port=8002, reload=True)
+		api_host = os.environ.get("FACEFUSION_API_HOST", "127.0.0.1")
+		api_port_raw = os.environ.get("FACEFUSION_API_PORT", "8002")
+		try:
+			api_port = int(api_port_raw)
+		except ValueError:
+			api_port = 8002
+			print(f"Warning: Invalid FACEFUSION_API_PORT='{api_port_raw}', using 8002.")
+		api_reload = os.environ.get("FACEFUSION_API_RELOAD", "1") in ("1", "true", "True", "yes", "YES")
+		print(f"Starting FaceFusion API Server on {api_host}:{api_port}...")
+		uvicorn.run("facefusion.api_server:app", host=api_host, port=api_port, reload=api_reload)
 
 	if state_manager.get_item('command') == 'headless-run':
 		if not job_manager.init_jobs(state_manager.get_item('jobs_path')):
@@ -398,5 +406,3 @@ def conditional_process() -> ErrorCode:
 		return 0
 
 	return 0
-
-
