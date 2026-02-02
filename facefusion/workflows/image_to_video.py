@@ -102,7 +102,7 @@ def process_video() -> ErrorCode:
 					if not future.cancelled():
 						future.result()
 						progress.update()
-						
+
 						# Update API progress
 						progress_callback = state_manager.get_item('current_job_progress_callback')
 						if progress_callback:
@@ -155,7 +155,10 @@ def restore_audio() -> ErrorCode:
 				logger.warn(translator.get('replacing_audio_skipped'), __name__)
 				move_temp_file(state_manager.get_item('target_path'), state_manager.get_item('output_path'))
 		else:
-			if ffmpeg.restore_audio(state_manager.get_item('target_path'), state_manager.get_item('output_path'), trim_frame_start, trim_frame_end):
+			if not ffmpeg.has_audio_stream(state_manager.get_item('target_path')):
+				logger.info(translator.get('skipping_audio'), __name__)
+				move_temp_file(state_manager.get_item('target_path'), state_manager.get_item('output_path'))
+			elif ffmpeg.restore_audio(state_manager.get_item('target_path'), state_manager.get_item('output_path'), trim_frame_start, trim_frame_end):
 				video_manager.clear_video_pool()
 				logger.debug(translator.get('restoring_audio_succeeded'), __name__)
 			else:

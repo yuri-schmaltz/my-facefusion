@@ -55,11 +55,20 @@ class Orchestrator:
         """
         job_id = request.generate_job_id()
         
+        priority = 0
+        try:
+            priority = int(request.settings.get('job_priority', 0)) if request.settings else 0
+        except Exception:
+            priority = 0
+
         job = Job(
             job_id=job_id,
             status=JobStatus.DRAFTED,
             config=request.to_config(),
-            metadata={'client': 'orchestrator'}
+            metadata={
+                'client': 'orchestrator',
+                'priority': priority
+            }
         )
         
         # Add a default step

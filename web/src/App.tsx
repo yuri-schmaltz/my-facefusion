@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { files, execute, system, config } from "@/services/api";
 import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film, Glasses } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import ProcessorSettings from "@/components/ProcessorSettings";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/ToastContext";
 import { Terminal, TerminalButton } from "@/components/Terminal";
@@ -140,10 +141,10 @@ function App() {
       setJobStatus('completed');
       setProgress(100);
       // setActiveMediaTab('output'); // Output is now fixed
-      // Fetch final details to get preview URL if needed, 
+      // Fetch final details to get preview URL if needed,
       // or we can rely on what useJob fetched (it fetches status on init/update)
-      // useJob updates 'job' state. 
-      // We need preview_url. 'job' state in useJob currently doesn't expose raw data easily 
+      // useJob updates 'job' state.
+      // We need preview_url. 'job' state in useJob currently doesn't expose raw data easily
       // unless we expand JobState.
       // Let's refetch status one last time or expand useJob.
       // For now, let's fetch to be safe and simple.
@@ -336,9 +337,14 @@ function App() {
                 </div>
               )}
             </section>
-
-
-
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+              <ProcessorSettings
+                activeProcessors={activeProcessors}
+                currentSettings={allSettings}
+                onUpdate={updateSetting}
+                helpTexts={helpTexts}
+              />
+            </div>
           </div>
 
 

@@ -10,6 +10,7 @@ export const system = {
     health: () => api.get('/health'),
     info: () => api.get('/system/info'),
     help: () => api.get('/system/help'),
+    metrics: () => api.get('/system/metrics'),
     getGlobalChoices: () => api.get('/api/v1/choices'),
     selectFile: (multiple = false, initialPath?: string) =>
         api.get(`/system/select-file?multiple=${multiple}${initialPath ? `&initial_path=${encodeURIComponent(initialPath)}` : ''}`),
@@ -77,6 +78,13 @@ export const jobs = {
     run: () => api.post('/api/v1/jobs/run'),
     status: () => api.get('/api/v1/jobs/status'),
     unqueue: (jobIds: string[]) => api.post('/api/v1/jobs/unqueue', { job_ids: jobIds }),
+    setPriority: (jobId: string, priority: number) => api.post('/api/v1/jobs/priority', { job_id: jobId, priority }),
+};
+
+export const projects = {
+    list: () => api.get('/projects/list'),
+    load: (name: string) => api.post('/projects/load', { name }),
+    save: (name: string, data: any) => api.post('/projects/save', { name, data })
 };
 
 export default api;

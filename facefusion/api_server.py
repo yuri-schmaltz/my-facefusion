@@ -2,6 +2,8 @@ import os
 import shutil
 import time
 import pickle
+import json
+import re
 from typing import List, Optional, Dict
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
@@ -11,6 +13,7 @@ from pydantic import BaseModel
 import tempfile
 import anyio
 import subprocess
+import psutil
 import numpy
 
 from facefusion import state_manager, execution, logger
@@ -45,6 +48,88 @@ def require_local(request: Request) -> None:
     client_host = request.client.host if request.client else ""
     if not is_local_host(client_host):
         raise HTTPException(status_code=403, detail="Local access only")
+
+
+def get_projects_dir() -> str:
+    projects_dir = os.path.join(os.getcwd(), ".projects")
+    os.makedirs(projects_dir, exist_ok=True)
+    return projects_dir
+
+
+def sanitize_project_name(name: str) -> str:
+    safe_name = re.sub(r"[^a-zA-Z0-9._-]+", "_", name).strip("._-")
+    return safe_name or "projeto"
+
+
+def get_project_path(name: str) -> str:
+    safe_name = sanitize_project_name(name)
+    if not safe_name.endswith(".ffproj.json"):
+        safe_name = f"{safe_name}.ffproj.json"
+    return os.path.join(get_projects_dir(), safe_name)
+
+
+def read_project_file(name: str) -> Dict:
+    project_path = get_project_path(name)
+    if not os.path.isfile(project_path):
+        raise FileNotFoundError(project_path)
+    with open(project_path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def write_project_file(name: str, payload: Dict) -> str:
+    project_path = get_project_path(name)
+    os.makedirs(os.path.dirname(project_path), exist_ok=True)
+    with open(project_path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+    return project_path
+
+
+def list_project_files() -> List[Dict]:
+    projects_dir = get_projects_dir()
+    results = []
+    if not os.path.isdir(projects_dir):
+        return results
+    for file_name in sorted(os.listdir(projects_dir)):
+        if not file_name.endswith(".ffproj.json"):
+            continue
+        project_path = os.path.join(projects_dir, file_name)
+        try:
+            stat = os.stat(project_path)
+            results.append({
+                "name": file_name.replace(".ffproj.json", ""),
+                "path": project_path,
+                "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(stat.st_mtime)),
+                "size": stat.st_size
+            })
+        except Exception:
+            continue
+    return results
+
+
+def get_gpu_metrics() -> Optional[Dict]:
+    try:
+        output = subprocess.check_output(
+            [
+                "nvidia-smi",
+                "--query-gpu=utilization.gpu,memory.used,memory.total,name",
+                "--format=csv,noheader,nounits"
+            ],
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=2
+        ).strip()
+        if not output:
+            return None
+        first_line = output.splitlines()[0]
+        parts = [p.strip() for p in first_line.split(",")]
+        return {
+            "utilization": int(parts[0]),
+            "memory_used": int(parts[1]),
+            "memory_total": int(parts[2]),
+            "name": parts[3] if len(parts) > 3 else "GPU"
+        }
+    except Exception:
+        return None
 
 
 
@@ -331,6 +416,57 @@ def get_help():
                 
     return help_dict
 
+
+@app.get("/system/metrics")
+def system_metrics():
+    cpu_percent = psutil.cpu_percent(interval=0.1)
+    mem = psutil.virtual_memory()
+    gpu = get_gpu_metrics()
+    return {
+        "cpu_percent": cpu_percent,
+        "memory_percent": mem.percent,
+        "memory_used": mem.used,
+        "memory_total": mem.total,
+        "gpu": gpu
+    }
+
+
+class ProjectSaveRequest(BaseModel):
+    name: str
+    data: Dict
+
+
+class ProjectLoadRequest(BaseModel):
+    name: str
+
+
+@app.get("/projects/list")
+def list_projects(request: Request):
+    require_local(request)
+    return {"projects": list_project_files()}
+
+
+@app.post("/projects/load")
+def load_project(req: ProjectLoadRequest, request: Request):
+    require_local(request)
+    try:
+        payload = read_project_file(req.name)
+        return {"name": req.name, "data": payload}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
+
+
+@app.post("/projects/save")
+def save_project(req: ProjectSaveRequest, request: Request):
+    require_local(request)
+    now_iso = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+    payload = req.data or {}
+    payload.setdefault("created_at", now_iso)
+    payload["updated_at"] = now_iso
+    payload["name"] = sanitize_project_name(req.name)
+    project_path = write_project_file(req.name, payload)
+    return {"status": "saved", "path": project_path, "name": payload["name"]}
+
 @app.get("/system/select-file")
 async def select_file(request: Request, multiple: bool = False, initial_path: Optional[str] = None):
     """Triggers a native OS file selection dialog using Zenity."""
@@ -473,6 +609,18 @@ async def run_job(background_tasks: BackgroundTasks):
     if not target_path:
         raise HTTPException(status_code=400, detail="No target media selected. Please re-select the file.")
 
+    processors = state_manager.get_item('processors') or []
+    source_paths = state_manager.get_item('source_paths') or []
+    processors_needing_source = [
+        "face_swapper",
+        "deep_swapper",
+        "lip_syncer",
+        "face_accessory_manager",
+        "makeup_transfer"
+    ]
+    if any(proc in processors_needing_source for proc in processors) and not source_paths:
+        raise HTTPException(status_code=400, detail="No source media selected. Please select a source file.")
+
     # 2. Collect Args
     from facefusion.args import collect_step_args, collect_job_args
     step_args = collect_step_args()
@@ -502,7 +650,7 @@ async def run_job(background_tasks: BackgroundTasks):
             source_paths=step_args.get('source_paths', []),
             target_path=step_args.get('target_path'),
             output_path=output_path,
-            processors=state_manager.get_item('processors'),
+            processors=processors,
             settings=step_args
         )
         
@@ -1567,15 +1715,22 @@ async def list_jobs():
     
     response = []
     for job in all_jobs:
+        duration_seconds = None
+        if job.started_at and job.completed_at:
+            duration_seconds = (job.completed_at - job.started_at).total_seconds()
         # Extract key info for table view
         response.append({
             'id': job.job_id,
             'status': job.status.value,
             'date_created': job.created_at.isoformat(),
             'date_updated': job.completed_at.isoformat() if job.completed_at else (job.started_at.isoformat() if job.started_at else None),
+            'started_at': job.started_at.isoformat() if job.started_at else None,
+            'completed_at': job.completed_at.isoformat() if job.completed_at else None,
+            'duration_seconds': duration_seconds,
             'step_count': len(job.steps),
             'target_path': job.config.get('target_path'),
             'output_path': job.config.get('output_path'),
+            'priority': job.metadata.get('priority', 0)
         })
     
     return {"jobs": response}
@@ -1686,6 +1841,22 @@ async def delete_jobs(req: DeleteJobsRequest):
     return {"results": results, "deleted": sum(1 for v in results.values() if v)}
 
 
+class JobPriorityRequest(BaseModel):
+    job_id: str
+    priority: int
+
+
+@app.post("/api/v1/jobs/priority")
+async def set_job_priority(req: JobPriorityRequest):
+    orch = get_orchestrator()
+    job = orch.get_job(req.job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    job.metadata['priority'] = int(req.priority)
+    orch.store.update_job(job)
+    return {"status": "updated", "job_id": req.job_id, "priority": job.metadata.get('priority', 0)}
+
+
 @app.post("/api/v1/jobs/run")
 async def run_queued_jobs(background_tasks: BackgroundTasks):
     """Run all queued jobs in the background."""
@@ -1699,6 +1870,12 @@ async def run_queued_jobs(background_tasks: BackgroundTasks):
     started_count = 0
     started_ids = []
     
+    queued_jobs = sorted(
+        queued_jobs,
+        key=lambda j: (j.metadata.get('priority', 0), j.created_at),
+        reverse=True
+    )
+
     for job in queued_jobs:
         if orch.run_job(job.job_id):
             started_count += 1

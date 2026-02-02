@@ -110,6 +110,19 @@ def log_debug(process : subprocess.Popen[bytes]) -> None:
 			logger.error(error.strip(), __name__) # Promote to error level
 
 
+def has_audio_stream(video_path : str) -> bool:
+	commands = ffmpeg_builder.chain(
+		ffmpeg_builder.set_input(video_path)
+	)
+	commands = ffmpeg_builder.run(commands)
+	try:
+		process = subprocess.Popen(commands, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+		_, stderr = process.communicate(timeout = 5)
+		return 'audio:' in stderr.decode(errors = 'ignore').lower()
+	except Exception:
+		return False
+
+
 def get_available_encoder_set() -> EncoderSet:
 	available_encoder_set : EncoderSet =\
 	{

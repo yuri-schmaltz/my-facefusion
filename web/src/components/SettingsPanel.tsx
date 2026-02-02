@@ -7,7 +7,6 @@ import { jobs as jobsApi } from "@/services/api";
 import { useToast } from '@/components/ui/ToastContext';
 import { usePresets } from '@/hooks/usePresets';
 import { FolderDown, SaveAll } from 'lucide-react';
-import ProcessorSettings from "./ProcessorSettings";
 
 
 interface SettingsPanelProps {
@@ -21,9 +20,29 @@ interface SettingsPanelProps {
         execution_devices: string[];
         cpu_count?: number;
     } | null;
+    systemMetrics?: {
+        cpu_percent?: number;
+        memory_percent?: number;
+        memory_used?: number;
+        memory_total?: number;
+        gpu?: {
+            utilization?: number;
+            memory_used?: number;
+            memory_total?: number;
+            name?: string;
+        } | null;
+    } | null;
     onChange: (key: string, value: any) => void;
     currentTargetPath?: string | null;
     activeProcessors: string[];
+    projectName: string;
+    projectList: Array<{ name: string; updated_at?: string; size?: number }>;
+    autoSaveProject: boolean;
+    onProjectNameChange: (value: string) => void;
+    onProjectSave: () => void;
+    onProjectLoad: (name: string) => void;
+    onProjectRefresh: () => void;
+    onAutoSaveProjectChange: (value: boolean) => void;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -31,9 +50,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     choices,
     helpTexts = {},
     systemInfo,
+    systemMetrics,
     onChange,
     currentTargetPath,
-    activeProcessors
+    activeProcessors,
+    projectName,
+    projectList,
+    autoSaveProject,
+    onProjectNameChange,
+    onProjectSave,
+    onProjectLoad,
+    onProjectRefresh,
+    onAutoSaveProjectChange
 }) => {
     const { addToast } = useToast();
     const { presets, savePreset, loadPreset, deletePreset } = usePresets(settings, (newSettings) => {
@@ -47,7 +75,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
     const tabs = [
         { id: "faces", label: "Faces", icon: User },
-        { id: "processors", label: "Processadores", icon: Settings2 },
         { id: "masks", label: "Máscaras", icon: Filter },
         { id: "output", label: "Saída", icon: Volume2 },
         { id: "jobs", label: "Tarefas", icon: Briefcase },
@@ -156,6 +183,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         }
     };
 
+    const updateJobPriority = async (jobId: string, priority: number) => {
+        try {
+            await jobsApi.setPriority(jobId, priority);
+            loadJobs();
+        } catch (err) {
+            console.error("Failed to update priority", err);
+            addToast("Falha ao atualizar prioridade", 'error');
+        }
+    };
+
     // Job Details Modal state
     const [selectedJobDetails, setSelectedJobDetails] = React.useState<any>(null);
 
@@ -208,6 +245,33 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         }
         onChange(key, processedValue);
     };
+
+    const formatDuration = (seconds?: number | null) => {
+        if (!seconds || seconds <= 0) return "-";
+        const total = Math.round(seconds);
+        const hrs = Math.floor(total / 3600);
+        const mins = Math.floor((total % 3600) / 60);
+        const secs = total % 60;
+        if (hrs > 0) return `${hrs}h ${mins}m`;
+        if (mins > 0) return `${mins}m ${secs}s`;
+        return `${secs}s`;
+    };
+
+    const completedDurations = jobsList
+        .filter((job: any) => job.duration_seconds)
+        .map((job: any) => job.duration_seconds as number);
+    const averageDuration = completedDurations.length
+        ? completedDurations.reduce((a: number, b: number) => a + b, 0) / completedDurations.length
+        : 0;
+
+    const queuedJobsSorted = jobsList
+        .filter((job: any) => job.status === 'queued')
+        .sort((a: any, b: any) => {
+            if ((b.priority || 0) === (a.priority || 0)) {
+                return (a.date_created || '').localeCompare(b.date_created || '');
+            }
+            return (b.priority || 0) - (a.priority || 0);
+        });
 
     return (
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden flex flex-col h-full">
@@ -1034,6 +1098,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             ) : (
                                 jobsList.map((job: any) => {
+                                    const queuedIndex = queuedJobsSorted.findIndex((q: any) => q.id === job.id);
+                                    const etaSeconds = (job.status === 'queued' && averageDuration)
+                                        ? (queuedIndex + 1) * averageDuration
+                                        : null;
                                     const isSelected = selectedJobs.has(job.id);
                                     const statusColors: Record<string, string> = {
                                         drafted: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
@@ -1079,9 +1147,29 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 </div>
 
                                                 {/* Steps count */}
-                                                <div className="text-[10px] text-neutral-500">
-                                                    {job.step_count} passo{job.step_count !== 1 ? 's' : ''}
+                                                <div className="text-[10px] text-neutral-500 text-right">
+                                                    <div>{job.step_count} passo{job.step_count !== 1 ? 's' : ''}</div>
+                                                    {etaSeconds ? (
+                                                        <div className="text-[9px] text-emerald-400">ETA {formatDuration(etaSeconds)}</div>
+                                                    ) : null}
                                                 </div>
+
+                                                {/* Priority */}
+                                                {(job.status === 'drafted' || job.status === 'queued') ? (
+                                                    <select
+                                                        value={job.priority || 0}
+                                                        onChange={(e) => updateJobPriority(job.id, Number(e.target.value))}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="text-[10px] bg-neutral-900 border border-neutral-700 rounded px-2 py-1 text-neutral-300"
+                                                        title="Prioridade"
+                                                    >
+                                                        <option value={0}>Baixa</option>
+                                                        <option value={5}>Normal</option>
+                                                        <option value={10}>Alta</option>
+                                                    </select>
+                                                ) : (
+                                                    <div className="text-[10px] text-neutral-500">Prio {job.priority || 0}</div>
+                                                )}
 
                                                 {/* View Details Button */}
                                                 <button
@@ -1105,6 +1193,115 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
                 {activeTab === "system" && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300 p-1">
+                        {/* System Metrics */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <Cpu size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Métricas em Tempo Real</span>
+                            </div>
+                            <div className="bg-neutral-950/30 rounded-lg p-3 border border-neutral-800 space-y-3">
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[10px] text-neutral-400">
+                                        <span>CPU</span>
+                                        <span>{Math.round(systemMetrics?.cpu_percent || 0)}%</span>
+                                    </div>
+                                    <div className="w-full h-1 bg-neutral-800 rounded">
+                                        <div
+                                            className="h-1 bg-emerald-500 rounded"
+                                            style={{ width: `${systemMetrics?.cpu_percent || 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[10px] text-neutral-400">
+                                        <span>Memória</span>
+                                        <span>{Math.round(systemMetrics?.memory_percent || 0)}%</span>
+                                    </div>
+                                    <div className="w-full h-1 bg-neutral-800 rounded">
+                                        <div
+                                            className="h-1 bg-emerald-500 rounded"
+                                            style={{ width: `${systemMetrics?.memory_percent || 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                {systemMetrics?.gpu && (
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-[10px] text-neutral-400">
+                                            <span>GPU {systemMetrics.gpu.name || ''}</span>
+                                            <span>{Math.round(systemMetrics.gpu.utilization || 0)}%</span>
+                                        </div>
+                                        <div className="w-full h-1 bg-neutral-800 rounded">
+                                            <div
+                                                className="h-1 bg-emerald-500 rounded"
+                                                style={{ width: `${systemMetrics.gpu.utilization || 0}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Projects */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <FolderDown size={16} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Projetos</span>
+                            </div>
+                            <div className="bg-neutral-950/30 rounded-lg p-3 border border-neutral-800 space-y-3">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Nome do projeto"
+                                        value={projectName}
+                                        onChange={(e) => onProjectNameChange(e.target.value)}
+                                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder:text-neutral-600"
+                                    />
+                                    <button
+                                        onClick={onProjectSave}
+                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+                                    >
+                                        Salvar
+                                    </button>
+                                    <button
+                                        onClick={onProjectRefresh}
+                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded bg-neutral-800 text-neutral-300 hover:bg-neutral-700 transition-colors"
+                                    >
+                                        Atualizar
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] text-neutral-500">
+                                    <span>Auto-salvar</span>
+                                    <button
+                                        onClick={() => onAutoSaveProjectChange(!autoSaveProject)}
+                                        className={cn(
+                                            "w-10 h-5 rounded-full relative transition-colors",
+                                            autoSaveProject ? "bg-emerald-600" : "bg-neutral-700"
+                                        )}
+                                    >
+                                        <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", autoSaveProject ? "left-6" : "left-1")} />
+                                    </button>
+                                </div>
+                                <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-1">
+                                    {projectList.length === 0 ? (
+                                        <div className="text-[10px] text-neutral-600">Nenhum projeto salvo</div>
+                                    ) : (
+                                        projectList.map((project) => (
+                                            <button
+                                                key={project.name}
+                                                onClick={() => onProjectLoad(project.name)}
+                                                className="w-full text-left px-2 py-1 rounded bg-neutral-900/40 hover:bg-neutral-800 text-[10px] text-neutral-300"
+                                            >
+                                                <div className="flex justify-between">
+                                                    <span>{project.name}</span>
+                                                    <span className="text-neutral-500">{project.updated_at || ''}</span>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Presets */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-neutral-400">
@@ -1364,16 +1561,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </div>
                 )}
 
-                {activeTab === "processors" && (
-                    <div className="animate-in fade-in slide-in-from-right-2 duration-300">
-                        <ProcessorSettings
-                            activeProcessors={activeProcessors}
-                            currentSettings={settings}
-                            onUpdate={onChange}
-                            helpTexts={helpTexts}
-                        />
-                    </div>
-                )}
             </div>
             <WizardModal
                 isOpen={wizardOpen}
