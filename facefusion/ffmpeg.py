@@ -45,7 +45,7 @@ def run_ffmpeg_with_progress(commands : List[Command], update_progress : UpdateP
 			process.wait(timeout = 0.5)
 		except subprocess.TimeoutExpired:
 			continue
-		
+
 		if process.returncode != 0:
 			log_debug(process) # Force log error on failure
 		return process
@@ -83,7 +83,7 @@ def run_ffmpeg(commands : List[Command]) -> subprocess.Popen[bytes]:
 			process.wait(timeout = 0.5)
 		except subprocess.TimeoutExpired:
 			continue
-		
+
 		if process.returncode != 0:
 			log_debug(process)
 		return process
@@ -218,7 +218,7 @@ def restore_audio(target_path : str, output_path : str, trim_frame_start : int, 
 		ffmpeg_builder.set_audio_quality(output_audio_encoder, output_audio_quality),
 		ffmpeg_builder.set_audio_volume(output_audio_volume),
 		ffmpeg_builder.select_media_stream('0:v:0'),
-		ffmpeg_builder.select_media_stream('1:a:0'),
+		ffmpeg_builder.select_media_stream('1:a:0?'),
 		ffmpeg_builder.set_video_duration(temp_video_duration),
 		ffmpeg_builder.force_output(output_path)
 	)

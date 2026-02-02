@@ -9083,3 +9083,7 @@ AttributeError: 'NoneType' object has no attribute 'shape'
 2026-02-01 13:02:26,411 - facefusion - INFO - [FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 22.79 seconds
 2026-02-01 13:02:28,010 - facefusion - INFO - [FACEFUSION.CORE] processing step 1 of 1
 2026-02-01 13:02:32,709 - facefusion - INFO - [FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second
+2026-02-02 18:39:53,527 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json
+2026-02-02 18:39:53,661 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json
+2026-02-02 18:40:16,945 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json
+2026-02-02 18:40:17,001 - facefusion - INFO - [FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json

@@ -154,6 +154,8 @@ def analyse_stream(vision_frame : VisionFrame, video_fps : Fps) -> bool:
 
 
 def analyse_frame(vision_frame : VisionFrame) -> bool:
+	if vision_frame is None:
+		return False
 	return detect_nsfw(vision_frame)
 
 
@@ -170,7 +172,7 @@ def analyse_video(video_path : str, trim_frame_start : int, trim_frame_end : int
 	rate = 0.0
 	total = 0
 	counter = 0
-	
+
 	execution_thread_count = state_manager.get_item('execution_thread_count') or 4
 
 	with tqdm(total = len(frame_range), desc = translator.get('analysing'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
@@ -186,10 +188,10 @@ def analyse_video(video_path : str, trim_frame_start : int, trim_frame_end : int
 				total += 1
 				if future.result():
 					counter += 1
-				
+
 				if counter > 0 and total > 0:
 					rate = counter / total * 100
-				
+
 				progress.set_postfix(rate = rate)
 				progress.update()
 				progress_callback = state_manager.get_item('current_job_progress_callback')

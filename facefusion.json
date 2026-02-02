@@ -3978,3 +3978,7 @@
 {"asctime": "2026-02-01 13:02:26,411", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_IMAGE] processing to image succeeded in 22.79 seconds", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 13:02:28,010", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.CORE] processing step 1 of 1", "module": "logger", "lineno": 49}
 {"asctime": "2026-02-01 13:02:32,709", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.IMAGE_TO_VIDEO] extracting frames with a resolution of 426x226 and 25.0 frames per second", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-02 18:39:53,527", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-02 18:39:53,661", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-02 18:40:16,945", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Creating diagnostic bundle: facefusion_diagnostics.json", "module": "logger", "lineno": 49}
+{"asctime": "2026-02-02 18:40:17,001", "name": "facefusion", "levelname": "INFO", "message": "[FACEFUSION.DIAGNOSTICS] Diagnostic bundle created successfully at facefusion_diagnostics.json", "module": "logger", "lineno": 49}
