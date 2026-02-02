@@ -35,14 +35,14 @@ export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
 
     }, [isOpen, jobId]);
 
-    // Legacy WS support or generic logs? 
-    // If no jobId, maybe we want system logs? 
+    // Legacy WS support or generic logs?
+    // If no jobId, maybe we want system logs?
     // The previous WS /logs streamed ALL logs.
     // If we want to maintain that for general debugging when no job is running, we can keep it.
     // But user asked to "Add Log Viewer component (streaming logs from event bus)".
     // So prioritizing Job logs is correct.
 
-    // Let's keep the WS as fallback if no Job ID or if we want system logs? 
+    // Let's keep the WS as fallback if no Job ID or if we want system logs?
     // Actually, let's replace WS with SSE for the active Job, as it's cleaner.
     // However, if the user opens terminal WITHOUT a running job, they might expect system logs.
     // For now, let's stick to Job Logs as requested.
@@ -59,7 +59,7 @@ export function Terminal({ isOpen, onToggle, jobId }: TerminalProps) {
         <div className="fixed bottom-20 right-4 z-40 flex flex-col items-end pointer-events-none">
             <div className="pointer-events-auto w-[32rem] h-64 bg-black/90 backdrop-blur border border-neutral-800 rounded-lg shadow-2xl flex flex-col font-mono text-xs overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
                 <div className="bg-neutral-900 px-3 py-1 text-neutral-400 flex justify-between items-center border-b border-neutral-800">
-                    <span>facefusion-core.log</span>
+                    <span>faceforge-core.log</span>
                     <div className="flex items-center gap-3">
                         <span className="text-[10px] text-green-500">● AO VIVO</span>
                         <button onClick={onToggle} className="text-neutral-500 hover:text-white transition-colors">

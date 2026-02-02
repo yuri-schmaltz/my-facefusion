@@ -93,7 +93,7 @@ describe('Presets and Toasts', () => {
 
     it('Presets: can delete a preset', async () => {
         // Pre-seed a preset
-        localStorage.setItem('facefusion_presets', JSON.stringify([{
+        localStorage.setItem('faceforge_presets', JSON.stringify([{
             id: '123',
             name: 'Old Preset',
             settings: mockSettings,
@@ -152,7 +152,7 @@ describe('Presets and Toasts', () => {
             expect(screen.getByText(/job\(s\) returned to drafted/i)).toBeInTheDocument();
         });
 
-        // Ensure NO window.alert was called (we didn't mock it, but if it was called jsdom might log or we could spy on it. 
+        // Ensure NO window.alert was called (we didn't mock it, but if it was called jsdom might log or we could spy on it.
         // But the main proof is the toast appearing).
     });
 });

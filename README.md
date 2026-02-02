@@ -1,4 +1,4 @@
-FaceFusion
+Face Forge
 ==========
 
 > Industry leading face manipulation platform.

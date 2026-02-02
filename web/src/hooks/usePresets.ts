@@ -8,7 +8,8 @@ export interface Preset {
     timestamp: number;
 }
 
-const STORAGE_KEY = 'facefusion_presets';
+const STORAGE_KEY = 'faceforge_presets';
+const LEGACY_STORAGE_KEY = 'facefusion_presets';
 
 export const usePresets = (
     currentSettings: Record<string, any>,
@@ -19,10 +20,14 @@ export const usePresets = (
 
     // Load presets on mount
     useEffect(() => {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
         if (stored) {
             try {
-                setPresets(JSON.parse(stored));
+                const parsed = JSON.parse(stored);
+                setPresets(parsed);
+                if (!localStorage.getItem(STORAGE_KEY)) {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+                }
             } catch (e) {
                 console.error("Failed to parse presets", e);
             }
