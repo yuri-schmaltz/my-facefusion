@@ -48,12 +48,12 @@ def signal_exit(signum : int, frame : FrameType) -> None:
 
 def run(program : ArgumentParser) -> None:
 	args = program.parse_args()
-	
+
 	# Prerequisite Checks
 	if sys.version_info < (3, 10):
 		print(f"Error: Python {sys.version_info.major}.{sys.version_info.minor} is not supported. Please use Python 3.10 or higher.")
 		sys.exit(1)
-	
+
 	if not shutil.which('ffmpeg'):
 		print("Warning: FFmpeg was not found. Some features may not work correctly.")
 
@@ -72,7 +72,7 @@ def run(program : ArgumentParser) -> None:
 		except (ValueError, EOFError, KeyboardInterrupt):
 			print("\nInvalid input or interrupted, using default.")
 			args.onnxruntime = 'default'
-			
+
 	has_conda = 'CONDA_PREFIX' in os.environ
 	has_venv = sys.prefix != sys.base_prefix
 	pip_commands = [ sys.executable, '-m', 'pip', 'install' ]
@@ -91,7 +91,7 @@ def run(program : ArgumentParser) -> None:
 				__line__ = line.strip()
 				if __line__ and not __line__.startswith('onnxruntime'):
 					requirements_commands.append(__line__)
-		
+
 		print(f"Installing requirements: {' '.join(requirements_commands)}")
 		subprocess.check_call(requirements_commands)
 
@@ -153,7 +153,7 @@ def run(program : ArgumentParser) -> None:
 	# Desktop Shortcuts & Config
 	install_path = os.getcwd() # install.py run from root
 	create_user_config(install_path)
-	
+
 	platform = get_platform()
 	if platform == 'linux':
 		create_linux_desktop_file(install_path)
@@ -162,7 +162,7 @@ def run(program : ArgumentParser) -> None:
 
 	if args.force_download:
 		print("Starting force-download of assets...")
-		subprocess.call([ sys.executable, 'facefusion.py', 'force-download' ])
+		subprocess.call([ sys.executable, 'faceforge.py', 'force-download' ])
 
 	verify_installation()
 
@@ -171,7 +171,7 @@ def verify_installation() -> None:
 	"""Verify that critical dependencies are installed and functioning."""
 	print("Verifying installation...")
 	failed = []
-	
+
 	# 1. Check OpenCV
 	try:
 		import cv2
@@ -201,7 +201,7 @@ def verify_installation() -> None:
 	except ImportError as e:
 		print(f"  [FAIL] Numpy Import Error: {e}")
 		failed.append("numpy")
-		
+
 	if failed:
 		print("\n" + "!" * 40)
 		print("WARNING: Some dependencies failed to load.")
@@ -226,7 +226,7 @@ def get_platform() -> str:
 
 def create_linux_desktop_file(install_path : str) -> None:
 	desktop_file = f"""[Desktop Entry]
-Name=FaceFusion
+Name=Face Forge
 Comment=Next generation face swapper and enhancer
 Exec={sys.executable} {os.path.join(install_path, 'launch.py')}
 Icon={os.path.join(install_path, 'facefusion.ico')}
@@ -234,7 +234,7 @@ Terminal=true
 Type=Application
 Categories=Graphics;Video;
 """
-	desktop_path = os.path.expanduser('~/.local/share/applications/facefusion.desktop')
+	desktop_path = os.path.expanduser('~/.local/share/applications/faceforge.desktop')
 	os.makedirs(os.path.dirname(desktop_path), exist_ok=True)
 
 	with open(desktop_path, 'w') as f:
@@ -272,8 +272,8 @@ def create_user_config(install_path : str) -> None:
 		ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
 		documents_path = buf.value
 
-	facefusion_docs = os.path.join(documents_path, 'FaceFusion')
-	output_path = os.path.join(facefusion_docs, 'Output')
+	faceforge_docs = os.path.join(documents_path, 'Face Forge')
+	output_path = os.path.join(faceforge_docs, 'Output')
 
 	config_content = f"""[paths]
 output_path = {output_path}
@@ -283,5 +283,5 @@ output_path = {output_path}
 """
 	with open(user_config_path, 'w') as f:
 		f.write(config_content)
-	
+
 	print(f"Created standard user.ini at: {user_config_path}")

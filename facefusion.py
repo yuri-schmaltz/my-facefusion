@@ -1,31 +1,9 @@
 #!/usr/bin/env python3
 """
-FaceFusion Core CLI (facefusion.py)
------------------------------------
-Direct interface to the Python backend.
-Usage:
-    - As a library: import facefusion
-    - As a CLI: python facefusion.py [command]
-    - As a worker: python facefusion.py run
+Compatibility shim for legacy entrypoint.
+Redirects to faceforge.py so existing scripts keep working.
 """
+import runpy
 
-
-import os
-import sys
-
-os.environ['OMP_NUM_THREADS'] = '1'
-
-from facefusion import core, logger, thread_helper
-
-if __name__ == '__main__':
-	try:
-		if core.cli() or thread_helper.is_windows():
-			sys.exit(0)
-		sys.exit(1)
-	except KeyboardInterrupt:
-		sys.exit(1)
-	except Exception as exception:
-		import traceback
-		traceback.print_exc()
-		logger.error(str(exception), __name__)
-		sys.exit(1)
+if __name__ == "__main__":
+    runpy.run_module("faceforge", run_name="__main__")

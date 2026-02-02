@@ -26,14 +26,14 @@ def before_each() -> None:
 
 
 def test_manage_accessories_image() -> None:
-	commands = [ sys.executable, 'facefusion.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'face_swapper', 'face_accessory_manager', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.jpg'), '-o', get_test_output_file('test-manage-accessories-image.jpg') ]
+	commands = [ sys.executable, 'faceforge.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'face_swapper', 'face_accessory_manager', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.jpg'), '-o', get_test_output_file('test-manage-accessories-image.jpg') ]
 
 	assert subprocess.run(commands).returncode == 0
 	assert is_test_output_file('test-manage-accessories-image.jpg') is True
 
 
 def test_manage_accessories_video() -> None:
-	commands = [ sys.executable, 'facefusion.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'face_swapper', 'face_accessory_manager', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.mp4'), '-o', get_test_output_file('test-manage-accessories-video.mp4'), '--trim-frame-end', '1' ]
+	commands = [ sys.executable, 'faceforge.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'face_swapper', 'face_accessory_manager', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.mp4'), '-o', get_test_output_file('test-manage-accessories-video.mp4'), '--trim-frame-end', '1' ]
 
 	assert subprocess.run(commands).returncode == 0
 	assert is_test_output_file('test-manage-accessories-video.mp4') is True

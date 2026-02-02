@@ -26,14 +26,14 @@ def before_each() -> None:
 
 
 def test_privacy_blur_image() -> None:
-	commands = [ sys.executable, 'facefusion.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'privacy_blur', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.jpg'), '-o', get_test_output_file('test-privacy-blur-image.jpg') ]
+	commands = [ sys.executable, 'faceforge.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'privacy_blur', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.jpg'), '-o', get_test_output_file('test-privacy-blur-image.jpg') ]
 
 	assert subprocess.run(commands).returncode == 0
 	assert is_test_output_file('test-privacy-blur-image.jpg') is True
 
 
 def test_privacy_blur_video() -> None:
-	commands = [ sys.executable, 'facefusion.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'privacy_blur', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.mp4'), '-o', get_test_output_file('test-privacy-blur-video.mp4'), '--trim-frame-end', '1' ]
+	commands = [ sys.executable, 'faceforge.py', 'headless-run', '--jobs-path', get_test_jobs_directory(), '--processors', 'privacy_blur', '-s', get_test_example_file('source.jpg'), '-t', get_test_example_file('target-240p.mp4'), '-o', get_test_output_file('test-privacy-blur-video.mp4'), '--trim-frame-end', '1' ]
 
 	assert subprocess.run(commands).returncode == 0
 	assert is_test_output_file('test-privacy-blur-video.mp4') is True

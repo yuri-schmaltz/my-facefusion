@@ -39,7 +39,7 @@ If you prefer to run services manually:
 
 1.  **Backend (API Server)**:
     ```bash
-    python facefusion.py run
+    python faceforge.py run
     ```
     *Starts on port 8002.*
 
@@ -59,7 +59,7 @@ Access the application at **http://localhost:5173**
 Run the command:
 
 ```
-python facefusion.py [commands] [options]
+python faceforge.py [commands] [options]
 
 options:
   -h, --help                                      show this help message and exit

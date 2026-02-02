@@ -84,7 +84,7 @@ def route(args : Args) -> None:
 			api_port = 8002
 			print(f"Warning: Invalid FACEFUSION_API_PORT='{api_port_raw}', using 8002.")
 		api_reload = os.environ.get("FACEFUSION_API_RELOAD", "1") in ("1", "true", "True", "yes", "YES")
-		print(f"Starting FaceFusion API Server on {api_host}:{api_port}...")
+		print(f"Starting Face Forge API Server on {api_host}:{api_port}...")
 		uvicorn.run("facefusion.api_server:app", host=api_host, port=api_port, reload=api_reload)
 
 	if state_manager.get_item('command') == 'headless-run':
@@ -204,11 +204,11 @@ def route_job_manager(args : Args) -> ErrorCode:
 def route_job_runner() -> ErrorCode:
 	if state_manager.get_item('command') == 'job-run':
 		job_id = state_manager.get_item('job_id')
-		
+
 		# Try Orchestrator first
 		from facefusion.orchestrator import get_orchestrator
 		orch = get_orchestrator()
-		
+
 		if orch.get_job(job_id):
 			logger.info(translator.get('running_job').format(job_id = job_id), __name__)
 			if orch.run_job(job_id):
@@ -216,7 +216,7 @@ def route_job_runner() -> ErrorCode:
 				return 0
 			logger.info(translator.get('processing_job_failed').format(job_id = job_id), __name__)
 			return 1
-			
+
 		# Fallback to legacy
 		logger.info(translator.get('running_job').format(job_id = job_id), __name__)
 		if job_runner.run_job(job_id, process_step):
@@ -260,10 +260,10 @@ def route_diagnostics() -> ErrorCode:
 
 def process_headless(args : Args) -> ErrorCode:
 	from facefusion.orchestrator import get_orchestrator, RunRequest
-	
+
 	step_args = reduce_step_args(args)
 	job_args = reduce_job_args(args)
-	
+
 	# Prepare request
 	# We need to extract specific fields from step_args
 	request = RunRequest(
@@ -273,14 +273,14 @@ def process_headless(args : Args) -> ErrorCode:
 		processors=state_manager.get_item('processors'),
 		settings=step_args
 	)
-	
+
 	orch = get_orchestrator()
 	job_id = orch.submit(request)
-	
+
 	if orch.run_job(job_id):
 		from time import sleep
 		from facefusion.orchestrator.models import JobStatus
-		
+
 		while True:
 			job = orch.get_job(job_id)
 			if job.status in [ JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELED ]:

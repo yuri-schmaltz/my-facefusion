@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-FaceFusion Orchestrator (launch.py)
+Face Forge Orchestrator (launch.py)
 -----------------------------------
 Main entrypoint for end-users. Handles:
-1. Starting the core backend (facefusion.py)
+1. Starting the core backend (faceforge.py)
 2. Starting the web frontend
 3. Managing process lifecycle and clean cleanup.
 """
@@ -93,9 +93,9 @@ def configure_cuda_env():
     try:
         import site
         site_packages = site.getsitepackages()[0]
-        
+
         paths_to_add = []
-        
+
         # 1. Find all 'lib' directories under site-packages/nvidia
         nvidia_path = os.path.join(site_packages, 'nvidia')
         if os.path.isdir(nvidia_path):
@@ -111,24 +111,24 @@ def configure_cuda_env():
                 if os.path.isdir(package_path):
                     # Add package root (where libnvinfer.so.10 often lives now)
                     paths_to_add.append(package_path)
-                    
+
                     # Also look for 'lib' subdir recursively
                     for root, dirs, files in os.walk(package_path):
                         if 'lib' in dirs:
                             paths_to_add.append(os.path.join(root, 'lib'))
-        
+
         if paths_to_add:
             current_ld = os.environ.get('LD_LIBRARY_PATH', '')
             # Unique sorted paths to prepend
             new_paths = os.pathsep.join(sorted(list(set(paths_to_add))))
-            
+
             if current_ld:
                 os.environ['LD_LIBRARY_PATH'] = new_paths + os.pathsep + current_ld
             else:
                 os.environ['LD_LIBRARY_PATH'] = new_paths
-                
+
             print(f"Configured CUDA/TensorRT environment with {len(set(paths_to_add))} library paths.")
-            
+
     except Exception as e:
         print(f"Warning: Could not configure CUDA/TensorRT environment: {e}")
 
@@ -146,10 +146,10 @@ def terminate_process_tree(proc, name="process"):
     """Terminate process and all children reliably."""
     if proc is None or proc.poll() is not None:
         return
-    
+
     print(f"Terminating {name}...")
     if sys.platform == 'win32':
-        subprocess.call(['taskkill', '/F', '/T', '/PID', str(proc.pid)], 
+        subprocess.call(['taskkill', '/F', '/T', '/PID', str(proc.pid)],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         try:
@@ -171,9 +171,9 @@ def signal_handler(signum, frame):
 
 def main():
     global backend, frontend
-    
-    print("Starting FaceFusion Full Stack...")
-    
+
+    print("Starting Face Forge Full Stack...")
+
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -183,11 +183,11 @@ def main():
 
     # Handle arguments pass-through
     if len(sys.argv) > 1:
-        # If user passed arguments (e.g. headless-run ...), pass them to facefusion.py
+        # If user passed arguments (e.g. headless-run ...), pass them to faceforge.py
         # and do NOT start the web UI.
-        print(f"Passing arguments to facefusion.py: {sys.argv[1:]}")
+        print(f"Passing arguments to faceforge.py: {sys.argv[1:]}")
         try:
-            cmd = [sys.executable, "facefusion.py"] + sys.argv[1:]
+            cmd = [sys.executable, "faceforge.py"] + sys.argv[1:]
             # Use subprocess.run to wait for completion
             subprocess.run(cmd, check=True)
             sys.exit(0)
@@ -210,20 +210,20 @@ def main():
         print(f"Warning: Port {requested_api_port} unavailable, using {api_port} for backend.")
     if ui_port != requested_ui_port:
         print(f"Warning: Port {requested_ui_port} unavailable, using {ui_port} for frontend.")
-    
+
     # 1. Start Backend
     print(f"Launching Backend (host {api_host}, port {api_port})...")
     backend_env = os.environ.copy()
     backend_env["FACEFUSION_API_HOST"] = api_host
     backend_env["FACEFUSION_API_PORT"] = str(api_port)
-    backend = create_popen_with_pgid([sys.executable, "facefusion.py", "run"], env=backend_env)
+    backend = create_popen_with_pgid([sys.executable, "faceforge.py", "run"], env=backend_env)
 
-    # 2. Start Frontend  
+    # 2. Start Frontend
     print(f"Launching Frontend (host {ui_host}, port {ui_port})...")
     web_dir = os.path.join(os.getcwd(), "web")
-    
+
     frontend = None # Initialize to avoid UnboundLocalError if we exit early
-    
+
     npm_cmd = shutil.which('npm')
     if not npm_cmd:
         print("Error: npm not found. Please install Node.js.")
@@ -239,7 +239,7 @@ def main():
         major_ver = int(node_output.lstrip('v').split('.')[0])
         if major_ver < 20:
              print(f"\n[ERROR] Incompatible Node.js version detected: {node_output}")
-             print("FaceFusion requires Node.js v20.0.0 or higher.")
+             print("Face Forge requires Node.js v20.0.0 or higher.")
              print("Please upgrade your Node.js installation.")
              terminate_process_tree(backend, "backend")
              sys.exit(1)
@@ -278,8 +278,8 @@ def main():
         try:
             # Attempt to use specific browsers with noise suppression first
             # xdg-open often passes through, so we try to call it with redirected IO
-            subprocess.Popen(['xdg-open', ui_url], 
-                             stdout=subprocess.DEVNULL, 
+            subprocess.Popen(['xdg-open', ui_url],
+                             stdout=subprocess.DEVNULL,
                              stderr=subprocess.DEVNULL)
         except OSError:
             # Fallback if xdg-open missing
@@ -301,8 +301,8 @@ def main():
         print("\nStopping services...")
     finally:
         cleanup()
-        
-    print("FaceFusion stopped.")
+
+    print("Face Forge stopped.")
 
 if __name__ == "__main__":
     main()

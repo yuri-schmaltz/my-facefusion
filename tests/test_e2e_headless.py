@@ -6,7 +6,7 @@ from .helper import get_test_example_file, get_test_jobs_directory, get_test_out
 def test_erosion_argument_accepted() -> None:
     # Test if --face-mask-erosion is accepted and program runs
     commands = [
-        sys.executable, 'facefusion.py', 'headless-run',
+        sys.executable, 'faceforge.py', 'headless-run',
         '--jobs-path', get_test_jobs_directory(),
         '--processors', 'face_swapper',
         '-s', get_test_example_file('source.jpg'),
@@ -22,7 +22,7 @@ def test_erosion_argument_accepted() -> None:
 def test_region_selector_argument_accepted() -> None:
     # Test if --face-selector-region is accepted
     commands = [
-        sys.executable, 'facefusion.py', 'headless-run',
+        sys.executable, 'faceforge.py', 'headless-run',
         '--jobs-path', get_test_jobs_directory(),
         '--processors', 'face_swapper',
         '-s', get_test_example_file('source.jpg'),
@@ -38,7 +38,7 @@ def test_region_selector_argument_accepted() -> None:
 def test_region_selector_filtering_no_match() -> None:
     # Test with a region where no face exists (top-left 1x1 percent)
     commands = [
-        sys.executable, 'facefusion.py', 'headless-run',
+        sys.executable, 'faceforge.py', 'headless-run',
         '--jobs-path', get_test_jobs_directory(),
         '--processors', 'face_swapper',
         '-s', get_test_example_file('source.jpg'),
@@ -49,5 +49,5 @@ def test_region_selector_filtering_no_match() -> None:
     ]
     result = subprocess.run(commands, capture_output=True, text=True)
     # If no face is found, the processor might still "succeed" but output unchanged frame or just exit.
-    # Actually FaceFusion core usually continues if no faces are found.
+    # Actually Face Forge core usually continues if no faces are found.
     assert result.returncode == 0

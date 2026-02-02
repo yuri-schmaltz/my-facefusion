@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FaceFusion Installer Entry Point
+Face Forge Installer Entry Point
 ================================
 Tries Qt6 installer first, falls back to Tkinter, then CLI.
 """
@@ -52,16 +52,16 @@ def run_cli_installer() -> bool:
 
 def main():
     """Main entry point with graceful fallback chain."""
-    print("FaceFusion Installer")
+    print("Face Forge Installer")
     print("=" * 40)
-    
+
     # Check for --cli flag to skip GUI
     if '--cli' in sys.argv:
         print("Running CLI installer (--cli flag detected)")
         sys.argv.remove('--cli')
         run_cli_installer()
         return
-    
+
     # Try installers in order of preference
     print("Attempting Qt6 installer...")
     if not run_qt_installer():
