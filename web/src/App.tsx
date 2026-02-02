@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { files, execute, system, config } from "@/services/api";
+import { files, execute, system, config, projects } from "@/services/api";
 import { Upload, Play, Loader2, Replace, Sparkles, AppWindow, Bug, Smile, Clock, Eraser, Palette, Mic2, Box, X, User, Film, Glasses } from "lucide-react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import ProcessorSettings from "@/components/ProcessorSettings";
@@ -10,6 +10,7 @@ import { Terminal, TerminalButton } from "@/components/Terminal";
 import { Tooltip } from "@/components/ui/Tooltip";
 import FaceSelector from "@/components/FaceSelector";
 import { MediaPreview } from "@/components/MediaPreview";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import { useJob } from "@/hooks/useJob";
 // ... imports
 
@@ -31,6 +32,7 @@ function App() {
   const [activeProcessors, setActiveProcessors] = useState<string[]>([]);
   const [allSettings, setAllSettings] = useState<any>({});
   const [systemInfo, setSystemInfo] = useState<any>({ execution_providers: ['cpu'] });
+  const [systemMetrics, setSystemMetrics] = useState<any>(null);
   const [helpTexts, setHelpTexts] = useState<Record<string, string>>({});
 
   // App State
@@ -45,6 +47,10 @@ function App() {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [previewResolution, setPreviewResolution] = useState("512x512");
   const [globalChoices, setGlobalChoices] = useState<any>({});
+  const [projectName, setProjectName] = useState<string>("projeto");
+  const [projectList, setProjectList] = useState<any[]>([]);
+  const [autoSaveProject, setAutoSaveProject] = useState<boolean>(true);
+  const [projectLoaded, setProjectLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     config.getProcessors().then((res) => {
@@ -63,6 +69,36 @@ function App() {
     system.getGlobalChoices().then((res) => {
       setGlobalChoices(res.data);
     });
+    projects.list().then((res) => {
+      setProjectList(res.data.projects || []);
+    }).catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (projectList.length === 0) return;
+    if (projectLoaded) return;
+    const recent = projectList[0];
+    if (recent?.name) {
+      loadProject(recent.name);
+    }
+  }, [projectList, projectLoaded]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMetrics = async () => {
+      try {
+        const res = await system.metrics();
+        if (isMounted) setSystemMetrics(res.data);
+      } catch {
+        // ignore
+      }
+    };
+    fetchMetrics();
+    const timer = setInterval(fetchMetrics, 3000);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
   }, []);
 
   // handleBrowserSelect is no longer needed with native picker
@@ -105,6 +141,86 @@ function App() {
     }
   };
 
+  const refreshProjects = async () => {
+    try {
+      const res = await projects.list();
+      setProjectList(res.data.projects || []);
+    } catch (err) {
+      console.error("Failed to refresh projects", err);
+    }
+  };
+
+  const buildProjectPayload = () => ({
+    version: 1,
+    data: {
+      source_paths: sourcePath ? [sourcePath] : [],
+      target_path: targetPath,
+      processors: activeProcessors,
+      settings: allSettings,
+      ui: {
+        preview_resolution: previewResolution,
+        last_source_dir: lastSourceDir,
+        last_target_dir: lastTargetDir
+      }
+    }
+  });
+
+  const saveProject = async () => {
+    if (!projectName.trim()) {
+      addToast("Informe um nome para o projeto", "warning");
+      return;
+    }
+    try {
+      await projects.save(projectName.trim(), buildProjectPayload());
+      addToast("Projeto salvo", "success");
+      setProjectLoaded(true);
+      refreshProjects();
+    } catch (err) {
+      console.error("Failed to save project", err);
+      addToast("Falha ao salvar projeto", "error");
+    }
+  };
+
+  const loadProject = async (name: string) => {
+    try {
+      const res = await projects.load(name);
+      const payload = res.data.data || {};
+      const data = payload.data || payload;
+      const nextSourcePaths = data.source_paths || [];
+      const nextTargetPath = data.target_path || null;
+      const nextProcessors = data.processors || [];
+      const nextSettings = data.settings || {};
+
+      setProjectName(payload.name || name);
+      setProjectLoaded(true);
+
+      setSourcePath(nextSourcePaths[0] || null);
+      setTargetPath(nextTargetPath || null);
+      setActiveProcessors(nextProcessors);
+      setAllSettings(nextSettings);
+      if (data.ui?.preview_resolution) setPreviewResolution(data.ui.preview_resolution);
+      if (data.ui?.last_source_dir) {
+        setLastSourceDir(data.ui.last_source_dir);
+        localStorage.setItem("lastSourceDir", data.ui.last_source_dir);
+      }
+      if (data.ui?.last_target_dir) {
+        setLastTargetDir(data.ui.last_target_dir);
+        localStorage.setItem("lastTargetDir", data.ui.last_target_dir);
+      }
+
+      config.update({
+        source_paths: nextSourcePaths,
+        target_path: nextTargetPath,
+        processors: nextProcessors,
+        ...nextSettings
+      });
+      addToast("Projeto carregado", "success");
+    } catch (err) {
+      console.error("Failed to load project", err);
+      addToast("Falha ao carregar projeto", "error");
+    }
+  };
+
 
   const toggleProcessor = (proc: string) => {
     const newActive = activeProcessors.includes(proc)
@@ -118,6 +234,52 @@ function App() {
     setAllSettings((prev: any) => ({ ...prev, [key]: value }));
     config.update({ [key]: value });
   };
+
+  const quickPresets = [
+    {
+      id: "swap",
+      label: "Swap Rápido",
+      processors: ["face_swapper"],
+      settings: { face_swapper_weight: 0.6 }
+    },
+    {
+      id: "lip",
+      label: "Lip Sync",
+      processors: ["lip_syncer"],
+      settings: { lip_syncer_model: "wav2lip_gan" }
+    },
+    {
+      id: "enhance",
+      label: "Enhancer",
+      processors: ["face_enhancer", "frame_enhancer"],
+      settings: { face_enhancer_blend: 80, frame_enhancer_blend: 80 }
+    }
+  ];
+
+  const applyQuickPreset = (presetId: string) => {
+    const preset = quickPresets.find(p => p.id === presetId);
+    if (!preset) return;
+    setActiveProcessors(preset.processors);
+    setAllSettings((prev: any) => ({ ...prev, ...preset.settings }));
+    config.update({ processors: preset.processors, ...preset.settings });
+    addToast(`Preset aplicado: ${preset.label}`, "success");
+  };
+
+  const processorsNeedingSource = ["face_swapper", "deep_swapper", "lip_syncer", "face_accessory_manager", "makeup_transfer"];
+  const needsSource = activeProcessors.some(p => processorsNeedingSource.includes(p));
+  const validationIssues = [
+    !targetPath ? "Selecione um arquivo de alvo" : null,
+    needsSource && !sourcePath ? "Selecione um arquivo de origem" : null,
+    activeProcessors.length === 0 ? "Ative ao menos um processador" : null
+  ].filter(Boolean) as string[];
+
+  useEffect(() => {
+    if (!autoSaveProject || !projectLoaded || !projectName.trim()) return;
+    const timeout = setTimeout(() => {
+      saveProject();
+    }, 1500);
+    return () => clearTimeout(timeout);
+  }, [allSettings, activeProcessors, sourcePath, targetPath, previewResolution, autoSaveProject, projectLoaded, projectName]);
 
 
   const [jobId, setJobId] = useState<string | null>(null);
@@ -189,8 +351,10 @@ function App() {
 
 
   const startProcessing = async () => {
-    const needsSource = activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "face_accessory_manager", "makeup_transfer"].includes(p));
-    if (!targetPath || (needsSource && !sourcePath)) return;
+    if (validationIssues.length > 0) {
+      validationIssues.forEach((issue) => addToast(issue, 'warning'));
+      return;
+    }
 
     setIsProcessing(true);
     setProgress(0);
@@ -247,6 +411,20 @@ function App() {
           </div>
 
           <div className="p-3 space-y-4 flex flex-col h-full overflow-hidden min-h-0">
+            <div className="bg-neutral-950/40 border border-neutral-800 rounded-lg p-3 space-y-2">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Presets Rápidos</div>
+              <div className="flex flex-wrap gap-2">
+                {quickPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyQuickPreset(preset.id)}
+                    className="px-3 py-1.5 text-[10px] font-bold uppercase rounded bg-neutral-800 text-neutral-300 hover:bg-emerald-600 hover:text-white transition-colors"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <section className="shrink-0 space-y-4">
               {/* Face & Portrait Processors */}
               {activeProcessorTab === "face" && (
@@ -359,9 +537,18 @@ function App() {
             choices={globalChoices}
             helpTexts={helpTexts}
             systemInfo={systemInfo}
+            systemMetrics={systemMetrics}
             onChange={updateSetting}
             currentTargetPath={targetPath}
             activeProcessors={activeProcessors}
+            projectName={projectName}
+            projectList={projectList}
+            autoSaveProject={autoSaveProject}
+            onProjectNameChange={setProjectName}
+            onProjectSave={saveProject}
+            onProjectLoad={loadProject}
+            onProjectRefresh={refreshProjects}
+            onAutoSaveProjectChange={setAutoSaveProject}
           />
         </div>
 
@@ -400,12 +587,12 @@ function App() {
                   startProcessing();
                 }
               }}
-              disabled={!isProcessing && (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath))}
+              disabled={!isProcessing && validationIssues.length > 0}
               className={cn(
                 "flex-1 py-2.5 font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden shadow-sm text-sm",
                 isProcessing
                   ? "bg-emerald-600/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-600/20 shadow-emerald-500/10"
-                  : (!targetPath || (activeProcessors.some(p => ["face_swapper", "deep_swapper", "lip_syncer", "makeup_transfer"].includes(p)) && !sourcePath)
+                  : (validationIssues.length > 0
                     ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-transparent"
                     : "bg-white text-black hover:bg-neutral-100 border border-transparent shadow-white/5 hover:shadow-white/10")
               )}
@@ -425,6 +612,13 @@ function App() {
                 {isProcessing ? `Parar Processamento (${Math.round(progress)}%)` : "INICIAR PROCESSAMENTO"}
               </span>
             </button>
+          )}
+          {!isProcessing && validationIssues.length > 0 && (
+            <div className="flex flex-col gap-1 text-[10px] text-yellow-400 ml-2">
+              {validationIssues.map((issue, index) => (
+                <span key={`${issue}-${index}`}>• {issue}</span>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -597,12 +791,21 @@ function App() {
           <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-black/20">
             {outputUrl ? (
               <div className="w-full h-full relative group">
-                <video
-                  src={`${backendOrigin}${outputUrl}`}
-                  controls
-                  className="w-full h-full object-contain"
-                  autoPlay
-                />
+                {targetPath ? (
+                  <BeforeAfterSlider
+                    beforeSrc={files.preview(targetPath)}
+                    afterSrc={`${backendOrigin}${outputUrl}`}
+                    isVideo={Boolean(targetPath && isVideo(targetPath))}
+                    onTimeUpdate={setCurrentVideoTime}
+                  />
+                ) : (
+                  <video
+                    src={`${backendOrigin}${outputUrl}`}
+                    controls
+                    className="w-full h-full object-contain"
+                    autoPlay
+                  />
+                )}
                 <a
                   href={`${backendOrigin}${outputUrl}`}
                   download

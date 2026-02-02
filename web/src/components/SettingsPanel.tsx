@@ -1106,6 +1106,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     const statusColors: Record<string, string> = {
                                         drafted: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
                                         queued: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
+                                        running: "bg-blue-500/20 text-blue-400 border-blue-500/30",
                                         completed: "bg-green-500/20 text-green-500 border-green-500/30",
                                         failed: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
                                     };
@@ -1143,6 +1144,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                         <p className="text-[10px] text-neutral-500 truncate mt-1">
                                                             {job.target_path.split('/').pop()}
                                                         </p>
+                                                    )}
+                                                    {job.status === 'running' && (
+                                                        <p className="text-[10px] text-blue-400 mt-1">Em execução…</p>
                                                     )}
                                                 </div>
 

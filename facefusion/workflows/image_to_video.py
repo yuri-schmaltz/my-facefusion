@@ -170,7 +170,10 @@ def restore_audio() -> ErrorCode:
 	return 0
 
 
-def process_temp_frame(temp_frame_path : str, frame_number : int, reference_vision_frame : any, source_vision_frames : list, source_audio_path : str, temp_video_fps : float, processors : list) -> bool:
+from typing import Any, List
+
+
+def process_temp_frame(temp_frame_path : str, frame_number : int, reference_vision_frame : Any, source_vision_frames : List[Any], source_audio_path : str, temp_video_fps : float, processors : List[str]) -> bool:
 	target_vision_frame = read_static_image(temp_frame_path, 'rgba')
 
 	if target_vision_frame is not None:
