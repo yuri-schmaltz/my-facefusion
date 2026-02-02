@@ -64,15 +64,29 @@ def get_open_host(host):
         return "127.0.0.1"
     return host
 
+def sanitize_host(requested_host, default_host, role):
+    """Ensure the requested host can be resolved; fall back to default if not."""
+    host = (requested_host or "").strip()
+    if not host:
+        return default_host
+    try:
+        socket.getaddrinfo(host, None)
+        return host
+    except OSError as exc:
+        print(f"Warning: {role} '{host}' is not reachable ({exc}); falling back to {default_host}.")
+        return default_host
+
 def wait_for_http(url, timeout=20, interval=0.5):
     deadline = time.time() + timeout
+    last_error = None
     while time.time() < deadline:
         try:
             with urlopen(url, timeout=2):
-                return True
-        except Exception:
+                return True, None
+        except Exception as exc:
+            last_error = exc
             time.sleep(interval)
-    return False
+    return False, last_error
 
 def configure_cuda_env():
     """Add all discovered nvidia and tensorrt library paths to LD_LIBRARY_PATH."""
@@ -182,9 +196,11 @@ def main():
         except KeyboardInterrupt:
             sys.exit(130)
 
-    # Resolve ports (with fallback to free ports)
-    api_host = os.environ.get("FACEFUSION_API_HOST", DEFAULT_API_HOST)
-    ui_host = os.environ.get("FACEFUSION_UI_HOST", DEFAULT_UI_HOST)
+    # Resolve ports and hosts (with fallbacks)
+    requested_api_host = os.environ.get("FACEFUSION_API_HOST", DEFAULT_API_HOST)
+    requested_ui_host = os.environ.get("FACEFUSION_UI_HOST", DEFAULT_UI_HOST)
+    api_host = sanitize_host(requested_api_host, DEFAULT_API_HOST, "backend host")
+    ui_host = sanitize_host(requested_ui_host, DEFAULT_UI_HOST, "frontend host")
     requested_api_port = get_env_int("FACEFUSION_API_PORT", DEFAULT_API_PORT)
     requested_ui_port = get_env_int("FACEFUSION_UI_PORT", DEFAULT_UI_PORT)
     api_port = find_free_port(api_host, requested_api_port)
@@ -242,16 +258,20 @@ def main():
 
     # 3. Open Browser
     backend_health = f"http://{api_open_host}:{api_port}/health"
-    if wait_for_http(backend_health, timeout=20):
+    backend_healthy, backend_error = wait_for_http(backend_health, timeout=20)
+    if backend_healthy:
         print(f"Backend healthy at {backend_health}")
     else:
-        print(f"Warning: Backend not ready after timeout: {backend_health}")
+        error_info = f"{type(backend_error).__name__}: {backend_error}" if backend_error else "timeout"
+        print(f"Warning: Backend not ready after timeout ({backend_health}) - Last error: {error_info}")
 
     ui_url = f"http://{ui_open_host}:{ui_port}"
-    if wait_for_http(ui_url, timeout=30):
+    ui_ready, ui_error = wait_for_http(ui_url, timeout=30)
+    if ui_ready:
         print(f"Frontend ready at {ui_url}")
     else:
-        print(f"Warning: Frontend not ready after timeout: {ui_url}")
+        error_info = f"{type(ui_error).__name__}: {ui_error}" if ui_error else "timeout"
+        print(f"Warning: Frontend not ready after timeout ({ui_url}) - Last error: {error_info}")
 
     print(f"Opening browser at {ui_url}")
     if sys.platform == 'linux':
