@@ -5,7 +5,7 @@ import signal
 import sys
 from time import time
 
-from facefusion import benchmarker, cli_helper, content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, hash_helper, logger, state_manager, translator, voice_extractor
+from facefusion import app_context, benchmarker, cli_helper, content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, hash_helper, logger, state_manager, translator, voice_extractor
 from facefusion.args import apply_args, collect_job_args, reduce_job_args, reduce_step_args
 from facefusion.download import conditional_download_hashes, conditional_download_sources
 from facefusion.exit_helper import hard_exit, signal_exit
@@ -62,6 +62,7 @@ def route(args : Args) -> None:
 		hard_exit(error_code)
 
 	if state_manager.get_item('command') == 'run':
+		app_context.set_app_context('ui')
 		import facefusion.uis.core as ui
 
 		if not common_pre_check() or not processors_pre_check():
