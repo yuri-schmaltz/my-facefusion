@@ -183,7 +183,7 @@ def detect_execution_devices() -> List[ExecutionDevice]:
 
 
 def create_value_and_unit(text : str) -> Optional[ValueAndUnit]:
-	if ' ' in text:
+	if text and ' ' in text:
 		value, unit = text.split()
 
 		return\

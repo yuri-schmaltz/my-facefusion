@@ -5,3 +5,7 @@ __pycache__
 .idea
 .jobs
 .vscode
+.venv
+venv
+.pytest_cache
+*.pyc

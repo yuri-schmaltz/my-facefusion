@@ -261,10 +261,12 @@ def concat_video(output_path : str, temp_output_paths : List[str]) -> bool:
 		ffmpeg_builder.copy_audio_encoder(),
 		ffmpeg_builder.force_output(output_path)
 	)
-	process = run_ffmpeg(commands)
-	process.communicate()
-	remove_file(concat_video_path)
-	return process.returncode == 0
+	try:
+		process = run_ffmpeg(commands)
+		process.communicate()
+		return process.returncode == 0
+	finally:
+		remove_file(concat_video_path)
 
 
 def fix_audio_encoder(video_format : VideoFormat, audio_encoder : AudioEncoder) -> AudioEncoder:

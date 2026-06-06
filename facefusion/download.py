@@ -1,5 +1,6 @@
 import os
 import subprocess
+import time
 from functools import lru_cache
 from typing import List, Optional, Tuple
 from urllib.parse import urlparse
@@ -40,6 +41,7 @@ def conditional_download(download_directory_path : str, urls : List[str]) -> Non
 					if is_file(download_file_path):
 						current_size = get_file_size(download_file_path)
 						progress.update(current_size - progress.n)
+					time.sleep(0.2)
 
 
 @lru_cache(maxsize = 64)
