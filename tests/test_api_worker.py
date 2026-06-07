@@ -65,6 +65,7 @@ def test_worker_recovery_stuck_jobs() -> None:
     db = TestingSessionLocal()
     j1 = db.query(JobModel).filter(JobModel.id == "job-stuck-1").first()
     
+    assert j1 is not None
     assert j1.status == "failed"
     assert "reiniciado" in j1.error_message
     assert j1.progress == 0
@@ -106,6 +107,7 @@ def test_worker_process_success_job() -> None:
     # Verificar se o status mudou para completed e progresso 100
     db = TestingSessionLocal()
     j = db.query(JobModel).filter(JobModel.id == "job-success-1").first()
+    assert j is not None
     assert j.status == "completed"
     assert j.progress == 100
     db.close()
@@ -144,6 +146,7 @@ def test_worker_process_failed_job() -> None:
     # Verificar se o status mudou para failed e progresso 0 com erro
     db = TestingSessionLocal()
     j = db.query(JobModel).filter(JobModel.id == "job-fail-1").first()
+    assert j is not None
     assert j.status == "failed"
     assert j.progress == 0
     assert "Erro de execução" in j.error_message
@@ -183,6 +186,7 @@ def test_worker_process_exception_handling() -> None:
     # Verificar se o status mudou para failed e erro gravou o traceback
     db = TestingSessionLocal()
     j = db.query(JobModel).filter(JobModel.id == "job-exception-1").first()
+    assert j is not None
     assert j.status == "failed"
     assert j.progress == 0
     assert "GPU out of memory error" in j.error_message

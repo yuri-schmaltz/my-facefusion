@@ -36,13 +36,18 @@ def before_each() -> None:
 
 
 def test_read_image() -> None:
-	assert read_image(get_test_example_file('target-240p.jpg')).shape == (226, 426, 3)
-	assert read_image(get_test_example_file('目标-240p.webp')).shape == (226, 426, 3)
+	target_240p = read_image(get_test_example_file('target-240p.jpg'))
+	assert target_240p is not None
+	assert target_240p.shape == (226, 426, 3)
+	target_webp = read_image(get_test_example_file('目标-240p.webp'))
+	assert target_webp is not None
+	assert target_webp.shape == (226, 426, 3)
 	assert read_image('invalid') is None
 
 
 def test_write_image() -> None:
 	vision_frame = read_image(get_test_example_file('target-240p.jpg'))
+	assert vision_frame is not None
 
 	assert write_image(get_test_output_file('target-240p.jpg'), vision_frame) is True
 	assert write_image(get_test_output_file('目标-240p.webp'), vision_frame) is True
@@ -94,13 +99,13 @@ def test_restrict_video_fps() -> None:
 	assert restrict_video_fps(get_test_example_file('target-1080p.mp4'), 60.0) == 25.0
 
 
-@pytest.mark.skipif(os.environ.get('CI') and is_linux(), reason = 'h264 codec not present')
+@pytest.mark.skipif(bool(os.environ.get('CI')) and is_linux(), reason = 'h264 codec not present')
 def test_detect_video_duration() -> None:
 	assert detect_video_duration(get_test_example_file('target-240p.mp4')) == 10.8
 	assert detect_video_duration('invalid') == 0
 
 
-@pytest.mark.skipif(os.environ.get('CI') and is_linux(), reason = 'h264 codec not present')
+@pytest.mark.skipif(bool(os.environ.get('CI')) and is_linux(), reason = 'h264 codec not present')
 def test_count_trim_frame_total() -> None:
 	assert count_trim_frame_total(get_test_example_file('target-240p.mp4'), 0, 200) == 200
 	assert count_trim_frame_total(get_test_example_file('target-240p.mp4'), 70, 270) == 200
@@ -111,7 +116,7 @@ def test_count_trim_frame_total() -> None:
 	assert count_trim_frame_total(get_test_example_file('target-240p.mp4'), None, None) == 270
 
 
-@pytest.mark.skipif(os.environ.get('CI') and is_linux(), reason = 'h264 codec not present')
+@pytest.mark.skipif(bool(os.environ.get('CI')) and is_linux(), reason = 'h264 codec not present')
 def test_restrict_trim_frame() -> None:
 	assert restrict_trim_frame(get_test_example_file('target-240p.mp4'), 0, 200) == (0, 200)
 	assert restrict_trim_frame(get_test_example_file('target-240p.mp4'), 70, 270) == (70, 270)
@@ -122,7 +127,7 @@ def test_restrict_trim_frame() -> None:
 	assert restrict_trim_frame(get_test_example_file('target-240p.mp4'), None, None) == (0, 270)
 
 
-@pytest.mark.skipif(os.environ.get('CI') and is_linux(), reason = 'h264 codec not present')
+@pytest.mark.skipif(bool(os.environ.get('CI')) and is_linux(), reason = 'h264 codec not present')
 def test_detect_video_resolution() -> None:
 	assert detect_video_resolution(get_test_example_file('target-240p.mp4')) == (426, 226)
 	assert detect_video_resolution(get_test_example_file('target-240p-90deg.mp4')) == (226, 426)
@@ -162,6 +167,8 @@ def test_unpack_resolution() -> None:
 def test_calc_histogram_difference() -> None:
 	source_vision_frame = read_image(get_test_example_file('target-240p.jpg'))
 	target_vision_frame = read_image(get_test_example_file('target-240p-0sat.jpg'))
+	assert source_vision_frame is not None
+	assert target_vision_frame is not None
 
 	assert calculate_histogram_difference(source_vision_frame, source_vision_frame) == 1.0
 	assert calculate_histogram_difference(source_vision_frame, target_vision_frame) < 0.5
@@ -170,6 +177,9 @@ def test_calc_histogram_difference() -> None:
 def test_match_frame_color() -> None:
 	source_vision_frame = read_image(get_test_example_file('target-240p.jpg'))
 	target_vision_frame = read_image(get_test_example_file('target-240p-0sat.jpg'))
+	assert source_vision_frame is not None
+	assert target_vision_frame is not None
 	output_vision_frame = match_frame_color(source_vision_frame, target_vision_frame)
+	assert output_vision_frame is not None
 
 	assert calculate_histogram_difference(source_vision_frame, output_vision_frame) > 0.5
