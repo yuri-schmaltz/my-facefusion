@@ -266,3 +266,56 @@ def test_media_endpoints_path_traversal() -> None:
 
     response2 = client.get("/api/media/output/../../etc/passwd")
     assert response2.status_code in (400, 404)
+
+
+def test_update_config() -> None:
+    """Verifica se o endpoint POST /api/config altera com sucesso as variáveis em memória."""
+    payload = {
+        "jobs_path": ".new_jobs_path_test",
+        "execution_thread_count": 8,
+        "video_memory_strategy": "tolerant",
+        "log_level": "debug"
+    }
+    response = client.post("/api/config", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["config"]["jobs_path"] == ".new_jobs_path_test"
+    assert data["config"]["execution_thread_count"] == 8
+    assert data["config"]["video_memory_strategy"] == "tolerant"
+    assert data["config"]["log_level"] == "debug"
+
+
+def test_delete_job_endpoint() -> None:
+    """Verifica se deletar uma tarefa remove o registro correspondente."""
+    # 1. Tentar deletar job inexistente (deve dar 404)
+    response_nonexistent = client.delete("/api/jobs/job-fake-non-existent")
+    assert response_nonexistent.status_code == 404
+    assert response_nonexistent.json()["detail"] == "Tarefa não encontrada"
+
+    # 2. Criar um job mockado no banco temporário
+    db = TestingSessionLocal()
+    mock_job = JobModel(
+        id="job-delete-test-id",
+        status="queued",
+        progress=0,
+        source_paths='["/fake/source.jpg"]',
+        target_path="/fake/target.mp4",
+        output_path="/fake/output.mp4"
+    )
+    db.add(mock_job)
+    db.commit()
+    db.close()
+
+    # 3. Chamar a rota de exclusão com patches para evitar erros na exclusão de arquivo físico
+    with patch("facefusion.jobs.job_manager.delete_job", return_value=True):
+        response_delete = client.delete("/api/jobs/job-delete-test-id")
+        assert response_delete.status_code == 200
+        assert response_delete.json()["status"] == "success"
+
+    # 4. Verificar se sumiu do banco de dados
+    db = TestingSessionLocal()
+    job_in_db = db.query(JobModel).filter(JobModel.id == "job-delete-test-id").first()
+    assert job_in_db is None
+    db.close()
+

@@ -3,8 +3,15 @@ import datetime
 from sqlalchemy import create_engine, Column, String, Integer, Float, DateTime, Text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Configurar caminho do banco de dados
-db_dir = ".jobs"
+from facefusion import state_manager
+from facefusion.filesystem import get_default_path
+
+# Configurar caminho do banco de dados dinamicamente
+jobs_path = state_manager.get_item('jobs_path')
+if not jobs_path:
+    jobs_path = get_default_path('data')
+
+db_dir = jobs_path
 os.makedirs(db_dir, exist_ok=True)
 DATABASE_URL = f"sqlite:///{os.path.join(db_dir, 'jobs.db')}"
 

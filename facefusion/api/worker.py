@@ -6,9 +6,20 @@ from facefusion.core import process_step
 from facefusion import state_manager
 
 
+_worker_stop_event = threading.Event()
+
+
 def start_worker():
+    global _worker_stop_event
+    _worker_stop_event.clear()
     thread = threading.Thread(target=worker_loop, daemon=True)
     thread.start()
+
+
+def stop_worker():
+    global _worker_stop_event
+    print("[Worker] Sinalizando encerramento para o worker loop...", flush=True)
+    _worker_stop_event.set()
 
 
 def worker_loop():
@@ -20,12 +31,13 @@ def worker_loop():
         from facefusion.program import create_program
         from facefusion.args import apply_args
         from facefusion.jobs import job_manager
+        from facefusion.filesystem import get_default_path
 
         program = create_program()
         args = vars(program.parse_args(['run']))
         apply_args(args, state_manager.init_item)
         
-        jobs_path = state_manager.get_item('jobs_path') or '.jobs'
+        jobs_path = state_manager.get_item('jobs_path') or get_default_path('data')
         job_manager.init_jobs(jobs_path)
         print(f"[Worker] Caminho de jobs inicializado: {jobs_path}", flush=True)
     except Exception as e:
@@ -46,7 +58,7 @@ def worker_loop():
         print(f"[Worker] Erro ao recuperar jobs travados: {str(e)}", flush=True)
 
     print("[Worker] Loop de escuta de tarefas iniciado.", flush=True)
-    while True:
+    while not _worker_stop_event.is_set():
         try:
             db = SessionLocal()
             # Buscar o job mais antigo na fila
@@ -63,6 +75,9 @@ def worker_loop():
                 db.close()
                 
                 try:
+                    from facefusion.logger import set_job_context
+                    set_job_context(job_id)
+
                     # Garantir que o comando está configurado para executar
                     state_manager.set_item('command', 'job-run')
                     
@@ -97,10 +112,13 @@ def worker_loop():
                         job_to_update.error_message = f"Exceção: {str(e)}\n{error_trace}"
                         db.commit()
                     db.close()
+                finally:
+                    from facefusion.logger import set_job_context
+                    set_job_context('')
             else:
                 db.close()
-                time.sleep(1)
+                _worker_stop_event.wait(1)
         except Exception as e:
             print(f"[Worker] Erro no loop de execução do worker: {str(e)}", flush=True)
-            time.sleep(2)
+            _worker_stop_event.wait(2)
 

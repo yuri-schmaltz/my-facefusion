@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from facefusion import state_manager
 from facefusion.execution import get_available_execution_providers, detect_static_execution_devices
-from facefusion.filesystem import resolve_file_paths, get_file_name, create_directory
+from facefusion.filesystem import resolve_file_paths, get_file_name, create_directory, get_default_path
 from facefusion.processors.core import get_processors_modules
 from facefusion.jobs import job_manager, job_runner, job_helper
 from facefusion.args import collect_step_args
@@ -30,6 +30,8 @@ class JobCreateRequest(BaseModel):
     smoothing: Optional[int] = 5
     processors: Optional[List[str]] = ["face_swapper"]
     output_format: Optional[str] = "mp4"
+    trim_frame_start: Optional[int] = None
+    trim_frame_end: Optional[int] = None
 
 
 @router.get("/hardware/providers")
@@ -85,13 +87,45 @@ def get_current_config() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Erro ao ler configuração do estado: {str(e)}")
 
 
+class ConfigUpdateRequest(BaseModel):
+    temp_path: Optional[str] = None
+    jobs_path: Optional[str] = None
+    log_level: Optional[str] = None
+    execution_providers: Optional[List[str]] = None
+    execution_thread_count: Optional[int] = None
+    video_memory_strategy: Optional[str] = None
+
+
+@router.post("/config")
+def update_config(request: ConfigUpdateRequest) -> Dict[str, Any]:
+    """
+    Atualiza as configurações do estado em memória.
+    """
+    try:
+        if request.temp_path is not None:
+            state_manager.set_item("temp_path", request.temp_path)
+        if request.jobs_path is not None:
+            state_manager.set_item("jobs_path", request.jobs_path)
+        if request.log_level is not None:
+            state_manager.set_item("log_level", request.log_level)
+        if request.execution_providers is not None:
+            state_manager.set_item("execution_providers", request.execution_providers)
+        if request.execution_thread_count is not None:
+            state_manager.set_item("execution_thread_count", request.execution_thread_count)
+        if request.video_memory_strategy is not None:
+            state_manager.set_item("video_memory_strategy", request.video_memory_strategy)
+        return {"status": "success", "config": get_current_config()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar configuração: {str(e)}")
+
+
 @router.post("/media/upload")
 def upload_media(file: UploadFile = File(...)):
     """
     Faz o upload de uma imagem ou vídeo para a pasta temporária de jobs.
     """
     try:
-        jobs_path = state_manager.get_item("jobs_path") or ".jobs"
+        jobs_path = state_manager.get_item("jobs_path") or get_default_path('data')
         uploads_dir = os.path.join(jobs_path, "uploads")
         create_directory(uploads_dir)
         
@@ -117,7 +151,7 @@ def get_upload_file(filename: str):
     """
     Retorna um arquivo de mídia enviado para a pasta temporária.
     """
-    jobs_path = state_manager.get_item("jobs_path") or ".jobs"
+    jobs_path = state_manager.get_item("jobs_path") or get_default_path('data')
     uploads_dir = os.path.abspath(os.path.join(jobs_path, "uploads"))
     file_path = os.path.abspath(os.path.join(uploads_dir, filename))
     
@@ -134,7 +168,7 @@ def get_output_file(filename: str):
     """
     Retorna o arquivo final gerado pelo processamento.
     """
-    jobs_path = state_manager.get_item("jobs_path") or ".jobs"
+    jobs_path = state_manager.get_item("jobs_path") or get_default_path('data')
     outputs_dir = os.path.abspath(os.path.join(jobs_path, "outputs"))
     file_path = os.path.abspath(os.path.join(outputs_dir, filename))
     
@@ -237,7 +271,7 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
         
         # Resolução automática de caminhos de mídia enviados como URLs da API ou caminhos absolutos
         resolved_source_paths = []
-        jobs_path = state_manager.get_item("jobs_path") or ".jobs"
+        jobs_path = state_manager.get_item("jobs_path") or get_default_path('data')
         uploads_dir = os.path.abspath(os.path.join(jobs_path, "uploads"))
         
         for path in request.source_paths:
@@ -263,6 +297,10 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
         if request.detection_threshold is not None:
             step_args["face_detector_score"] = request.detection_threshold
             step_args["face_landmarker_score"] = request.detection_threshold
+        if request.trim_frame_start is not None:
+            step_args["trim_frame_start"] = request.trim_frame_start
+        if request.trim_frame_end is not None:
+            step_args["trim_frame_end"] = request.trim_frame_end
             
         outputs_dir = os.path.join(jobs_path, "outputs")
         create_directory(outputs_dir)
@@ -309,4 +347,111 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao criar job: {str(e)}")
+
+
+@router.delete("/jobs/{job_id}")
+def delete_job(job_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """
+    Exclui uma tarefa do banco de dados, seus arquivos de job no disco e a mídia de saída se gerada.
+    """
+    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Tarefa não encontrada")
+    
+    try:
+        # Excluir arquivos de job no disco
+        job_manager.delete_job(job_id)
+        
+        # Excluir arquivos físicos de mídia se existirem
+        if job.output_path and os.path.exists(job.output_path):
+            try:
+                os.remove(job.output_path)
+            except Exception:
+                pass
+            
+        # Excluir do banco
+        db.delete(job)
+        db.commit()
+        
+        return {"status": "success", "message": f"Job {job_id} excluído com sucesso."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao excluir job: {str(e)}")
+
+
+@router.get("/diagnostic/export")
+def export_diagnostic():
+    """
+    Gera um pacote ZIP contendo logs e configurações higienizados (sem PII ou segredos).
+    """
+    import tempfile
+    import zipfile
+    import platform
+    try:
+        from facefusion.filesystem import get_default_path
+        from facefusion import state_manager
+        
+        # 1. Obter caminhos
+        cache_dir = get_default_path('cache')
+        log_file_path = os.path.join(cache_dir, 'facefusion.log')
+        config_path = state_manager.get_item('config_path') or 'facefusion.ini'
+        
+        # 2. Criar arquivo zip temporário
+        temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
+        temp_zip_name = temp_zip.name
+        temp_zip.close()
+        
+        def sanitize_text(text: str) -> str:
+            import re
+            # Mascarar caminhos de usuário no Linux / macOS
+            text = re.sub(r'/home/[a-zA-Z0-9_-]+', '/home/user', text)
+            # Mascarar caminhos de usuário no Windows
+            text = re.sub(r'[cC]:\\Users\\[a-zA-Z0-9_-]+', 'C:\\Users\\user', text)
+            # Mascarar possíveis tokens/senhas
+            text = re.sub(r'(?i)(token|password|secret|key)["\s:=]+[a-zA-Z0-9_=-]+', r'\1: [MASKED]', text)
+            return text
+
+        with zipfile.ZipFile(temp_zip_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # Adicionar log higienizado se existir
+            if os.path.exists(log_file_path):
+                try:
+                    with open(log_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        log_content = f.read()
+                    sanitized_log = sanitize_text(log_content)
+                    zipf.writestr('facefusion.log', sanitized_log)
+                except Exception as ex:
+                    zipf.writestr('log_error.txt', f"Erro ao ler log: {str(ex)}")
+            else:
+                zipf.writestr('facefusion.log', 'Nenhum log gerado ainda.')
+                
+            # Adicionar ini de configuração higienizado
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        config_content = f.read()
+                    sanitized_config = sanitize_text(config_content)
+                    zipf.writestr('facefusion.ini', sanitized_config)
+                except Exception as ex:
+                    zipf.writestr('config_error.txt', f"Erro ao ler config: {str(ex)}")
+                    
+            # Adicionar dados do sistema/hardware
+            system_info = {
+                "os": platform.system(),
+                "os_release": platform.release(),
+                "os_version": platform.version(),
+                "machine": platform.machine(),
+                "python_version": platform.python_version(),
+                "execution_providers": state_manager.get_item('execution_providers') or [],
+                "video_memory_strategy": state_manager.get_item('video_memory_strategy') or 'balanced',
+            }
+            zipf.writestr('system_info.json', json.dumps(system_info, indent=4))
+            
+        return FileResponse(
+            temp_zip_name,
+            media_type="application/zip",
+            filename="facefusion_diagnostic.zip"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar diagnóstico: {str(e)}")
+
+
 

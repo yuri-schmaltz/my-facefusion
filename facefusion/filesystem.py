@@ -188,3 +188,25 @@ def remove_directory(directory_path : str) -> bool:
 
 def resolve_relative_path(path : str) -> str:
 	return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+
+
+def get_default_path(folder_type : str) -> str:
+	import sys
+
+	if sys.platform == 'win32':
+		local_app_data = os.environ.get('LOCALAPPDATA', os.path.expanduser('~/AppData/Local'))
+		base_dir = os.path.join(local_app_data, 'FaceFusion')
+		if folder_type == 'config':
+			return os.path.join(base_dir, 'Config')
+		if folder_type == 'cache':
+			return os.path.join(base_dir, 'Cache')
+		return os.path.join(base_dir, 'Data')
+	else:
+		if folder_type == 'config':
+			base_dir = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+		elif folder_type == 'cache':
+			base_dir = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
+		else:
+			base_dir = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
+		return os.path.join(base_dir, 'facefusion')
+
