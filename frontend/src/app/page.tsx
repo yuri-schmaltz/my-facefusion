@@ -82,6 +82,9 @@ export default function Home() {
   const [hardwareInfo, setHardwareInfo] = useState<string>("Buscando informações de hardware...");
   const [previewOutputUrl, setPreviewOutputUrl] = useState<string | null>(null);
 
+  const [apiUrl, setApiUrl] = useState("http://localhost:8000");
+  const [configLoaded, setConfigLoaded] = useState(false);
+
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,11 +109,32 @@ export default function Home() {
   const [projectFilter, setProjectFilter] = useState<"all" | "completed" | "processing" | "failed">("all");
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
 
+  // Carregar configuração de API dinâmica ao iniciar
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await fetch("/config.json");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.apiUrl) {
+            setApiUrl(data.apiUrl);
+          }
+        }
+      } catch (e) {
+        console.warn("Falha ao carregar porta dinâmica, usando padrão 8000:", e);
+      } finally {
+        setConfigLoaded(true);
+      }
+    };
+    loadConfig();
+  }, []);
+
   // Buscar informações do hardware ao montar
   useEffect(() => {
+    if (!configLoaded) return;
     const fetchHardware = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/hardware/devices");
+        const res = await fetch(`${apiUrl}/api/hardware/devices`);
         if (res.ok) {
           const data = await res.json();
           if (data && data.length > 0) {
@@ -128,7 +152,7 @@ export default function Home() {
             }
             setHardwareInfo(`GPU: ${device.name || "NVIDIA"} | Uso: ${device.load || 0}% | Temp: ${tempStr}`);
           } else {
-            const resProv = await fetch("http://localhost:8000/api/hardware/providers");
+            const resProv = await fetch(`${apiUrl}/api/hardware/providers`);
             if (resProv.ok) {
               const providers = await resProv.json();
               setHardwareInfo(`Hardware: ${providers.join(", ")}`);
@@ -140,13 +164,14 @@ export default function Home() {
       }
     };
     fetchHardware();
-  }, []);
+  }, [configLoaded, apiUrl]);
 
   // Buscar configurações ao montar
   useEffect(() => {
+    if (!configLoaded) return;
     const fetchConfig = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/config");
+        const res = await fetch(`${apiUrl}/api/config`);
         if (res.ok) {
           const data = await res.json();
           setConfigTempPath(data.temp_path || "");
@@ -161,13 +186,14 @@ export default function Home() {
       }
     };
     fetchConfig();
-  }, [activeTab]); // Recarregar quando trocar para configurações
+  }, [activeTab, configLoaded, apiUrl]);
 
   // Buscar processadores disponíveis
   useEffect(() => {
+    if (!configLoaded) return;
     const fetchProcessors = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/processors/list");
+        const res = await fetch(`${apiUrl}/api/processors/list`);
         if (res.ok) {
           const data = await res.json();
           setAvailableProcessors(data);
@@ -177,12 +203,13 @@ export default function Home() {
       }
     };
     fetchProcessors();
-  }, []);
+  }, [configLoaded, apiUrl]);
 
   // Buscar e atualizar lista de Jobs periodicamente
   const fetchJobs = async () => {
+    if (!configLoaded) return;
     try {
-      const res = await fetch("http://localhost:8000/api/jobs");
+      const res = await fetch(`${apiUrl}/api/jobs`);
       if (res.ok) {
         const data = await res.json();
         const mappedJobs = data.map((job: any) => ({
@@ -191,9 +218,9 @@ export default function Home() {
           status: job.status,
           progress: job.progress,
           time: new Date(job.date_created).toLocaleString(),
-          source: job.source ? "http://localhost:8000" + job.source : undefined,
-          target: job.target ? "http://localhost:8000" + job.target : undefined,
-          outputUrl: job.output ? "http://localhost:8000" + job.output : undefined,
+          source: job.source ? apiUrl + job.source : undefined,
+          target: job.target ? apiUrl + job.target : undefined,
+          outputUrl: job.output ? apiUrl + job.output : undefined,
           error_message: job.error_message
         }));
         setJobs(mappedJobs);
@@ -207,10 +234,11 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!configLoaded) return;
     fetchJobs();
     const interval = setInterval(fetchJobs, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [configLoaded, apiUrl]);
 
   // Pegar o último job completo para exibição no preview
   useEffect(() => {
@@ -262,7 +290,7 @@ export default function Home() {
   const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("http://localhost:8000/api/media/upload", {
+    const res = await fetch(`${apiUrl}/api/media/upload`, {
       method: "POST",
       body: formData,
     });
@@ -277,7 +305,7 @@ export default function Home() {
     if (!file) return;
     try {
       const data = await uploadFile(file);
-      setSourceImage("http://localhost:8000" + data.url);
+      setSourceImage(apiUrl + data.url);
       setSourceImageFullPath(data.file_path);
       setSourceImageName(data.filename);
     } catch (err) {
@@ -290,7 +318,7 @@ export default function Home() {
     if (!file) return;
     try {
       const data = await uploadFile(file);
-      setTargetVideo("http://localhost:8000" + data.url);
+      setTargetVideo(apiUrl + data.url);
       setTargetVideoFullPath(data.file_path);
       setTargetVideoName(data.filename);
     } catch (err) {
@@ -311,7 +339,7 @@ export default function Home() {
     const trimFrameStart = processFromCurrentPoint ? Math.round(targetVideoTime * 30) : null;
 
     try {
-      const res = await fetch("http://localhost:8000/api/jobs", {
+      const res = await fetch(`${apiUrl}/api/jobs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -346,7 +374,7 @@ export default function Home() {
     const jobId = jobToDelete;
     setJobToDelete(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/jobs/${jobId}`, {
+      const res = await fetch(`${apiUrl}/api/jobs/${jobId}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -373,7 +401,7 @@ export default function Home() {
     e.preventDefault();
     setIsSavingConfig(true);
     try {
-      const res = await fetch("http://localhost:8000/api/config", {
+      const res = await fetch(`${apiUrl}/api/config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -400,7 +428,7 @@ export default function Home() {
 
   const handleExportDiagnostic = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/diagnostic/export");
+      const res = await fetch(`${apiUrl}/api/diagnostic/export`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);

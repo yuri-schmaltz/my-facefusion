@@ -80,8 +80,43 @@ def create_app() -> FastAPI:
 app = create_app()
 
 
+def find_free_port(start_port: int = 8000, max_attempts: int = 100) -> int:
+    import socket
+    for p in range(start_port, start_port + max_attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("127.0.0.1", p))
+                return p
+            except OSError:
+                continue
+    raise RuntimeError(f"Nenhuma porta livre encontrada a partir de {start_port}")
+
+
+def write_frontend_config(port: int) -> None:
+    import os
+    import json
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.abspath(os.path.join(backend_dir, "..", ".."))
+    frontend_public_dir = os.path.join(root_dir, "frontend", "public")
+    
+    if os.path.exists(frontend_public_dir):
+        config_path = os.path.join(frontend_public_dir, "config.json")
+        try:
+            config_data = {"apiUrl": f"http://localhost:{port}"}
+            with open(config_path, "w", encoding="utf-8") as f:
+                json.dump(config_data, f, indent=4)
+            print(f"[API] Gravado config.json do frontend em: {config_path}", flush=True)
+        except Exception as e:
+            print(f"[API] Erro ao gravar config.json: {str(e)}", flush=True)
+
+
 if __name__ == "__main__":
     # Carregar configuração padrão ou via variáveis de ambiente
     host = "127.0.0.1"
-    port = 8000
+    try:
+        port = find_free_port(8000)
+    except Exception:
+        port = 8000
+        
+    write_frontend_config(port)
     uvicorn.run("facefusion.api.main:app", host=host, port=port, reload=True)

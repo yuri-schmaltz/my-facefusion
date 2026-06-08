@@ -319,3 +319,12 @@ def test_delete_job_endpoint() -> None:
     assert job_in_db is None
     db.close()
 
+
+def test_export_diagnostic_endpoint() -> None:
+    """Verifica se o endpoint de exportação de diagnóstico funciona e retorna um ZIP."""
+    response = client.get("/api/diagnostic/export")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/zip"
+    assert len(response.content) > 0
+
+
