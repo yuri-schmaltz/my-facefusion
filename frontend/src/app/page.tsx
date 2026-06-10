@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   LayoutDashboard,
   PlusCircle,
@@ -29,9 +29,69 @@ import {
   Cpu,
   Folder,
   Terminal,
-  SlidersHorizontal
+  SlidersHorizontal,
+  X,
+  Check,
+  Info
 } from "lucide-react";
 
+/* ======================================== */
+/* Toast Notification System                */
+/* ======================================== */
+interface Toast {
+  id: string;
+  type: "success" | "error" | "info" | "warning";
+  title: string;
+  message?: string;
+  exiting?: boolean;
+}
+
+function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: string) => void }) {
+  return (
+    <div className="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-sm">
+      {toasts.map((toast) => {
+        const colors = {
+          success: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: "text-emerald-400", bar: "bg-emerald-500" },
+          error: { bg: "bg-red-500/10", border: "border-red-500/30", icon: "text-red-400", bar: "bg-red-500" },
+          info: { bg: "bg-blue-500/10", border: "border-blue-500/30", icon: "text-blue-400", bar: "bg-blue-500" },
+          warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", icon: "text-amber-400", bar: "bg-amber-500" },
+        }[toast.type];
+
+        const Icon = {
+          success: Check,
+          error: AlertCircle,
+          info: Info,
+          warning: AlertCircle,
+        }[toast.type];
+
+        return (
+          <div
+            key={toast.id}
+            className={`pointer-events-auto ${toast.exiting ? 'animate-toast-exit' : 'animate-toast-enter'} ${colors.bg} ${colors.border} border backdrop-blur-xl rounded-xl p-4 shadow-2xl shadow-black/40 flex items-start gap-3 min-w-[280px]`}
+          >
+            <div className={`flex-shrink-0 mt-0.5 ${colors.icon}`}>
+              <Icon size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">{toast.title}</p>
+              {toast.message && <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">{toast.message}</p>}
+            </div>
+            <button
+              onClick={() => onDismiss(toast.id)}
+              className="flex-shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ======================================== */
+/* Main Component                           */
+/* ======================================== */
 interface Job {
   id: string;
   type: string;
@@ -47,6 +107,27 @@ interface Job {
 export default function Home() {
   // Navegação
   const [activeTab, setActiveTab] = useState<"create_new" | "projects" | "settings">("create_new");
+
+  // Toast notifications
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const showToast = useCallback((type: Toast["type"], title: string, message?: string) => {
+    const id = crypto.randomUUID();
+    setToasts(prev => [...prev, { id, type, title, message }]);
+    setTimeout(() => {
+      setToasts(prev => prev.map(t => t.id === id ? { ...t, exiting: true } : t));
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      }, 300);
+    }, 4500);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts(prev => prev.map(t => t.id === id ? { ...t, exiting: true } : t));
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 300);
+  }, []);
 
   // Configurações do Estado (Face Swap)
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -79,6 +160,10 @@ export default function Home() {
   const [isMuted, setIsMuted] = useState(true);
   const originalVideoRef = useRef<HTMLVideoElement>(null);
   const swappedVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Drag & Drop
+  const [isDraggingSource, setIsDraggingSource] = useState(false);
+  const [isDraggingTarget, setIsDraggingTarget] = useState(false);
 
   const formatTime = (secs: number) => {
     if (isNaN(secs) || secs === 0) return "00:00";
@@ -122,6 +207,9 @@ export default function Home() {
   // Filtros de Projetos (Aba Projetos)
   const [projectFilter, setProjectFilter] = useState<"all" | "completed" | "processing" | "failed">("all");
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+
+  // Current active job (processing/queued) for progress display
+  const activeJob = jobs.find(j => j.status === "processing" || j.status === "queued");
 
   // Efeitos e Handlers do Player / Comparador
   useEffect(() => {
@@ -320,12 +408,29 @@ export default function Home() {
   }, [configLoaded, apiUrl]);
 
   // Pegar o último job completo para exibição no preview
+  const prevCompletedCount = useRef(0);
   useEffect(() => {
     const completedJobs = jobs.filter(j => j.status === "completed" && j.outputUrl);
     if (completedJobs.length > 0) {
       setPreviewOutputUrl(completedJobs[0].outputUrl || null);
+      // Notify when a new job completes
+      if (completedJobs.length > prevCompletedCount.current && prevCompletedCount.current > 0) {
+        showToast("success", "Processamento Concluído!", `${completedJobs[0].id} finalizado com sucesso.`);
+      }
     }
-  }, [jobs]);
+    prevCompletedCount.current = completedJobs.length;
+  }, [jobs, showToast]);
+
+  // Detect failed jobs
+  const prevFailedCount = useRef(0);
+  useEffect(() => {
+    const failedJobs = jobs.filter(j => j.status === "failed");
+    if (failedJobs.length > prevFailedCount.current && prevFailedCount.current >= 0 && prevCompletedCount.current > 0) {
+      const latestFail = failedJobs[0];
+      showToast("error", "Processamento Falhou", latestFail?.error_message || `Job ${latestFail?.id} falhou.`);
+    }
+    prevFailedCount.current = failedJobs.length;
+  }, [jobs, showToast]);
 
   // Lógica do Slider Deslizante (Comparação)
   const handleSliderMove = (clientX: number) => {
@@ -387,8 +492,9 @@ export default function Home() {
       setSourceImage(apiUrl + data.url);
       setSourceImageFullPath(data.file_path);
       setSourceImageName(data.filename);
+      showToast("success", "Imagem de Origem Carregada", file.name);
     } catch (err) {
-      alert("Erro ao enviar a imagem de origem: " + err);
+      showToast("error", "Erro no Upload", "Falha ao enviar a imagem de origem.");
     }
   };
 
@@ -400,16 +506,64 @@ export default function Home() {
       setTargetVideo(apiUrl + data.url);
       setTargetVideoFullPath(data.file_path);
       setTargetVideoName(data.filename);
+      showToast("success", "Mídia de Destino Carregada", file.name);
     } catch (err) {
-      alert("Erro ao enviar a mídia de destino: " + err);
+      showToast("error", "Erro no Upload", "Falha ao enviar a mídia de destino.");
     }
+  };
+
+  /* ===== Drag & Drop Handlers ===== */
+  const handleDrop = async (e: React.DragEvent, type: "source" | "target") => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "source") setIsDraggingSource(false);
+    else setIsDraggingTarget(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await uploadFile(file);
+      if (type === "source") {
+        setSourceImage(apiUrl + data.url);
+        setSourceImageFullPath(data.file_path);
+        setSourceImageName(data.filename);
+        showToast("success", "Imagem de Origem Carregada", file.name);
+      } else {
+        setTargetVideo(apiUrl + data.url);
+        setTargetVideoFullPath(data.file_path);
+        setTargetVideoName(data.filename);
+        showToast("success", "Mídia de Destino Carregada", file.name);
+      }
+    } catch (err) {
+      showToast("error", "Erro no Upload", `Falha ao enviar ${file.name}.`);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent, type: "source" | "target") => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "source") setIsDraggingSource(true);
+    else setIsDraggingTarget(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent, type: "source" | "target") => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "source") setIsDraggingSource(false);
+    else setIsDraggingTarget(false);
   };
 
   // Iniciar processamento
   const handleGenerateSwap = async () => {
     if (isGenerating) return;
     if (!sourceImageFullPath || !targetVideoFullPath) {
-      alert("Por favor, envie a imagem de origem e a mídia de destino antes de iniciar.");
+      showToast("warning", "Mídia Incompleta", "Envie a imagem de origem e a mídia de destino antes de iniciar.");
       return;
     }
     setIsGenerating(true);
@@ -440,9 +594,10 @@ export default function Home() {
       console.log("Job enviado com sucesso:", data);
       setPreviewOutputUrl(null); // Resetar preview até o novo job terminar
       setActiveTab("create_new"); // Sincroniza redirecionamento
+      showToast("info", "Processamento Iniciado", `Tarefa ${data.job_id} foi adicionada à fila.`);
       fetchJobs();
     } catch (err) {
-      alert("Falha ao iniciar processamento: " + err);
+      showToast("error", "Falha ao Iniciar", "Não foi possível enviar a tarefa para processamento.");
       setIsGenerating(false);
     }
   };
@@ -458,12 +613,13 @@ export default function Home() {
       });
       if (res.ok) {
         setJobs(prev => prev.filter(j => j.id !== jobId));
+        showToast("success", "Tarefa Excluída", `${jobId} removido com sucesso.`);
       } else {
         const data = await res.json();
-        alert("Erro ao excluir: " + (data.detail || "Erro desconhecido"));
+        showToast("error", "Erro ao Excluir", data.detail || "Erro desconhecido.");
       }
     } catch (err) {
-      alert("Erro de conexão ao excluir tarefa: " + err);
+      showToast("error", "Erro de Conexão", "Falha ao comunicar com o servidor.");
     }
   };
 
@@ -473,6 +629,7 @@ export default function Home() {
     setTargetVideo(job.target);
     setPreviewOutputUrl(job.outputUrl);
     setActiveTab("create_new");
+    showToast("info", "Projeto Carregado", `${job.id} foi aberto no comparador.`);
   };
 
   // Salvar Configurações
@@ -493,13 +650,13 @@ export default function Home() {
         })
       });
       if (res.ok) {
-        alert("Configurações salvas com sucesso!");
+        showToast("success", "Configurações Salvas", "As alterações foram aplicadas com sucesso.");
       } else {
         const data = await res.json();
-        alert("Erro ao salvar: " + (data.detail || "Erro desconhecido"));
+        showToast("error", "Erro ao Salvar", data.detail || "Erro desconhecido.");
       }
     } catch (err) {
-      alert("Erro de conexão ao salvar configurações: " + err);
+      showToast("error", "Erro de Conexão", "Não foi possível salvar as configurações.");
     } finally {
       setIsSavingConfig(false);
     }
@@ -507,6 +664,7 @@ export default function Home() {
 
   const handleExportDiagnostic = async () => {
     try {
+      showToast("info", "Exportando Diagnóstico", "Gerando pacote de diagnóstico...");
       const res = await fetch(`${apiUrl}/api/diagnostic/export`);
       if (res.ok) {
         const blob = await res.blob();
@@ -518,12 +676,24 @@ export default function Home() {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+        showToast("success", "Diagnóstico Exportado", "Arquivo ZIP baixado com sucesso.");
       } else {
-        alert("Erro ao exportar diagnóstico.");
+        showToast("error", "Erro na Exportação", "Falha ao gerar pacote de diagnóstico.");
       }
     } catch (err) {
-      alert("Erro de conexão ao exportar diagnóstico: " + err);
+      showToast("error", "Erro de Conexão", "Não foi possível exportar o diagnóstico.");
     }
+  };
+
+  const handleDownloadOutput = () => {
+    if (!previewOutputUrl) return;
+    const a = document.createElement("a");
+    a.href = previewOutputUrl;
+    a.download = "facefusion_output";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast("info", "Download Iniciado", "Arquivo de saída sendo baixado.");
   };
 
   // Toggle Processadores Selecionados
@@ -545,12 +715,15 @@ export default function Home() {
   return (
     <div className="flex h-screen bg-[#0a0a0a] text-[#ededed] font-sans overflow-hidden">
       
+      {/* Toast Notification Container */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       {/* 1. Sidebar Translúcido (Glassmorphism) */}
       <aside className="w-64 bg-zinc-950/40 backdrop-blur-xl border-r border-zinc-900 flex flex-col justify-between p-6">
         <div>
           {/* Logo */}
           <div className="flex items-center gap-3 mb-10 px-2">
-            <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+            <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30 animate-pulse-glow">
               <span className="font-extrabold text-white text-lg">F</span>
             </div>
             <h1 className="font-bold text-xl tracking-tight text-white">
@@ -562,35 +735,35 @@ export default function Home() {
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab("create_new")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === "create_new"
                   ? "text-zinc-200 bg-zinc-900/50 border-l-2 border-red-500"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/30"
               }`}
             >
-              <PlusCircle size={18} className={activeTab === "create_new" ? "text-red-500" : ""} />
+              <PlusCircle size={18} className={`transition-colors ${activeTab === "create_new" ? "text-red-500" : ""}`} />
               Criar Novo
             </button>
             <button
               onClick={() => setActiveTab("projects")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === "projects"
                   ? "text-zinc-200 bg-zinc-900/50 border-l-2 border-red-500"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/30"
               }`}
             >
-              <FolderOpen size={18} className={activeTab === "projects" ? "text-red-500" : ""} />
+              <FolderOpen size={18} className={`transition-colors ${activeTab === "projects" ? "text-red-500" : ""}`} />
               Projetos
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeTab === "settings"
                   ? "text-zinc-200 bg-zinc-900/50 border-l-2 border-red-500"
                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/30"
               }`}
             >
-              <Settings size={18} className={activeTab === "settings" ? "text-red-500" : ""} />
+              <Settings size={18} className={`transition-colors ${activeTab === "settings" ? "text-red-500" : ""}`} />
               Configurações
             </button>
           </nav>
@@ -608,11 +781,11 @@ export default function Home() {
                 <p className="text-xs text-zinc-500">Administrador</p>
               </div>
             </div>
-            <button className="text-zinc-400 hover:text-red-500 transition-colors">
+            <button className="text-zinc-400 hover:text-red-500 transition-colors cursor-pointer">
               <Bell size={18} />
             </button>
           </div>
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg text-sm font-semibold transition-all">
+          <button className="w-full flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg text-sm font-semibold transition-all cursor-pointer">
             <LogOut size={18} />
             Deslogar
           </button>
@@ -623,14 +796,34 @@ export default function Home() {
       <main className="flex-1 flex flex-col overflow-hidden">
         
 
-
         {/* Workspace Body */}
         <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
 
           {/* =          {/* ABA 1: CRIAR NOVO */}
           {activeTab === "create_new" && (
-            <div className="flex-1 flex flex-col overflow-hidden space-y-4">
+            <div className="flex-1 flex flex-col overflow-hidden space-y-4 animate-fade-in">
 
+              {/* Active Job Progress Bar */}
+              {activeJob && (
+                <div className="flex items-center gap-3 bg-zinc-950/50 border border-zinc-900 rounded-xl px-4 py-2.5 flex-shrink-0 animate-fade-in">
+                  <RefreshCw size={14} className="text-amber-500 animate-spin flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold text-zinc-300 truncate">{activeJob.id}</span>
+                      <span className="text-xs font-mono text-amber-500 font-bold">{activeJob.progress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full transition-all duration-700 ease-out animate-shimmer"
+                        style={{ width: `${activeJob.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full flex-shrink-0 animate-pulse">
+                    {activeJob.status === "processing" ? "Processando" : "Na Fila"}
+                  </span>
+                </div>
+              )}
 
               {/* Seção 2: Área de Mídia (Upload) e Controles */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden">
@@ -641,8 +834,8 @@ export default function Home() {
                   {/* Media Inputs Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-[1.1] min-h-[160px]">
                     {/* Source Image */}
-                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full">
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Imagem de Origem (Source)</span>
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full min-h-0 overflow-hidden">
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">Imagem de Origem (Source)</span>
                       <input
                         type="file"
                         ref={sourceInputRef}
@@ -651,9 +844,9 @@ export default function Home() {
                         onChange={handleSourceUpload}
                       />
                       {sourceImage ? (
-                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center group">
-                          <img src={sourceImage} alt="Source Face" className="object-contain w-full h-full" />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center gap-2 transition-all">
+                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden group min-h-0">
+                          <img src={sourceImage} alt="Source Face" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center gap-2 transition-all duration-200 z-10">
                             <p className="text-xs font-semibold text-white truncate max-w-[90%]">{sourceImageName}</p>
                             <button
                               onClick={() => {
@@ -661,7 +854,7 @@ export default function Home() {
                                 setSourceImageFullPath(null);
                                 setSourceImageName("");
                               }}
-                              className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded font-bold transition-all"
+                              className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded font-bold transition-all cursor-pointer"
                             >
                               Substituir
                             </button>
@@ -670,18 +863,26 @@ export default function Home() {
                       ) : (
                         <div 
                           onClick={() => sourceInputRef.current?.click()}
-                          className="border border-dashed border-zinc-800 rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
+                          onDragOver={handleDragOver}
+                          onDragEnter={(e) => handleDragEnter(e, "source")}
+                          onDragLeave={(e) => handleDragLeave(e, "source")}
+                          onDrop={(e) => handleDrop(e, "source")}
+                          className={`border border-dashed rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 transition-all duration-200 group cursor-pointer text-center ${
+                            isDraggingSource 
+                              ? "drop-zone-active border-red-500/60" 
+                              : "border-zinc-800 hover:border-red-500/40 hover:bg-red-500/5"
+                          }`}
                         >
-                          <Upload size={24} className="text-zinc-600 group-hover:text-red-500 mb-2 transition-all" />
-                          <p className="text-xs text-zinc-400 font-semibold">Arraste a foto da face</p>
+                          <Upload size={24} className={`mb-2 transition-all duration-200 ${isDraggingSource ? "text-red-500 scale-110" : "text-zinc-600 group-hover:text-red-500"}`} />
+                          <p className="text-xs text-zinc-400 font-semibold">{isDraggingSource ? "Solte a imagem aqui" : "Arraste a foto da face"}</p>
                           <span className="text-[10px] text-zinc-500">ou clique para buscar</span>
                         </div>
                       )}
                     </div>
 
                     {/* Target Media */}
-                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full">
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Mídia de Destino (Target)</span>
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full min-h-0 overflow-hidden">
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">Mídia de Destino (Target)</span>
                       <input
                         type="file"
                         ref={targetInputRef}
@@ -690,16 +891,16 @@ export default function Home() {
                         onChange={handleTargetUpload}
                       />
                       {targetVideo ? (
-                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex flex-col justify-between group">
+                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden group min-h-0">
                           {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)$/i) ? (
-                            <div className="relative w-full h-full flex flex-col justify-between">
+                            <div className="absolute inset-0 w-full h-full flex flex-col justify-between min-h-0">
                               <video 
                                 src={targetVideo} 
-                                className="object-contain w-full h-[75%] bg-black" 
+                                className="object-contain w-full h-[75%] bg-black min-h-0" 
                                 controls 
                                 onTimeUpdate={(e) => setTargetVideoTime(e.currentTarget.currentTime)}
                               />
-                              <div className="p-2 bg-zinc-950/80 flex items-center gap-2 border-t border-zinc-850 h-[25%]">
+                              <div className="p-2 bg-zinc-950/80 flex items-center gap-2 border-t border-zinc-850 h-[25%] flex-shrink-0">
                                 <input
                                   type="checkbox"
                                   id="trim-start-check-dash"
@@ -713,7 +914,7 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <img src={targetVideo} alt="Target Media" className="object-contain w-full h-full" />
+                            <img src={targetVideo} alt="Target Media" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
                           )}
                           <button
                             onClick={(e) => {
@@ -731,10 +932,18 @@ export default function Home() {
                       ) : (
                         <div 
                           onClick={() => targetInputRef.current?.click()}
-                          className="border border-dashed border-zinc-800 rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
+                          onDragOver={handleDragOver}
+                          onDragEnter={(e) => handleDragEnter(e, "target")}
+                          onDragLeave={(e) => handleDragLeave(e, "target")}
+                          onDrop={(e) => handleDrop(e, "target")}
+                          className={`border border-dashed rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 transition-all duration-200 group cursor-pointer text-center ${
+                            isDraggingTarget 
+                              ? "drop-zone-active border-red-500/60" 
+                              : "border-zinc-800 hover:border-red-500/40 hover:bg-red-500/5"
+                          }`}
                         >
-                          <Upload size={24} className="text-zinc-600 group-hover:text-red-500 mb-2 transition-all" />
-                          <p className="text-xs text-zinc-400 font-semibold">Arraste imagem ou vídeo</p>
+                          <Upload size={24} className={`mb-2 transition-all duration-200 ${isDraggingTarget ? "text-red-500 scale-110" : "text-zinc-600 group-hover:text-red-500"}`} />
+                          <p className="text-xs text-zinc-400 font-semibold">{isDraggingTarget ? "Solte a mídia aqui" : "Arraste imagem ou vídeo"}</p>
                           <span className="text-[10px] text-zinc-500">ou clique para buscar</span>
                         </div>
                       )}
@@ -753,14 +962,14 @@ export default function Home() {
                           key={proc}
                           type="button"
                           onClick={() => toggleProcessor(proc)}
-                          className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-semibold transition-all ${
+                          className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-semibold transition-all duration-200 ${
                             selectedProcessors.includes(proc)
                               ? "bg-red-500/10 border-red-500/40 text-red-400"
-                              : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                              : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
                           }`}
                         >
                           <span className="truncate">{proc.replace("_", " ").toUpperCase()}</span>
-                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ml-2 ${selectedProcessors.includes(proc) ? "bg-red-500" : "bg-zinc-700"}`} />
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ml-2 transition-colors ${selectedProcessors.includes(proc) ? "bg-red-500" : "bg-zinc-700"}`} />
                         </button>
                       ))}
                     </div>
@@ -834,7 +1043,19 @@ export default function Home() {
                   <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex-1 flex flex-col justify-between overflow-hidden">
                     <div className="flex items-center justify-between text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                       <span>Visualização de Resultado</span>
-                      <span className="text-[10px] bg-red-600/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded font-bold">1080p</span>
+                      <div className="flex items-center gap-2">
+                        {previewOutputUrl && (
+                          <button
+                            onClick={handleDownloadOutput}
+                            className="text-[10px] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-2 py-0.5 rounded font-bold transition-all cursor-pointer flex items-center gap-1"
+                            title="Baixar resultado"
+                          >
+                            <Download size={10} />
+                            Baixar
+                          </button>
+                        )}
+                        <span className="text-[10px] bg-red-600/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded font-bold">1080p</span>
+                      </div>
                     </div>
 
                     <div 
@@ -903,7 +1124,7 @@ export default function Home() {
                               style={{ left: `${sliderPosition}%` }}
                             >
                               <div 
-                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg border border-red-500 hover:scale-110 active:scale-95 transition-transform select-none pointer-events-auto cursor-ew-resize font-bold text-sm"
+                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg border-2 border-red-500 hover:scale-110 active:scale-95 transition-transform select-none pointer-events-auto cursor-ew-resize font-bold text-sm"
                               >
                                 ↔
                               </div>
@@ -1027,10 +1248,10 @@ export default function Home() {
                     <button
                       onClick={handleGenerateSwap}
                       disabled={isGenerating}
-                      className={`w-full h-12 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all ${
+                      className={`w-full h-12 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all duration-200 ${
                         isGenerating
                           ? "bg-zinc-800 border border-zinc-700 cursor-not-allowed text-zinc-500"
-                          : "bg-red-600 hover:bg-red-500 hover:scale-[1.02] active:scale-[0.98] shadow-red-600/20 cursor-pointer"
+                          : "bg-red-600 hover:bg-red-500 hover:scale-[1.02] active:scale-[0.98] shadow-red-600/20 cursor-pointer animate-pulse-glow"
                       }`}
                     >
                       {isGenerating ? (
@@ -1047,7 +1268,7 @@ export default function Home() {
 
           {/* ABA 3: PROJETOS (GALERIA) */}
           {activeTab === "projects" && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-4">
                 <div className="flex items-center gap-3">
                   <FolderOpen className="text-red-500" size={24} />
@@ -1089,8 +1310,12 @@ export default function Home() {
               {/* Grid de Projetos com limite de 2 linhas e rolagem vertical */}
               <div className="max-h-[790px] overflow-y-auto pr-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredJobs.map(job => (
-                    <div key={job.id} className="bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden flex flex-col justify-between group">
+                  {filteredJobs.map((job, index) => (
+                    <div 
+                      key={job.id} 
+                      className="bg-zinc-950/40 border border-zinc-900 rounded-xl overflow-hidden flex flex-col justify-between group hover:border-zinc-700 transition-all duration-200"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
                       {/* Preview Media */}
                       <div className="aspect-[16/10] bg-zinc-900/60 flex items-center justify-center border-b border-zinc-900 relative">
                         {job.status === "completed" && job.outputUrl ? (
@@ -1142,7 +1367,7 @@ export default function Home() {
                             <>
                               <button
                                 onClick={() => handleLoadToComparator(job)}
-                                className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 border border-zinc-800"
+                                className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 border border-zinc-800 cursor-pointer"
                               >
                                 <ExternalLink size={12} /> Comparar
                               </button>
@@ -1158,7 +1383,7 @@ export default function Home() {
                           )}
                           <button
                             onClick={() => setJobToDelete(job.id)}
-                            className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 text-xs p-2 rounded-lg font-bold transition-all flex items-center justify-center"
+                            className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 text-xs p-2 rounded-lg font-bold transition-all flex items-center justify-center cursor-pointer"
                             title="Excluir Tarefa"
                           >
                             <Trash2 size={14} />
@@ -1180,7 +1405,7 @@ export default function Home() {
 
           {/* ABA 4: CONFIGURAÇÕES */}
           {activeTab === "settings" && (
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 border-b border-zinc-900 pb-4">
                 <Settings className="text-red-500" size={24} />
                 <div>
@@ -1270,7 +1495,7 @@ export default function Home() {
                                 setConfigProviders([...configProviders, prov]);
                               }
                             }}
-                            className={`px-3 py-1.5 rounded text-xs font-bold uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
+                            className={`px-3 py-1.5 rounded text-xs font-bold uppercase flex items-center gap-1.5 border transition-all duration-200 cursor-pointer ${
                               isSelected
                                 ? "bg-red-500/20 border-red-500/40 text-red-400"
                                 : "bg-zinc-900/60 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
@@ -1334,7 +1559,7 @@ export default function Home() {
       {/* Modal de Confirmação de Exclusão */}
       {jobToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-black/80 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-black/80 animate-slide-up">
             <h3 className="text-base font-bold text-white mb-2">Confirmar Exclusão</h3>
             <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
               Deseja realmente excluir a tarefa <span className="text-red-500 font-mono font-bold">{jobToDelete}</span>? Esta ação é irreversível e removerá todos os arquivos e mídias associados.

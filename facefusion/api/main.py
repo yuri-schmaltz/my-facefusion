@@ -18,6 +18,10 @@ program = create_program()
 args = vars(program.parse_args(['run']))
 apply_args(args, state_manager.init_item)
 
+# Inicializar o logger para capturar os logs dos workers e pipeline
+from facefusion import logger
+logger.init(state_manager.get_item('log_level') or 'info')
+
 # Inicializar a fila de jobs
 jobs_path = state_manager.get_item('jobs_path') or '.jobs'
 job_manager.init_jobs(jobs_path)
