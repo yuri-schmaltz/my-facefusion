@@ -454,4 +454,160 @@ def export_diagnostic():
         raise HTTPException(status_code=500, detail=f"Erro ao gerar diagnóstico: {str(e)}")
 
 
+class PreviewRequest(BaseModel):
+    source_paths: List[str]
+    target_path: str
+    processors: Optional[List[str]] = ["face_swapper"]
+    frame_number: Optional[int] = 0
+    timestamp: Optional[float] = None
+    face_swapper_weight: Optional[float] = 0.5
+    face_mask_blur: Optional[float] = 0.3
+    detection_threshold: Optional[float] = 0.5
 
+
+@router.post("/preview")
+def generate_preview(request: PreviewRequest):
+    """
+    Gera um preview instantâneo aplicando os processadores selecionados em um único frame
+    da mídia de destino, sem criar um job completo. Reutiliza a lógica nativa de preview
+    do FaceFusion (mesma do Gradio UI).
+    """
+    import cv2
+    import numpy
+    import tempfile
+
+    try:
+        from facefusion.vision import read_static_image, read_static_images, read_video_frame, extract_vision_mask, merge_vision_mask, restrict_frame, unpack_resolution, detect_video_fps
+        from facefusion.audio import create_empty_audio_frame
+        from facefusion.processors.core import get_processors_modules
+        from facefusion.filesystem import is_image, is_video
+        from facefusion import state_manager as sm, logger as ff_logger
+
+        # Resolver caminhos
+        jobs_path = sm.get_item("jobs_path") or get_default_path('data')
+        uploads_dir = os.path.abspath(os.path.join(jobs_path, "uploads"))
+
+        resolved_source_paths = []
+        for path in request.source_paths:
+            if path.startswith("/api/media/upload/"):
+                filename = os.path.basename(path)
+                resolved_source_paths.append(os.path.join(uploads_dir, filename))
+            else:
+                resolved_source_paths.append(path)
+
+        resolved_target_path = request.target_path
+        if request.target_path.startswith("/api/media/upload/"):
+            filename = os.path.basename(request.target_path)
+            resolved_target_path = os.path.join(uploads_dir, filename)
+
+        # Validar que os arquivos existem
+        for sp in resolved_source_paths:
+            if not os.path.exists(sp):
+                raise HTTPException(status_code=400, detail=f"Arquivo source não encontrado: {sp}")
+        if not os.path.exists(resolved_target_path):
+            raise HTTPException(status_code=400, detail=f"Arquivo target não encontrado: {resolved_target_path}")
+
+        # Configurar state_manager temporariamente para o preview
+        old_source = sm.get_item('source_paths')
+        old_target = sm.get_item('target_path')
+        old_processors = sm.get_item('processors')
+
+        sm.set_item('source_paths', resolved_source_paths)
+        sm.set_item('target_path', resolved_target_path)
+        sm.set_item('processors', request.processors)
+
+        if request.face_swapper_weight is not None:
+            sm.set_item('face_swapper_weight', request.face_swapper_weight)
+        if request.face_mask_blur is not None:
+            sm.set_item('face_mask_blur', request.face_mask_blur)
+        if request.detection_threshold is not None:
+            sm.set_item('face_detector_score', request.detection_threshold)
+            sm.set_item('face_landmarker_score', request.detection_threshold)
+
+        try:
+            # Ler frames de origem
+            source_vision_frames = read_static_images(resolved_source_paths)
+            source_audio_frame = create_empty_audio_frame()
+            source_voice_frame = create_empty_audio_frame()
+
+            # Ler frame de destino
+            if is_image(resolved_target_path):
+                reference_vision_frame = read_static_image(resolved_target_path)
+                target_vision_frame = read_static_image(resolved_target_path, 'rgba')
+            elif is_video(resolved_target_path):
+                # Determinar o frame_number de acordo com timestamp ou frame_number fornecido
+                if request.timestamp is not None:
+                    fps = detect_video_fps(resolved_target_path) or 30.0
+                    frame_number = int(request.timestamp * fps)
+                else:
+                    frame_number = request.frame_number or 0
+                reference_vision_frame = read_video_frame(resolved_target_path, frame_number)
+                target_vision_frame = read_video_frame(resolved_target_path, frame_number)
+                if target_vision_frame is None:
+                    raise HTTPException(status_code=400, detail="Não foi possível ler o frame do vídeo.")
+                # Converter para RGBA se necessário
+                if len(target_vision_frame.shape) == 3 and target_vision_frame.shape[2] == 3:
+                    target_vision_frame = cv2.cvtColor(target_vision_frame, cv2.COLOR_BGR2BGRA)
+            else:
+                raise HTTPException(status_code=400, detail="Formato de mídia de destino não suportado.")
+
+            if reference_vision_frame is None or target_vision_frame is None:
+                raise HTTPException(status_code=400, detail="Não foi possível ler a mídia de destino.")
+
+            # Processar preview (mesma lógica do Gradio preview.py)
+            preview_resolution = '1024x1024'
+            temp_vision_frame = restrict_frame(target_vision_frame, unpack_resolution(preview_resolution))
+            temp_vision_frame_copy = temp_vision_frame.copy()
+            temp_vision_mask = extract_vision_mask(temp_vision_frame_copy)
+
+            for processor_module in get_processors_modules(request.processors):
+                ff_logger.disable()
+                if processor_module.pre_process('preview'):
+                    ff_logger.enable()
+                    temp_vision_frame_copy, temp_vision_mask = processor_module.process_frame(
+                    {
+                        'reference_vision_frame': reference_vision_frame,
+                        'source_audio_frame': source_audio_frame,
+                        'source_voice_frame': source_voice_frame,
+                        'source_vision_frames': source_vision_frames,
+                        'target_vision_frame': temp_vision_frame[:, :, :3],
+                        'temp_vision_frame': temp_vision_frame_copy[:, :, :3],
+                        'temp_vision_mask': temp_vision_mask
+                    })
+                ff_logger.enable()
+
+            # Converter para imagem JPEG para retorno
+            if len(temp_vision_frame_copy.shape) == 3 and temp_vision_frame_copy.shape[2] == 4:
+                output_frame = cv2.cvtColor(temp_vision_frame_copy, cv2.COLOR_BGRA2BGR)
+            elif len(temp_vision_frame_copy.shape) == 3 and temp_vision_frame_copy.shape[2] == 3:
+                output_frame = temp_vision_frame_copy
+            else:
+                output_frame = temp_vision_frame_copy
+
+            # Salvar como JPEG temporário
+            outputs_dir = os.path.join(jobs_path, "outputs")
+            os.makedirs(outputs_dir, exist_ok=True)
+            preview_filename = f"preview_{uuid.uuid4().hex[:8]}.jpg"
+            preview_path = os.path.join(outputs_dir, preview_filename)
+            cv2.imwrite(preview_path, output_frame, [cv2.IMWRITE_JPEG_QUALITY, 92])
+
+            return {
+                "preview_url": f"/api/media/output/{preview_filename}",
+                "status": "success"
+            }
+
+        finally:
+            # Restaurar state_manager
+            if old_source is not None:
+                sm.set_item('source_paths', old_source)
+            if old_target is not None:
+                sm.set_item('target_path', old_target)
+            if old_processors is not None:
+                sm.set_item('processors', old_processors)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar preview: {str(e)}")

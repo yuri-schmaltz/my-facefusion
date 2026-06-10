@@ -32,7 +32,8 @@ import {
   SlidersHorizontal,
   X,
   Check,
-  Info
+  Info,
+  Eye
 } from "lucide-react";
 
 /* ======================================== */
@@ -142,6 +143,7 @@ export default function Home() {
   const [faceMaskBlur, setFaceMaskBlur] = useState(12);
   const [detectionThreshold, setDetectionThreshold] = useState(0.70);
   const [smoothing, setSmoothing] = useState(5);
+  const [autoPreview, setAutoPreview] = useState(true);
 
   const [outputFormat, setOutputFormat] = useState("MP4");
   const [outputQuality, setOutputQuality] = useState("High");
@@ -175,6 +177,7 @@ export default function Home() {
   // Lista de Jobs no Dashboard
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   // Status de Hardware e Output
   const [hardwareInfo, setHardwareInfo] = useState<string>("Buscando informações de hardware...");
@@ -558,6 +561,80 @@ export default function Home() {
     if (type === "source") setIsDraggingSource(false);
     else setIsDraggingTarget(false);
   };
+
+  // Gerar preview instantâneo (um frame)
+  const handleGeneratePreview = async (timestamp: number = 0, silent: boolean = false) => {
+    if (isGenerating) return;
+    if (!sourceImageFullPath || !targetVideoFullPath) {
+      if (!silent) {
+        showToast("warning", "Mídia Incompleta", "Envie a imagem de origem e a mídia de destino antes de gerar o preview.");
+      }
+      return;
+    }
+    setIsPreviewLoading(true);
+    if (!silent) {
+      showToast("info", "Gerando Preview...", "Aplicando processadores ao frame. Aguarde.");
+    }
+
+    try {
+      const res = await fetch(`${apiUrl}/api/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source_paths: [sourceImageFullPath],
+          target_path: targetVideoFullPath,
+          processors: selectedProcessors,
+          timestamp: timestamp,
+          face_swapper_weight: faceSwapperWeight,
+          face_mask_blur: faceMaskBlur / 50.0,
+          detection_threshold: detectionThreshold
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ detail: "Erro desconhecido" }));
+        throw new Error(errData.detail || "Erro ao gerar preview.");
+      }
+
+      const data = await res.json();
+      if (data.preview_url) {
+        setPreviewOutputUrl(apiUrl + data.preview_url);
+        if (!silent) {
+          showToast("success", "Preview Gerado!", "O resultado está visível no painel de visualização.");
+        }
+      }
+    } catch (err: any) {
+      if (!silent) {
+        showToast("error", "Erro no Preview", err.message || "Não foi possível gerar o preview.");
+      }
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  };
+
+  // Efeito para gerar preview automático com debounce ao alterar configurações/tempo do vídeo
+  useEffect(() => {
+    if (!autoPreview || !sourceImageFullPath || !targetVideoFullPath || isPlaying || isGenerating) return;
+
+    const timer = setTimeout(() => {
+      const activeTime = targetVideoTime > 0 ? targetVideoTime : currentTime;
+      handleGeneratePreview(activeTime, true);
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [
+    autoPreview,
+    sourceImageFullPath,
+    targetVideoFullPath,
+    selectedProcessors,
+    faceSwapperWeight,
+    faceMaskBlur,
+    detectionThreshold,
+    currentTime,
+    targetVideoTime,
+    isPlaying,
+    isGenerating
+  ]);
 
   // Iniciar processamento
   const handleGenerateSwap = async () => {
@@ -977,9 +1054,20 @@ export default function Home() {
 
                   {/* Parâmetros e Sliders */}
                   <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col flex-[1.1] min-h-[140px] justify-center">
-                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5 mb-3">
-                      <Sliders size={14} className="text-red-500" />
-                      <h3 className="text-xs">Ajustes Técnicos do Processador</h3>
+                    <div className="flex items-center justify-between border-b border-zinc-900 pb-1.5 mb-3">
+                      <div className="flex items-center gap-2 text-white font-bold">
+                        <Sliders size={14} className="text-red-500" />
+                        <h3 className="text-xs">Ajustes Técnicos do Processador</h3>
+                      </div>
+                      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={autoPreview}
+                          onChange={(e) => setAutoPreview(e.target.checked)}
+                          className="w-3 h-3 accent-red-600 rounded cursor-pointer"
+                        />
+                        <span className="text-[10px] text-zinc-400 font-bold hover:text-zinc-200 transition-colors">Preview Automático</span>
+                      </label>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 flex-1 justify-center">
@@ -1245,21 +1333,45 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={handleGenerateSwap}
-                      disabled={isGenerating}
-                      className={`w-full h-12 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all duration-200 ${
-                        isGenerating
-                          ? "bg-zinc-800 border border-zinc-700 cursor-not-allowed text-zinc-500"
-                          : "bg-red-600 hover:bg-red-500 hover:scale-[1.02] active:scale-[0.98] shadow-red-600/20 cursor-pointer animate-pulse-glow"
-                      }`}
-                    >
-                      {isGenerating ? (
-                        <><RefreshCw size={18} className="animate-spin text-zinc-500" />PROCESSANDO...</>
-                      ) : (
-                        "INICIAR PROCESSAMENTO (SWAP)"
-                      )}
-                    </button>
+                    <div className="flex gap-2">
+                      {/* Botão de Preview Rápido */}
+                      <button
+                        onClick={() => handleGeneratePreview(targetVideoTime > 0 ? targetVideoTime : currentTime, false)}
+                        disabled={isPreviewLoading || isGenerating || !sourceImageFullPath || !targetVideoFullPath}
+                        className={`h-12 px-5 font-bold rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg transition-all duration-200 border ${
+                          isPreviewLoading
+                            ? "bg-zinc-800 border-zinc-700 cursor-not-allowed text-zinc-500"
+                            : !sourceImageFullPath || !targetVideoFullPath
+                              ? "bg-zinc-800/50 border-zinc-800 cursor-not-allowed text-zinc-600"
+                              : "bg-zinc-900 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 text-zinc-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                        }`}
+                        title="Gerar preview rápido (um frame)"
+                      >
+                        {isPreviewLoading ? (
+                          <RefreshCw size={16} className="animate-spin text-zinc-500" />
+                        ) : (
+                          <Eye size={16} className={sourceImageFullPath && targetVideoFullPath ? "text-amber-500" : "text-zinc-600"} />
+                        )}
+                        <span className="hidden md:inline">{isPreviewLoading ? "Gerando..." : "Preview"}</span>
+                      </button>
+
+                      {/* Botão Principal de Processamento */}
+                      <button
+                        onClick={handleGenerateSwap}
+                        disabled={isGenerating}
+                        className={`flex-1 h-12 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all duration-200 ${
+                          isGenerating
+                            ? "bg-zinc-800 border border-zinc-700 cursor-not-allowed text-zinc-500"
+                            : "bg-red-600 hover:bg-red-500 hover:scale-[1.02] active:scale-[0.98] shadow-red-600/20 cursor-pointer animate-pulse-glow"
+                        }`}
+                      >
+                        {isGenerating ? (
+                          <><RefreshCw size={18} className="animate-spin text-zinc-500" />PROCESSANDO...</>
+                        ) : (
+                          "INICIAR PROCESSAMENTO (SWAP)"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
