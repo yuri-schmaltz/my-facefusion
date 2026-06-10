@@ -622,44 +622,26 @@ export default function Home() {
       {/* 2. Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Header Superior */}
-        <header className="h-20 border-b border-zinc-900 px-8 flex items-center justify-between">
-          <div className="flex items-center gap-4 bg-zinc-950/50 border border-zinc-900 rounded-lg px-4 py-2 w-96">
-            <Search size={18} className="text-zinc-500" />
-            <input
-              type="text"
-              placeholder="Buscar projetos ou logs..."
-              className="bg-transparent border-none outline-none text-sm w-full text-zinc-300 placeholder-zinc-500"
-            />
-          </div>
 
-          <div className="flex items-center gap-4">
-            {/* Status do Hardware */}
-            <div className="flex items-center gap-2 bg-zinc-950/60 border border-zinc-900 rounded-full px-4 py-1.5 text-xs font-semibold text-zinc-400">
-              <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
-              {hardwareInfo}
-            </div>
-          </div>
-        </header>
 
         {/* Workspace Body */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
 
           {/* =          {/* ABA 1: CRIAR NOVO */}
           {activeTab === "create_new" && (
-            <div className="space-y-8">
+            <div className="flex-1 flex flex-col overflow-hidden space-y-4">
 
 
               {/* Seção 2: Área de Mídia (Upload) e Controles */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden">
                 
                 {/* Esquerda: Upload e Configuração */}
-                <div className="space-y-6">
+                <div className="space-y-4 flex flex-col overflow-hidden h-full">
                   
                   {/* Media Inputs Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-[1.1] min-h-[160px]">
                     {/* Source Image */}
-                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full">
                       <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Imagem de Origem (Source)</span>
                       <input
                         type="file"
@@ -669,8 +651,8 @@ export default function Home() {
                         onChange={handleSourceUpload}
                       />
                       {sourceImage ? (
-                        <div className="relative aspect-square bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center group">
-                          <img src={sourceImage} alt="Source Face" className="object-cover w-full h-full" />
+                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center group">
+                          <img src={sourceImage} alt="Source Face" className="object-contain w-full h-full" />
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center gap-2 transition-all">
                             <p className="text-xs font-semibold text-white truncate max-w-[90%]">{sourceImageName}</p>
                             <button
@@ -688,7 +670,7 @@ export default function Home() {
                       ) : (
                         <div 
                           onClick={() => sourceInputRef.current?.click()}
-                          className="border border-dashed border-zinc-800 rounded-lg aspect-square flex flex-col items-center justify-center p-4 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer"
+                          className="border border-dashed border-zinc-800 rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
                         >
                           <Upload size={24} className="text-zinc-600 group-hover:text-red-500 mb-2 transition-all" />
                           <p className="text-xs text-zinc-400 font-semibold">Arraste a foto da face</p>
@@ -698,8 +680,8 @@ export default function Home() {
                     </div>
 
                     {/* Target Media */}
-                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Mídia de Destino (Target)</span>
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full">
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-2">Mídia de Destino (Target)</span>
                       <input
                         type="file"
                         ref={targetInputRef}
@@ -708,16 +690,16 @@ export default function Home() {
                         onChange={handleTargetUpload}
                       />
                       {targetVideo ? (
-                        <div className="relative aspect-square bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex flex-col justify-between group">
+                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex flex-col justify-between group">
                           {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)$/i) ? (
                             <div className="relative w-full h-full flex flex-col justify-between">
                               <video 
                                 src={targetVideo} 
-                                className="object-contain w-full h-[80%] bg-black" 
+                                className="object-contain w-full h-[75%] bg-black" 
                                 controls 
                                 onTimeUpdate={(e) => setTargetVideoTime(e.currentTarget.currentTime)}
                               />
-                              <div className="p-2 bg-zinc-950/80 flex items-center gap-2 border-t border-zinc-850 h-[20%]">
+                              <div className="p-2 bg-zinc-950/80 flex items-center gap-2 border-t border-zinc-850 h-[25%]">
                                 <input
                                   type="checkbox"
                                   id="trim-start-check-dash"
@@ -725,13 +707,13 @@ export default function Home() {
                                   onChange={(e) => setProcessFromCurrentPoint(e.target.checked)}
                                   className="w-3.5 h-3.5 accent-red-600 rounded cursor-pointer"
                                 />
-                                <label htmlFor="trim-start-check-dash" className="text-[10px] text-zinc-300 select-none cursor-pointer truncate">
+                                <label htmlFor="trim-start-check-dash" className="text-[9px] text-zinc-300 select-none cursor-pointer truncate">
                                   Processar a partir deste ponto ({targetVideoTime.toFixed(1)}s)
                                 </label>
                               </div>
                             </div>
                           ) : (
-                            <img src={targetVideo} alt="Target Media" className="object-cover w-full h-full" />
+                            <img src={targetVideo} alt="Target Media" className="object-contain w-full h-full" />
                           )}
                           <button
                             onClick={(e) => {
@@ -749,7 +731,7 @@ export default function Home() {
                       ) : (
                         <div 
                           onClick={() => targetInputRef.current?.click()}
-                          className="border border-dashed border-zinc-800 rounded-lg aspect-square flex flex-col items-center justify-center p-4 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer"
+                          className="border border-dashed border-zinc-800 rounded-lg flex-1 w-full flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
                         >
                           <Upload size={24} className="text-zinc-600 group-hover:text-red-500 mb-2 transition-all" />
                           <p className="text-xs text-zinc-400 font-semibold">Arraste imagem ou vídeo</p>
@@ -760,12 +742,12 @@ export default function Home() {
                   </div>
 
                   {/* Processadores de Frame */}
-                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
-                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-2.5">
-                      <Cpu size={16} className="text-red-500" />
-                      <h3 className="text-sm font-bold text-white">Processadores de Frame</h3>
+                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col flex-[0.8] min-h-[100px] overflow-hidden">
+                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5 mb-2">
+                      <Cpu size={14} className="text-red-500" />
+                      <h3 className="text-xs">Processadores de Frame</h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 max-h-[160px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto pr-1">
                       {availableProcessors.map(proc => (
                         <button
                           key={proc}
@@ -785,13 +767,13 @@ export default function Home() {
                   </div>
 
                   {/* Parâmetros e Sliders */}
-                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-6 space-y-6">
-                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-3">
-                      <Sliders size={18} className="text-red-500" />
-                      <h3>Ajustes Técnicos do Processador</h3>
+                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col flex-[1.1] min-h-[140px] justify-center">
+                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5 mb-3">
+                      <Sliders size={14} className="text-red-500" />
+                      <h3 className="text-xs">Ajustes Técnicos do Processador</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 flex-1 justify-center">
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs font-semibold">
                           <span className="text-zinc-300">Face Swapper Weight</span>
@@ -848,16 +830,16 @@ export default function Home() {
                 </div>
 
                 {/* Direita: Preview Compartivo */}
-                <div className="space-y-6 flex flex-col justify-between">
-                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="flex items-center justify-between text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                <div className="space-y-4 flex flex-col overflow-hidden h-full">
+                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex-1 flex flex-col justify-between overflow-hidden">
+                    <div className="flex items-center justify-between text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
                       <span>Visualização de Resultado</span>
                       <span className="text-[10px] bg-red-600/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded font-bold">1080p</span>
                     </div>
 
                     <div 
                       ref={videoContainerRef}
-                      className="relative flex-1 aspect-[16/10] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden select-none min-h-[300px]"
+                      className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden select-none min-h-[200px]"
                       onMouseDown={(e) => {
                         if (previewOutputUrl && targetVideo) {
                           setIsSliding(true);
@@ -874,13 +856,13 @@ export default function Home() {
                       {/* Imagem/Vídeo com Comparador Deslizante (Antes/Depois) */}
                       {previewOutputUrl ? (
                         targetVideo ? (
-                          <div className="absolute inset-0 w-full h-full">
+                          <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                             {/* Camada de Baixo: Target original ("Antes") */}
                             {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
                               <video 
                                 ref={originalVideoRef}
                                 src={targetVideo} 
-                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
                                 muted 
                                 loop 
                                 playsInline
@@ -889,7 +871,7 @@ export default function Home() {
                               <img 
                                 src={targetVideo} 
                                 alt="Original Target" 
-                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
                               />
                             )}
 
@@ -898,7 +880,7 @@ export default function Home() {
                               <video 
                                 ref={swappedVideoRef}
                                 src={previewOutputUrl} 
-                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
                                 muted 
                                 loop 
                                 playsInline
@@ -910,7 +892,7 @@ export default function Home() {
                               <img 
                                 src={previewOutputUrl} 
                                 alt="Swapped Output" 
-                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
                                 style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
                               />
                             )}
@@ -941,7 +923,7 @@ export default function Home() {
                             <video 
                               ref={swappedVideoRef}
                               src={previewOutputUrl} 
-                              className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                              className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
                               muted 
                               loop 
                               playsInline
@@ -950,7 +932,7 @@ export default function Home() {
                               onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration)}
                             />
                           ) : (
-                            <img src={previewOutputUrl} alt="Swapped Face" className="absolute inset-0 object-cover w-full h-full pointer-events-none" />
+                            <img src={previewOutputUrl} alt="Swapped Face" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
                           )
                         )
                       ) : (
@@ -964,7 +946,7 @@ export default function Home() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 bg-zinc-950/55 border border-zinc-900 rounded-lg p-3">
+                    <div className="flex items-center gap-4 bg-zinc-950/55 border border-zinc-900 rounded-lg p-2.5 mt-2">
                       <button 
                         onClick={() => setIsPlaying(!isPlaying)} 
                         disabled={!previewOutputUrl || !previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i)}
@@ -1008,9 +990,9 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Opções de Exportação</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end flex-shrink-0">
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 space-y-2">
+                      <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Opções de Exportação</span>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="text-[10px] text-zinc-500 block mb-1">Formato</label>
@@ -1045,7 +1027,7 @@ export default function Home() {
                     <button
                       onClick={handleGenerateSwap}
                       disabled={isGenerating}
-                      className={`w-full h-14 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all ${
+                      className={`w-full h-12 font-extrabold rounded-xl flex items-center justify-center gap-2 text-white shadow-lg transition-all ${
                         isGenerating
                           ? "bg-zinc-800 border border-zinc-700 cursor-not-allowed text-zinc-500"
                           : "bg-red-600 hover:bg-red-500 hover:scale-[1.02] active:scale-[0.98] shadow-red-600/20 cursor-pointer"
