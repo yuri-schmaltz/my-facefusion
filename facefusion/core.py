@@ -40,11 +40,26 @@ def cli() -> None:
 		hard_exit(2)
 
 
+def limit_tensorflow_memory() -> None:
+	try:
+		import tensorflow
+		gpus = tensorflow.config.experimental.list_physical_devices('GPU')
+		for gpu in gpus:
+			tensorflow.config.experimental.set_virtual_device_configuration(gpu,
+			[
+				tensorflow.config.experimental.VirtualDeviceConfiguration(memory_limit = 512)
+			])
+	except Exception:
+		pass
+
+
 def route(args : Args) -> None:
 	system_memory_limit = state_manager.get_item('system_memory_limit')
 
 	if system_memory_limit and system_memory_limit > 0:
 		limit_system_memory(system_memory_limit)
+
+	limit_tensorflow_memory()
 
 	if state_manager.get_item('command') == 'force-download':
 		error_code = force_download()

@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Maximize2,
   Volume2,
+  VolumeX,
   Trash2,
   Download,
   ExternalLink,
@@ -45,7 +46,7 @@ interface Job {
 
 export default function Home() {
   // Navegação
-  const [activeTab, setActiveTab] = useState<"dashboard" | "create_new" | "projects" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<"create_new" | "projects" | "settings">("create_new");
 
   // Configurações do Estado (Face Swap)
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -69,10 +70,22 @@ export default function Home() {
   const [sliderPosition, setSliderPosition] = useState(65);
   const [isSliding, setIsSliding] = useState(false);
   const sliderContainerRef = useRef<HTMLDivElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
-  // Vídeo Player
+  // Vídeo Player & Comparator
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const originalVideoRef = useRef<HTMLVideoElement>(null);
+  const swappedVideoRef = useRef<HTMLVideoElement>(null);
+
+  const formatTime = (secs: number) => {
+    if (isNaN(secs) || secs === 0) return "00:00";
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const s = Math.floor(secs % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   // Lista de Jobs no Dashboard
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -95,6 +108,7 @@ export default function Home() {
   const [configThreadCount, setConfigThreadCount] = useState(4);
   const [configMemoryStrategy, setConfigMemoryStrategy] = useState("balanced");
   const [configProviders, setConfigProviders] = useState<string[]>([]);
+  const [availableProviders, setAvailableProviders] = useState<string[]>(["cpu"]);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
 
   // Controle de reprodução da mídia de destino para processamento sob demanda
@@ -108,6 +122,59 @@ export default function Home() {
   // Filtros de Projetos (Aba Projetos)
   const [projectFilter, setProjectFilter] = useState<"all" | "completed" | "processing" | "failed">("all");
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+
+  // Efeitos e Handlers do Player / Comparador
+  useEffect(() => {
+    if (isPlaying) {
+      originalVideoRef.current?.play().catch(() => {});
+      swappedVideoRef.current?.play().catch(() => {});
+    } else {
+      originalVideoRef.current?.pause();
+      swappedVideoRef.current?.pause();
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (originalVideoRef.current) originalVideoRef.current.muted = isMuted;
+    if (swappedVideoRef.current) swappedVideoRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setVideoDuration(0);
+  }, [previewOutputUrl]);
+
+  const handleSeek = (time: number) => {
+    setCurrentTime(time);
+    if (originalVideoRef.current) originalVideoRef.current.currentTime = time;
+    if (swappedVideoRef.current) swappedVideoRef.current.currentTime = time;
+  };
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    setCurrentTime(video.currentTime);
+    
+    // Sincronizar o outro vídeo se estiver muito defasado
+    const otherVideo = video === swappedVideoRef.current ? originalVideoRef.current : swappedVideoRef.current;
+    if (otherVideo && Math.abs(otherVideo.currentTime - video.currentTime) > 0.15) {
+      otherVideo.currentTime = video.currentTime;
+    }
+  };
+
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    setVideoDuration(e.currentTarget.duration);
+  };
+
+  const handleFullscreen = () => {
+    if (videoContainerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else {
+        videoContainerRef.current.requestFullscreen().catch(() => {});
+      }
+    }
+  };
 
   // Carregar configuração de API dinâmica ao iniciar
   useEffect(() => {
@@ -183,6 +250,18 @@ export default function Home() {
         }
       } catch (err) {
         console.error("Erro ao buscar configurações:", err);
+      }
+
+      try {
+        const resProv = await fetch(`${apiUrl}/api/hardware/providers`);
+        if (resProv.ok) {
+          const providers = await resProv.json();
+          if (providers && providers.length > 0) {
+            setAvailableProviders(providers);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar provedores disponíveis:", err);
       }
     };
     fetchConfig();
@@ -360,7 +439,7 @@ export default function Home() {
       const data = await res.json();
       console.log("Job enviado com sucesso:", data);
       setPreviewOutputUrl(null); // Resetar preview até o novo job terminar
-      setActiveTab("dashboard"); // Sincroniza redirecionamento
+      setActiveTab("create_new"); // Sincroniza redirecionamento
       fetchJobs();
     } catch (err) {
       alert("Falha ao iniciar processamento: " + err);
@@ -393,7 +472,7 @@ export default function Home() {
     if (!job.target || !job.outputUrl) return;
     setTargetVideo(job.target);
     setPreviewOutputUrl(job.outputUrl);
-    setActiveTab("dashboard");
+    setActiveTab("create_new");
   };
 
   // Salvar Configurações
@@ -482,17 +561,6 @@ export default function Home() {
           {/* Links de Navegação */}
           <nav className="space-y-1">
             <button
-              onClick={() => setActiveTab("dashboard")}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
-                activeTab === "dashboard"
-                  ? "text-zinc-200 bg-zinc-900/50 border-l-2 border-red-500"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/30"
-              }`}
-            >
-              <LayoutDashboard size={18} className={activeTab === "dashboard" ? "text-red-500" : ""} />
-              Dashboard
-            </button>
-            <button
               onClick={() => setActiveTab("create_new")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === "create_new"
@@ -577,75 +645,10 @@ export default function Home() {
         {/* Workspace Body */}
         <div className="flex-1 overflow-y-auto p-8">
 
-          {/* ==================== TABS CONTAINER ==================== */}
-
-          {/* ABA 1: DASHBOARD */}
-          {activeTab === "dashboard" && (
+          {/* =          {/* ABA 1: CRIAR NOVO */}
+          {activeTab === "create_new" && (
             <div className="space-y-8">
-              {/* Seção 1: Monitoramento da Fila de Jobs */}
-              <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-white tracking-tight">Fila de Tarefas</h2>
-                  <span className="text-xs text-zinc-500 font-medium">Status da plataforma</span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {jobs.slice(0, 3).map(job => (
-                    <div key={job.id} className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-bold text-sm text-white">{job.id}</h3>
-                          <p className="text-xs text-zinc-500">{job.type}</p>
-                        </div>
-                        {job.status === "processing" ? (
-                          <span className="text-xs bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2.5 py-1 rounded-full font-bold animate-pulse">
-                            Processando
-                          </span>
-                        ) : job.status === "queued" ? (
-                          <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-bold">
-                            Na Fila
-                          </span>
-                        ) : job.status === "completed" ? (
-                          <span className="text-xs bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5">
-                            <CheckCircle size={12} /> Concluído
-                          </span>
-                        ) : (
-                          <span className="text-xs bg-red-500/10 text-red-500 border border-red-500/20 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5">
-                            <AlertCircle size={12} /> Falhou
-                          </span>
-                        )}
-                      </div>
 
-                      {/* Barra de Progresso */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs text-zinc-400">
-                          <span>Progresso</span>
-                          <span>{job.progress}%</span>
-                        </div>
-                        <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full transition-all duration-300 rounded-full ${
-                              job.status === "completed"
-                                ? "bg-emerald-500"
-                                : job.status === "queued"
-                                ? "bg-blue-500"
-                                : job.status === "failed"
-                                ? "bg-red-500"
-                                : "bg-gradient-to-r from-red-500 to-amber-500"
-                            }`}
-                            style={{ width: `${job.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {jobs.length === 0 && (
-                    <div className="col-span-3 bg-zinc-950/20 border border-zinc-900 rounded-xl p-8 text-center text-zinc-500">
-                      Nenhuma tarefa recente encontrada. Vá em "Criar Novo" para iniciar.
-                    </div>
-                  )}
-                </div>
-              </section>
 
               {/* Seção 2: Área de Mídia (Upload) e Controles */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -732,10 +735,10 @@ export default function Home() {
                           )}
                           <button
                             onClick={(e) => {
-                              e.stopPropagation();
-                              setTargetVideo(null);
-                              setTargetVideoFullPath(null);
-                              setTargetVideoName("");
+                                e.stopPropagation();
+                                setTargetVideo(null);
+                                setTargetVideoFullPath(null);
+                                setTargetVideoName("");
                             }}
                             className="absolute top-3 right-3 z-30 bg-red-600/90 hover:bg-red-500 text-white p-2 rounded-lg shadow-lg hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 cursor-pointer flex items-center justify-center border border-red-500/20"
                             title="Substituir mídia de destino"
@@ -753,6 +756,31 @@ export default function Home() {
                           <span className="text-[10px] text-zinc-500">ou clique para buscar</span>
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Processadores de Frame */}
+                  <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-2.5">
+                      <Cpu size={16} className="text-red-500" />
+                      <h3 className="text-sm font-bold text-white">Processadores de Frame</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 max-h-[160px] overflow-y-auto pr-1">
+                      {availableProcessors.map(proc => (
+                        <button
+                          key={proc}
+                          type="button"
+                          onClick={() => toggleProcessor(proc)}
+                          className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-semibold transition-all ${
+                            selectedProcessors.includes(proc)
+                              ? "bg-red-500/10 border-red-500/40 text-red-400"
+                              : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                          }`}
+                        >
+                          <span className="truncate">{proc.replace("_", " ").toUpperCase()}</span>
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ml-2 ${selectedProcessors.includes(proc) ? "bg-red-500" : "bg-zinc-700"}`} />
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -828,14 +856,102 @@ export default function Home() {
                     </div>
 
                     <div 
+                      ref={videoContainerRef}
                       className="relative flex-1 aspect-[16/10] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden select-none min-h-[300px]"
+                      onMouseDown={(e) => {
+                        if (previewOutputUrl && targetVideo) {
+                          setIsSliding(true);
+                          handleSliderMove(e.clientX);
+                        }
+                      }}
+                      onTouchStart={(e) => {
+                        if (previewOutputUrl && targetVideo) {
+                          setIsSliding(true);
+                          handleSliderMove(e.touches[0].clientX);
+                        }
+                      }}
                     >
-                      {/* Imagem/Vídeo de Resultado (Depois - Swapped) */}
+                      {/* Imagem/Vídeo com Comparador Deslizante (Antes/Depois) */}
                       {previewOutputUrl ? (
-                        previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
-                          <video src={previewOutputUrl} className="absolute inset-0 object-cover w-full h-full pointer-events-none" muted loop autoPlay />
+                        targetVideo ? (
+                          <div className="absolute inset-0 w-full h-full">
+                            {/* Camada de Baixo: Target original ("Antes") */}
+                            {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
+                              <video 
+                                ref={originalVideoRef}
+                                src={targetVideo} 
+                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                muted 
+                                loop 
+                                playsInline
+                              />
+                            ) : (
+                              <img 
+                                src={targetVideo} 
+                                alt="Original Target" 
+                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                              />
+                            )}
+
+                            {/* Camada de Cima: Swapped result ("Depois") com recorte de clipPath */}
+                            {previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
+                              <video 
+                                ref={swappedVideoRef}
+                                src={previewOutputUrl} 
+                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                muted 
+                                loop 
+                                playsInline
+                                onTimeUpdate={handleTimeUpdate}
+                                onLoadedMetadata={handleLoadedMetadata}
+                                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+                              />
+                            ) : (
+                              <img 
+                                src={previewOutputUrl} 
+                                alt="Swapped Output" 
+                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+                              />
+                            )}
+
+                            {/* Linha Divisória Vertical e Cursor Handle */}
+                            <div 
+                              className="absolute top-0 bottom-0 w-[2px] bg-red-500 z-30 pointer-events-none"
+                              style={{ left: `${sliderPosition}%` }}
+                            >
+                              <div 
+                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg border border-red-500 hover:scale-110 active:scale-95 transition-transform select-none pointer-events-auto cursor-ew-resize font-bold text-sm"
+                              >
+                                ↔
+                              </div>
+                            </div>
+
+                            {/* Labels Visuais */}
+                            <div className="absolute top-3 left-3 bg-black/60 border border-zinc-800 px-2 py-0.5 rounded text-[9px] font-extrabold text-red-500 uppercase tracking-wider select-none z-20">
+                              Swapped
+                            </div>
+                            <div className="absolute top-3 right-3 bg-black/60 border border-zinc-800 px-2 py-0.5 rounded text-[9px] font-extrabold text-zinc-400 uppercase tracking-wider select-none z-20">
+                              Original
+                            </div>
+                          </div>
                         ) : (
-                          <img src={previewOutputUrl} alt="Swapped Face" className="absolute inset-0 object-cover w-full h-full pointer-events-none" />
+                          // Fallback se não houver targetVideo em memória
+                          previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
+                            <video 
+                              ref={swappedVideoRef}
+                              src={previewOutputUrl} 
+                              className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                              muted 
+                              loop 
+                              playsInline
+                              autoPlay
+                              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                              onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration)}
+                            />
+                          ) : (
+                            <img src={previewOutputUrl} alt="Swapped Face" className="absolute inset-0 object-cover w-full h-full pointer-events-none" />
+                          )
                         )
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-2 p-4">
@@ -849,15 +965,46 @@ export default function Home() {
                     </div>
 
                     <div className="flex items-center gap-4 bg-zinc-950/55 border border-zinc-900 rounded-lg p-3">
-                      <button onClick={() => setIsPlaying(!isPlaying)} className="text-zinc-200 hover:text-red-500 transition-colors">
+                      <button 
+                        onClick={() => setIsPlaying(!isPlaying)} 
+                        disabled={!previewOutputUrl || !previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i)}
+                        className="text-zinc-200 hover:text-red-500 transition-colors disabled:text-zinc-700 disabled:cursor-not-allowed cursor-pointer"
+                      >
                         {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                       </button>
-                      <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden relative">
-                        <div className="absolute top-0 bottom-0 left-0 bg-red-600 w-1/3"></div>
-                      </div>
-                      <span className="text-[10px] text-zinc-500 font-mono">00:11 / 00:34</span>
-                      <button className="text-zinc-400 hover:text-zinc-200"><Volume2 size={16} /></button>
-                      <button className="text-zinc-400 hover:text-zinc-200"><Maximize2 size={16} /></button>
+                      
+                      <input
+                        type="range"
+                        min={0}
+                        max={videoDuration || 100}
+                        step={0.1}
+                        value={currentTime}
+                        disabled={!previewOutputUrl || !previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i)}
+                        onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                        className="flex-1 accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                      />
+
+                      <span className="text-[10px] text-zinc-500 font-mono select-none">
+                        {formatTime(currentTime)} / {formatTime(videoDuration)}
+                      </span>
+                      
+                      <button 
+                        onClick={() => setIsMuted(!isMuted)}
+                        disabled={!previewOutputUrl || !previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i)}
+                        className="text-zinc-400 hover:text-zinc-200 transition-colors disabled:text-zinc-700 disabled:cursor-not-allowed cursor-pointer"
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                      </button>
+                      
+                      <button 
+                        onClick={handleFullscreen}
+                        disabled={!previewOutputUrl}
+                        className="text-zinc-400 hover:text-zinc-200 transition-colors disabled:text-zinc-700 disabled:cursor-not-allowed cursor-pointer"
+                        title="Tela Cheia"
+                      >
+                        <Maximize2 size={16} />
+                      </button>
                     </div>
                   </div>
 
@@ -908,212 +1055,6 @@ export default function Home() {
                         <><RefreshCw size={18} className="animate-spin text-zinc-500" />PROCESSANDO...</>
                       ) : (
                         "INICIAR PROCESSAMENTO (SWAP)"
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ABA 2: CRIAR NOVO */}
-          {activeTab === "create_new" && (
-            <div className="space-y-8 max-w-5xl mx-auto">
-              <div className="flex items-center gap-3 border-b border-zinc-900 pb-4">
-                <PlusCircle className="text-red-500" size={24} />
-                <div>
-                  <h2 className="text-xl font-bold text-white">Criar Nova Tarefa</h2>
-                  <p className="text-xs text-zinc-500">Submeta arquivos e selecione os processadores correspondentes do pipeline.</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Coluna 1: Uploads de Mídia */}
-                <div className="space-y-4">
-                  {/* Source Image */}
-                  <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-3">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">1. Rosto de Origem (Source)</span>
-                    <input
-                      type="file"
-                      ref={sourceInputRef}
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleSourceUpload}
-                    />
-                    {sourceImage ? (
-                      <div className="relative h-[115px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center group">
-                        <img src={sourceImage} alt="Source" className="object-contain w-full h-full" />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center gap-1 transition-all">
-                          <p className="text-[10px] font-semibold text-white truncate max-w-[90%]">{sourceImageName}</p>
-                          <button onClick={() => setSourceImage(null)} className="bg-red-600 hover:bg-red-500 text-white text-[10px] px-2.5 py-1 rounded font-bold transition-all">Substituir</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => sourceInputRef.current?.click()}
-                        className="border border-dashed border-zinc-800 rounded-lg h-[115px] flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
-                      >
-                        <Upload size={20} className="text-zinc-600 group-hover:text-red-500 mb-1 transition-all" />
-                        <p className="text-xs text-zinc-300 font-semibold">Escolher foto da face</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Target Media */}
-                  <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-3">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">2. Mídia de Destino (Target)</span>
-                    <input
-                      type="file"
-                      ref={targetInputRef}
-                      accept="image/*,video/*"
-                      className="hidden"
-                      onChange={handleTargetUpload}
-                    />
-                    {targetVideo ? (
-                      <div className="relative h-[115px] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex flex-col justify-between group">
-                        {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)$/i) ? (
-                          <div className="relative w-full h-full flex flex-col justify-between">
-                            <video 
-                              src={targetVideo} 
-                              className="object-contain w-full h-[70%] bg-black" 
-                              controls 
-                              onTimeUpdate={(e) => setTargetVideoTime(e.currentTarget.currentTime)}
-                            />
-                            <div className="p-1 bg-zinc-950/80 flex items-center gap-1.5 border-t border-zinc-850 h-[30%]">
-                              <input
-                                type="checkbox"
-                                id="trim-start-check-create"
-                                checked={processFromCurrentPoint}
-                                onChange={(e) => setProcessFromCurrentPoint(e.target.checked)}
-                                className="w-3 h-3 accent-red-600 rounded cursor-pointer"
-                              />
-                              <label htmlFor="trim-start-check-create" className="text-[9px] text-zinc-300 select-none cursor-pointer truncate">
-                                A partir deste ponto ({targetVideoTime.toFixed(1)}s)
-                              </label>
-                            </div>
-                          </div>
-                        ) : (
-                          <img src={targetVideo} alt="Target" className="object-contain w-full h-full" />
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setTargetVideo(null);
-                            setTargetVideoFullPath(null);
-                            setTargetVideoName("");
-                          }}
-                          className="absolute top-2 right-2 z-30 bg-red-600/90 hover:bg-red-500 text-white p-1.5 rounded-lg shadow-lg hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 cursor-pointer flex items-center justify-center border border-red-500/20"
-                          title="Substituir mídia de destino"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => targetInputRef.current?.click()}
-                        className="border border-dashed border-zinc-800 rounded-lg h-[115px] flex flex-col items-center justify-center p-2 hover:border-red-500/40 hover:bg-red-500/5 transition-all group cursor-pointer text-center"
-                      >
-                        <Upload size={20} className="text-zinc-600 group-hover:text-red-500 mb-1 transition-all" />
-                        <p className="text-xs text-zinc-300 font-semibold">Escolher mídia destino</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Coluna 2: Processadores & Parâmetros */}
-                <div className="space-y-4">
-                  {/* Seleção de Processadores */}
-                  <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5">
-                      <Cpu size={14} className="text-red-500" />
-                      <h3 className="text-xs">Processadores de Frame</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-1">
-                      {availableProcessors.map(proc => (
-                        <button
-                          key={proc}
-                          type="button"
-                          onClick={() => toggleProcessor(proc)}
-                          className={`flex items-center justify-between p-2 rounded-lg border text-[10px] font-semibold transition-all ${
-                            selectedProcessors.includes(proc)
-                              ? "bg-red-500/10 border-red-500/40 text-red-400"
-                              : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                          }`}
-                        >
-                          <span className="truncate">{proc.replace("_", " ").toUpperCase()}</span>
-                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ml-1.5 ${selectedProcessors.includes(proc) ? "bg-red-500" : "bg-zinc-700"}`} />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Ajustes Rápidos */}
-                  <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5">
-                      <SlidersHorizontal size={14} className="text-red-500" />
-                      <h3 className="text-xs">Parâmetros Rápidos</h3>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px]">
-                          <span className="text-zinc-400">Peso do Swapper</span>
-                          <span className="text-red-500 font-mono font-bold">{faceSwapperWeight}</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="1" step="0.05"
-                          value={faceSwapperWeight}
-                          onChange={e => setFaceSwapperWeight(parseFloat(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px]">
-                          <span className="text-zinc-400">Desfoque da Máscara</span>
-                          <span className="text-red-500 font-mono font-bold">{faceMaskBlur}px</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="50" step="1"
-                          value={faceMaskBlur}
-                          onChange={e => setFaceMaskBlur(parseInt(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Coluna 3: Exportação & Envio */}
-                <div className="space-y-4">
-                  <div className="bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 space-y-4">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block border-b border-zinc-900 pb-1.5">Opções & Submissão</span>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[10px] text-zinc-500 block mb-1">Formato</label>
-                        <select value={outputFormat} onChange={e => setOutputFormat(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 text-[10px] px-2.5 py-1.5 rounded font-bold text-zinc-200 outline-none cursor-pointer">
-                          <option>MP4</option><option>WEBM</option><option>MKV</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-zinc-500 block mb-1">Resolução</label>
-                        <select value={outputResolution} onChange={e => setOutputResolution(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 text-[10px] px-2.5 py-1.5 rounded font-bold text-zinc-200 outline-none cursor-pointer">
-                          <option>1080p</option><option>720p</option><option>4K</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleGenerateSwap}
-                      disabled={isGenerating || !sourceImageFullPath || !targetVideoFullPath}
-                      className={`w-full h-11 text-xs font-extrabold rounded-lg flex items-center justify-center gap-2 text-white shadow-lg transition-all ${
-                        isGenerating || !sourceImageFullPath || !targetVideoFullPath
-                          ? "bg-zinc-800 border border-zinc-700 cursor-not-allowed text-zinc-500"
-                          : "bg-red-600 hover:bg-red-500 hover:scale-[1.01] active:scale-[0.99] shadow-red-600/20 cursor-pointer"
-                      }`}
-                    >
-                      {isGenerating ? (
-                        <><RefreshCw size={14} className="animate-spin text-zinc-500" />ENVIANDO...</>
-                      ) : (
-                        "INICIAR PROCESSAMENTO"
                       )}
                     </button>
                   </div>
@@ -1332,11 +1273,32 @@ export default function Home() {
                   <div className="space-y-2">
                     <label className="text-xs text-zinc-400 font-semibold block">Provedores de Execução Disponíveis</label>
                     <div className="flex flex-wrap gap-2">
-                      {configProviders.map(prov => (
-                        <span key={prov} className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1 rounded text-xs font-bold uppercase flex items-center gap-1.5">
-                          <CheckCircle size={10} /> {prov}
-                        </span>
-                      ))}
+                      {availableProviders.map(prov => {
+                        const isSelected = configProviders.includes(prov);
+                        return (
+                          <button
+                            key={prov}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                if (configProviders.length > 1) {
+                                  setConfigProviders(configProviders.filter(p => p !== prov));
+                                }
+                              } else {
+                                setConfigProviders([...configProviders, prov]);
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded text-xs font-bold uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
+                              isSelected
+                                ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                : "bg-zinc-900/60 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
+                            }`}
+                          >
+                            {isSelected && <CheckCircle size={10} />}
+                            {prov}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

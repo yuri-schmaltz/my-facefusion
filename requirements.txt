@@ -6,3 +6,5 @@ onnxruntime==1.24.4
 opencv-python==4.13.0.92
 tqdm==4.67.3
 scipy==1.17.1
+tensorflow>=2.16.1
+tensorrt>=10.0.0

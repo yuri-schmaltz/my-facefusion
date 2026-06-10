@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from facefusion.app_context import set_app_context
 set_app_context('cli')
 
+from facefusion import conda
+conda.setup()
+
 from facefusion import state_manager
 from facefusion.program import create_program
 from facefusion.args import apply_args

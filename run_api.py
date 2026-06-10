@@ -9,6 +9,9 @@ if root_dir not in sys.path:
 from facefusion.app_context import set_app_context
 set_app_context('cli')
 
+from facefusion import conda
+conda.setup()
+
 import uvicorn
 from facefusion.api.main import app, find_free_port, write_frontend_config
 

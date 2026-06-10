@@ -54,7 +54,7 @@ def run(program : ArgumentParser) -> None:
 		sys.stdout.write(LOCALES.get('conda_not_activated') + os.linesep)
 		sys.exit(1)
 
-	commands = [ shutil.which('pip'), 'install' ]
+	commands = [ sys.executable, '-m', 'pip', 'install' ]
 
 	if args.force_reinstall:
 		commands.append('--force-reinstall')
@@ -69,6 +69,6 @@ def run(program : ArgumentParser) -> None:
 	onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
 	commands.append(onnxruntime_name + '==' + onnxruntime_version)
 
-	subprocess.call([ shutil.which('pip'), 'uninstall', 'onnxruntime', onnxruntime_name, '-y', '-q' ])
+	subprocess.call([ sys.executable, '-m', 'pip', 'uninstall', 'onnxruntime', onnxruntime_name, '-y', '-q' ])
 
 	subprocess.call(commands)
