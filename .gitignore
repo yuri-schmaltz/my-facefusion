@@ -9,3 +9,9 @@ __pycache__
 venv
 .pytest_cache
 *.pyc
+
+# Build and release artifacts
+build/
+dist/
+release/facefusion-app
+*.zip

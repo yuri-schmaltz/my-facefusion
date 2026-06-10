@@ -66,13 +66,27 @@ def create_app() -> FastAPI:
     # Inclusão do roteador de endpoints
     app.include_router(api_router, prefix="/api")
 
-    @app.get("/")
-    def read_root():
-        return {
-            "app": "FaceFusion API",
-            "version": "3.6.1",
-            "status": "online"
-        }
+    # Servir os arquivos estáticos do frontend Next.js exportado se existir
+    import os
+    import sys
+    from fastapi.staticfiles import StaticFiles
+    
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.abspath(os.path.join(backend_dir, "..", ".."))
+    frontend_out_dir = os.path.join(root_dir, "frontend", "out")
+    
+    is_testing = "pytest" in sys.modules or "unittest" in sys.modules
+    
+    if os.path.exists(frontend_out_dir) and not is_testing:
+        app.mount("/", StaticFiles(directory=frontend_out_dir, html=True), name="frontend")
+    else:
+        @app.get("/")
+        def read_root():
+            return {
+                "app": "FaceFusion API",
+                "version": "3.6.1",
+                "status": "online"
+            }
 
     return app
 
@@ -98,16 +112,27 @@ def write_frontend_config(port: int) -> None:
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.abspath(os.path.join(backend_dir, "..", ".."))
     frontend_public_dir = os.path.join(root_dir, "frontend", "public")
+    frontend_out_dir = os.path.join(root_dir, "frontend", "out")
+    
+    config_data = {"apiUrl": f"http://localhost:{port}"}
     
     if os.path.exists(frontend_public_dir):
         config_path = os.path.join(frontend_public_dir, "config.json")
         try:
-            config_data = {"apiUrl": f"http://localhost:{port}"}
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(config_data, f, indent=4)
             print(f"[API] Gravado config.json do frontend em: {config_path}", flush=True)
         except Exception as e:
-            print(f"[API] Erro ao gravar config.json: {str(e)}", flush=True)
+            print(f"[API] Erro ao gravar config.json em public: {str(e)}", flush=True)
+            
+    if os.path.exists(frontend_out_dir):
+        config_path = os.path.join(frontend_out_dir, "config.json")
+        try:
+            with open(config_path, "w", encoding="utf-8") as f:
+                json.dump(config_data, f, indent=4)
+            print(f"[API] Gravado config.json do frontend em: {config_path}", flush=True)
+        except Exception as e:
+            print(f"[API] Erro ao gravar config.json em out: {str(e)}", flush=True)
 
 
 if __name__ == "__main__":

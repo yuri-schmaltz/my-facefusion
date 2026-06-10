@@ -55,7 +55,7 @@ def test_worker_recovery_stuck_jobs() -> None:
         # Chamamos uma versão controlada de worker_loop ou apenas mockamos a chamada de loop
         # Vamos rodar a primeira parte de worker_loop antes do 'while True'
         # Podemos testar isso mockando a parte do loop principal
-        with patch("time.sleep", side_effect=InterruptedError("Stop loop")):
+        with patch("facefusion.api.worker._worker_stop_event.wait", side_effect=InterruptedError("Stop loop")):
             try:
                 worker.worker_loop()
             except InterruptedError:
@@ -95,7 +95,7 @@ def test_worker_process_success_job() -> None:
          patch("facefusion.program.create_program"), \
          patch("facefusion.args.apply_args"), \
          patch("facefusion.jobs.job_manager.init_jobs"), \
-         patch("time.sleep", side_effect=InterruptedError("Stop loop")):
+         patch("facefusion.api.worker._worker_stop_event.wait", side_effect=InterruptedError("Stop loop")):
         
         try:
             worker.worker_loop()
@@ -136,7 +136,7 @@ def test_worker_process_failed_job() -> None:
          patch("facefusion.program.create_program"), \
          patch("facefusion.args.apply_args"), \
          patch("facefusion.jobs.job_manager.init_jobs"), \
-         patch("time.sleep", side_effect=InterruptedError("Stop loop")):
+         patch("facefusion.api.worker._worker_stop_event.wait", side_effect=InterruptedError("Stop loop")):
         
         try:
             worker.worker_loop()
@@ -176,7 +176,7 @@ def test_worker_process_exception_handling() -> None:
          patch("facefusion.program.create_program"), \
          patch("facefusion.args.apply_args"), \
          patch("facefusion.jobs.job_manager.init_jobs"), \
-         patch("time.sleep", side_effect=InterruptedError("Stop loop")):
+         patch("facefusion.api.worker._worker_stop_event.wait", side_effect=InterruptedError("Stop loop")):
         
         try:
             worker.worker_loop()
