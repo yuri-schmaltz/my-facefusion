@@ -103,6 +103,7 @@ interface Job {
   target?: string;
   outputUrl?: string;
   error_message?: string;
+  step?: string;
 }
 
 export default function Home() {
@@ -391,7 +392,8 @@ export default function Home() {
           source: job.source ? apiUrl + job.source : undefined,
           target: job.target ? apiUrl + job.target : undefined,
           outputUrl: job.output ? apiUrl + job.output : undefined,
-          error_message: job.error_message
+          error_message: job.error_message,
+          step: job.step
         }));
         setJobs(mappedJobs);
         
@@ -897,7 +899,7 @@ export default function Home() {
                     </div>
                   </div>
                   <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full flex-shrink-0 animate-pulse">
-                    {activeJob.status === "processing" ? "Processando" : "Na Fila"}
+                    {activeJob.status === "processing" ? (activeJob.step || "Processando") : "Na Fila"}
                   </span>
                 </div>
               )}
@@ -1149,86 +1151,11 @@ export default function Home() {
                     <div 
                       ref={videoContainerRef}
                       className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden select-none min-h-[200px]"
-                      onMouseDown={(e) => {
-                        if (previewOutputUrl && targetVideo) {
-                          setIsSliding(true);
-                          handleSliderMove(e.clientX);
-                        }
-                      }}
-                      onTouchStart={(e) => {
-                        if (previewOutputUrl && targetVideo) {
-                          setIsSliding(true);
-                          handleSliderMove(e.touches[0].clientX);
-                        }
-                      }}
                     >
-                      {/* Imagem/Vídeo com Comparador Deslizante (Antes/Depois) */}
+                      {/* Imagem/Vídeo de Visualização de Resultado (Efeito Pretendido) */}
                       {previewOutputUrl ? (
-                        targetVideo ? (
-                          <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-                            {/* Camada de Baixo: Target original ("Antes") */}
-                            {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
-                              <video 
-                                ref={originalVideoRef}
-                                src={targetVideo} 
-                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
-                                muted 
-                                loop 
-                                playsInline
-                              />
-                            ) : (
-                              <img 
-                                src={targetVideo} 
-                                alt="Original Target" 
-                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
-                              />
-                            )}
-
-                            {/* Camada de Cima: Swapped result ("Depois") com recorte de clipPath */}
-                            {previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
-                              <video 
-                                ref={swappedVideoRef}
-                                src={previewOutputUrl} 
-                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
-                                muted 
-                                loop 
-                                playsInline
-                                onTimeUpdate={handleTimeUpdate}
-                                onLoadedMetadata={handleLoadedMetadata}
-                                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
-                              />
-                            ) : (
-                              <img 
-                                src={previewOutputUrl} 
-                                alt="Swapped Output" 
-                                className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
-                                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
-                              />
-                            )}
-
-                            {/* Linha Divisória Vertical e Cursor Handle */}
-                            <div 
-                              className="absolute top-0 bottom-0 w-[2px] bg-red-500 z-30 pointer-events-none"
-                              style={{ left: `${sliderPosition}%` }}
-                            >
-                              <div 
-                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center shadow-lg border-2 border-red-500 hover:scale-110 active:scale-95 transition-transform select-none pointer-events-auto cursor-ew-resize font-bold text-sm"
-                              >
-                                ↔
-                              </div>
-                            </div>
-
-                            {/* Labels Visuais */}
-                            <div className="absolute top-3 left-3 bg-black/60 border border-zinc-800 px-2 py-0.5 rounded text-[9px] font-extrabold text-red-500 uppercase tracking-wider select-none z-20">
-                              Swapped
-                            </div>
-                            <div className="absolute top-3 right-3 bg-black/60 border border-zinc-800 px-2 py-0.5 rounded text-[9px] font-extrabold text-zinc-400 uppercase tracking-wider select-none z-20">
-                              Original
-                            </div>
-                          </div>
-                        ) : (
-                          // Fallback se não houver targetVideo em memória
-                          previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
+                        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+                          {previewOutputUrl.match(/\.(mp4|webm|mkv|avi|mov)/i) ? (
                             <video 
                               ref={swappedVideoRef}
                               src={previewOutputUrl} 
@@ -1236,14 +1163,17 @@ export default function Home() {
                               muted 
                               loop 
                               playsInline
-                              autoPlay
-                              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                              onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration)}
+                              onTimeUpdate={handleTimeUpdate}
+                              onLoadedMetadata={handleLoadedMetadata}
                             />
                           ) : (
-                            <img src={previewOutputUrl} alt="Swapped Face" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
-                          )
-                        )
+                            <img 
+                              src={previewOutputUrl} 
+                              alt="Swapped Output" 
+                              className="absolute inset-0 object-contain w-full h-full pointer-events-none" 
+                            />
+                          )}
+                        </div>
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-2 p-4">
                           <ImageIcon size={32} className="text-zinc-700" />
@@ -1445,9 +1375,11 @@ export default function Home() {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex flex-col items-center gap-2 text-zinc-500">
+                          <div className="flex flex-col items-center gap-2 text-zinc-500 w-full">
                             <RefreshCw size={32} className="animate-spin text-amber-500" />
-                            <span className="text-xs font-bold">Processando ({job.progress}%)</span>
+                            <span className="text-xs font-bold text-center px-4 max-w-full truncate">
+                              {job.step || "Processando"} ({job.progress}%)
+                            </span>
                           </div>
                         )}
 

@@ -12,6 +12,13 @@ from facefusion.types import ErrorCode
 from facefusion.vision import conditional_merge_vision_mask, detect_image_resolution, extract_vision_mask, pack_resolution, read_static_image, read_static_images, restrict_image_resolution, scale_resolution, write_image
 from facefusion.workflows.core import is_process_stopping
 
+try:
+	from facefusion.api.database import update_job_progress_and_step
+except ImportError:
+	def update_job_progress_and_step(progress_val: int, step_text: str) -> None:
+		pass
+
+
 
 def process(start_time : float) -> ErrorCode:
 	tasks =\
@@ -35,6 +42,7 @@ def process(start_time : float) -> ErrorCode:
 
 
 def setup() -> ErrorCode:
+	update_job_progress_and_step(10, "Analisando imagem")
 	if analyse_image(state_manager.get_item('target_path')):
 		return 3
 
@@ -46,6 +54,7 @@ def setup() -> ErrorCode:
 
 
 def prepare_image() -> ErrorCode:
+	update_job_progress_and_step(30, "Preparando imagem")
 	output_image_resolution = scale_resolution(detect_image_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_image_scale'))
 	temp_image_resolution = restrict_image_resolution(state_manager.get_item('target_path'), output_image_resolution)
 
@@ -60,6 +69,7 @@ def prepare_image() -> ErrorCode:
 
 
 def process_image() -> ErrorCode:
+	update_job_progress_and_step(60, "Processando imagem")
 	temp_image_path = get_temp_file_path(state_manager.get_item('target_path'))
 	reference_vision_frame = read_static_image(temp_image_path)
 	source_vision_frames = read_static_images(state_manager.get_item('source_paths'))
@@ -94,6 +104,7 @@ def process_image() -> ErrorCode:
 
 
 def finalize_image(start_time : float) -> ErrorCode:
+	update_job_progress_and_step(90, "Finalizando imagem")
 	output_image_resolution = scale_resolution(detect_image_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_image_scale'))
 
 	logger.info(translator.get('finalizing_image').format(resolution = pack_resolution(output_image_resolution)), __name__)

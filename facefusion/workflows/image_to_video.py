@@ -17,6 +17,13 @@ from facefusion.types import ErrorCode
 from facefusion.vision import conditional_merge_vision_mask, detect_video_resolution, extract_vision_mask, pack_resolution, read_static_image, read_static_images, read_static_video_frame, restrict_trim_frame, restrict_video_fps, restrict_video_resolution, scale_resolution, write_image
 from facefusion.workflows.core import is_process_stopping
 
+try:
+	from facefusion.api.database import update_job_progress_and_step
+except ImportError:
+	def update_job_progress_and_step(progress_val: int, step_text: str) -> None:
+		pass
+
+
 
 def process(start_time : float) -> ErrorCode:
 	tasks =\
@@ -42,6 +49,7 @@ def process(start_time : float) -> ErrorCode:
 
 
 def setup() -> ErrorCode:
+	update_job_progress_and_step(5, "Analisando mídia")
 	trim_frame_start, trim_frame_end = restrict_trim_frame(state_manager.get_item('target_path'), state_manager.get_item('trim_frame_start'), state_manager.get_item('trim_frame_end'))
 
 	if analyse_video(state_manager.get_item('target_path'), trim_frame_start, trim_frame_end):
@@ -55,6 +63,7 @@ def setup() -> ErrorCode:
 
 
 def extract_frames() -> ErrorCode:
+	update_job_progress_and_step(15, "Extraindo frames")
 	trim_frame_start, trim_frame_end = restrict_trim_frame(state_manager.get_item('target_path'), state_manager.get_item('trim_frame_start'), state_manager.get_item('trim_frame_end'))
 	output_video_resolution = scale_resolution(detect_video_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_video_scale'))
 	temp_video_resolution = restrict_video_resolution(state_manager.get_item('target_path'), output_video_resolution)
@@ -75,6 +84,7 @@ def process_video() -> ErrorCode:
 	temp_frame_paths = resolve_temp_frame_paths(state_manager.get_item('target_path'))
 
 	if temp_frame_paths:
+		update_job_progress_and_step(25, "Iniciando processamento")
 		with tqdm(total = len(temp_frame_paths), desc = translator.get('processing'), unit = 'frame', ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
 			progress.set_postfix(execution_providers = state_manager.get_item('execution_providers'))
 
@@ -85,6 +95,8 @@ def process_video() -> ErrorCode:
 					future = executor.submit(process_temp_frame, temp_frame_path, frame_number)
 					futures.append(future)
 
+				total_frames = len(temp_frame_paths)
+				processed_count = 0
 				for future in as_completed(futures):
 					if is_process_stopping():
 						for __future__ in futures:
@@ -93,6 +105,10 @@ def process_video() -> ErrorCode:
 					if not future.cancelled():
 						future.result()
 						progress.update()
+						processed_count += 1
+						if processed_count % 50 == 0 or processed_count == total_frames:
+							percent = int(30 + (processed_count / total_frames) * 55)
+							update_job_progress_and_step(percent, f"Processando ({processed_count}/{total_frames})")
 
 		for processor_module in get_processors_modules(state_manager.get_item('processors')):
 			processor_module.post_process()
@@ -106,6 +122,7 @@ def process_video() -> ErrorCode:
 
 
 def merge_frames() -> ErrorCode:
+	update_job_progress_and_step(88, "Mesclando frames")
 	trim_frame_start, trim_frame_end = restrict_trim_frame(state_manager.get_item('target_path'), state_manager.get_item('trim_frame_start'), state_manager.get_item('trim_frame_end'))
 	output_video_resolution = scale_resolution(detect_video_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_video_scale'))
 	temp_video_fps = restrict_video_fps(state_manager.get_item('target_path'), state_manager.get_item('output_video_fps'))
@@ -122,6 +139,7 @@ def merge_frames() -> ErrorCode:
 
 
 def restore_audio() -> ErrorCode:
+	update_job_progress_and_step(95, "Restaurando áudio")
 	trim_frame_start, trim_frame_end = restrict_trim_frame(state_manager.get_item('target_path'), state_manager.get_item('trim_frame_start'), state_manager.get_item('trim_frame_end'))
 
 	if state_manager.get_item('output_audio_volume') == 0:
@@ -186,6 +204,7 @@ def process_temp_frame(temp_frame_path : str, frame_number : int) -> bool:
 
 
 def finalize_video(start_time : float) -> ErrorCode:
+	update_job_progress_and_step(99, "Finalizando vídeo")
 	logger.debug(translator.get('clearing_temp'), __name__)
 	clear_temp_directory(state_manager.get_item('target_path'))
 

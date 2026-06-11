@@ -215,7 +215,8 @@ def list_jobs(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
                 "source": source,
                 "target": target,
                 "output": output,
-                "error_message": job.error_message
+                "error_message": job.error_message,
+                "step": job.step
             })
         return jobs_list
     except Exception as e:
@@ -257,7 +258,8 @@ def get_job_status(job_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]
         "source": source,
         "target": target,
         "output": output,
-        "error_message": job.error_message
+        "error_message": job.error_message,
+        "step": job.step
     }
 
 

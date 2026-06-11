@@ -34,6 +34,7 @@ class JobModel(Base):
     detection_threshold = Column(Float, default=0.5)
     smoothing = Column(Integer, default=5)
     processors = Column(Text)  # JSON string list
+    step = Column(String, nullable=True)
     error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
@@ -41,6 +42,12 @@ class JobModel(Base):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    try:
+        from sqlalchemy import text
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE jobs ADD COLUMN step TEXT"))
+    except Exception:
+        pass
 
 
 def get_db():
@@ -49,3 +56,19 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def update_job_progress_and_step(progress_val: int, step_text: str) -> None:
+    try:
+        from facefusion import state_manager
+        job_id = state_manager.get_item('job_id')
+        if job_id:
+            db = SessionLocal()
+            job = db.query(JobModel).filter(JobModel.id == job_id).first()
+            if job:
+                job.progress = progress_val
+                job.step = step_text
+                db.commit()
+            db.close()
+    except Exception:
+        pass

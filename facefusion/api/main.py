@@ -106,6 +106,7 @@ def find_free_port(start_port: int = 8000, max_attempts: int = 100) -> int:
     for p in range(start_port, start_port + max_attempts):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind(("127.0.0.1", p))
                 return p
             except OSError:
