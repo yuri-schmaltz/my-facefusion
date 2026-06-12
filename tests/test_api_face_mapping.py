@@ -56,12 +56,17 @@ def test_preview_with_model_options() -> None:
     payload = {
         "source_paths": [src_url],
         "target_path": tgt_url,
-        "processors": ["face_swapper"],
+        "processors": ["face_swapper", "face_enhancer", "frame_enhancer"],
         "face_swapper_model": "inswapper_128_fp16",
         "face_swapper_pixel_boost": "512x512",
         "face_swapper_weight": 0.85,
         "face_mask_blur": 0.3,
-        "detection_threshold": 0.65
+        "detection_threshold": 0.65,
+        "face_enhancer_model": "codeformer",
+        "face_enhancer_blend": 85,
+        "face_enhancer_weight": 0.9,
+        "frame_enhancer_model": "ultra_sharp_x4",
+        "frame_enhancer_blend": 75
     }
 
     # Como o preview executa o pipeline real do FaceFusion, que exige ONNX e arquivos reais,
@@ -97,8 +102,13 @@ def test_create_job_with_mappings_and_model_options() -> None:
         "face_mask_blur": 0.3,
         "detection_threshold": 0.65,
         "smoothing": 5,
-        "processors": ["face_swapper"],
+        "processors": ["face_swapper", "face_enhancer", "frame_enhancer"],
         "output_format": "mp4",
+        "face_enhancer_model": "gfpgan_1.4",
+        "face_enhancer_blend": 80,
+        "face_enhancer_weight": 0.95,
+        "frame_enhancer_model": "real_esrgan_x4_fp16",
+        "frame_enhancer_blend": 70,
         "mappings": [
             {
                 "source_path": src_url,
@@ -131,6 +141,11 @@ def test_create_job_with_mappings_and_model_options() -> None:
     assert step0["args"]["reference_frame_number"] == 120
     assert step0["args"]["face_swapper_model"] == "simswap_256"
     assert step0["args"]["face_swapper_pixel_boost"] == "1024x1024"
+    assert step0["args"]["face_enhancer_model"] == "gfpgan_1.4"
+    assert step0["args"]["face_enhancer_blend"] == 80
+    assert step0["args"]["face_enhancer_weight"] == 0.95
+    assert step0["args"]["frame_enhancer_model"] == "real_esrgan_x4_fp16"
+    assert step0["args"]["frame_enhancer_blend"] == 70
     assert step0["args"]["reference_target_path"] is not None
 
     # Validar o segundo passo
@@ -140,6 +155,11 @@ def test_create_job_with_mappings_and_model_options() -> None:
     assert step1["args"]["reference_frame_number"] == 120
     assert step1["args"]["face_swapper_model"] == "simswap_256"
     assert step1["args"]["face_swapper_pixel_boost"] == "1024x1024"
+    assert step1["args"]["face_enhancer_model"] == "gfpgan_1.4"
+    assert step1["args"]["face_enhancer_blend"] == 80
+    assert step1["args"]["face_enhancer_weight"] == 0.95
+    assert step1["args"]["frame_enhancer_model"] == "real_esrgan_x4_fp16"
+    assert step1["args"]["frame_enhancer_blend"] == 70
     assert step1["args"]["reference_target_path"] is not None
     # A entrada (target_path) do passo 1 deve ser o output temporário do passo 0
     assert step1["args"]["target_path"] != step0["args"]["target_path"]

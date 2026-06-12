@@ -315,7 +315,7 @@ def test_delete_job_endpoint() -> None:
 
     # 4. Verificar se sumiu do banco de dados
     db = TestingSessionLocal()
-    job_in_db = db.query(JobModel).filter(JobModel.id == "job-delete-test-id").first()
+    job_in_db = db.query(JobModel).filter_by(id="job-delete-test-id").first()
     assert job_in_db is None
     db.close()
 

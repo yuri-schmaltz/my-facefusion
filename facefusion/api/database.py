@@ -1,5 +1,6 @@
 import os
 import datetime
+from typing import Optional
 from sqlalchemy import create_engine, Column, String, Integer, Float, DateTime, Text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -23,21 +24,21 @@ Base = declarative_base()
 class JobModel(Base):
     __tablename__ = "jobs"
 
-    id = Column(String, primary_key=True, index=True)
-    status = Column(String, default="queued")  # drafted, queued, processing, completed, failed
-    progress = Column(Integer, default=0)
-    source_paths = Column(Text)  # JSON string list
-    target_path = Column(String)
-    output_path = Column(String)
-    face_swapper_weight = Column(Float, default=0.5)
-    face_mask_blur = Column(Float, default=0.3)
-    detection_threshold = Column(Float, default=0.5)
-    smoothing = Column(Integer, default=5)
-    processors = Column(Text)  # JSON string list
-    step = Column(String, nullable=True)
-    error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    id: str = Column(String, primary_key=True, index=True)
+    status: str = Column(String, default="queued")  # drafted, queued, processing, completed, failed
+    progress: int = Column(Integer, default=0)
+    source_paths: str = Column(Text)  # JSON string list
+    target_path: str = Column(String)
+    output_path: str = Column(String)
+    face_swapper_weight: float = Column(Float, default=0.5)
+    face_mask_blur: float = Column(Float, default=0.3)
+    detection_threshold: float = Column(Float, default=0.5)
+    smoothing: int = Column(Integer, default=5)
+    processors: str = Column(Text)  # JSON string list
+    step: Optional[str] = Column(String, nullable=True)
+    error_message: Optional[str] = Column(Text, nullable=True)
+    created_at: datetime.datetime = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at: datetime.datetime = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
 
 def init_db():
@@ -65,7 +66,7 @@ def update_job_progress_and_step(progress_val: int, step_text: str) -> None:
         job_id = state_manager.get_item('job_id')
         if job_id:
             db = SessionLocal()
-            job = db.query(JobModel).filter(JobModel.id == job_id).first()
+            job = db.query(JobModel).filter_by(id=job_id).first()
             if job:
                 # Obter o total de passos e o passo atual
                 step_index = state_manager.get_item('step_index') or 0

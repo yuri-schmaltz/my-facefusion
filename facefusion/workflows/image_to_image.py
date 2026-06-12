@@ -19,6 +19,10 @@ except ImportError:
 		pass
 
 
+def get_translation(key: str) -> str:
+	return translator.get(key) or ""
+
+
 
 def process(start_time : float) -> ErrorCode:
 	tasks =\
@@ -46,23 +50,24 @@ def setup() -> ErrorCode:
 	if analyse_image(state_manager.get_item('target_path')):
 		return 3
 
-	logger.debug(translator.get('clearing_temp'), __name__)
+	logger.debug(get_translation('clearing_temp'), __name__)
 	clear_temp_directory(state_manager.get_item('target_path'))
-	logger.debug(translator.get('creating_temp'), __name__)
+	logger.debug(get_translation('creating_temp'), __name__)
 	create_temp_directory(state_manager.get_item('target_path'))
 	return 0
 
 
 def prepare_image() -> ErrorCode:
 	update_job_progress_and_step(30, "Preparando imagem")
-	output_image_resolution = scale_resolution(detect_image_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_image_scale'))
+	target_resolution = detect_image_resolution(state_manager.get_item('target_path')) or (0, 0)
+	output_image_resolution = scale_resolution(target_resolution, state_manager.get_item('output_image_scale'))
 	temp_image_resolution = restrict_image_resolution(state_manager.get_item('target_path'), output_image_resolution)
 
-	logger.info(translator.get('copying_image').format(resolution = pack_resolution(temp_image_resolution)), __name__)
+	logger.info(get_translation('copying_image').format(resolution = pack_resolution(temp_image_resolution)), __name__)
 	if ffmpeg.copy_image(state_manager.get_item('target_path'), temp_image_resolution):
-		logger.debug(translator.get('copying_image_succeeded'), __name__)
+		logger.debug(get_translation('copying_image_succeeded'), __name__)
 	else:
-		logger.error(translator.get('copying_image_failed'), __name__)
+		logger.error(get_translation('copying_image_failed'), __name__)
 		process_manager.end()
 		return 1
 	return 0
@@ -77,11 +82,13 @@ def process_image() -> ErrorCode:
 	source_audio_frame = create_empty_audio_frame()
 	source_voice_frame = create_empty_audio_frame()
 	target_vision_frame = read_static_image(temp_image_path, 'rgba')
+	if target_vision_frame is None:
+		return 1
 	temp_vision_frame = target_vision_frame.copy()
 	temp_vision_mask = extract_vision_mask(temp_vision_frame)
 
 	for processor_module in get_processors_modules(state_manager.get_item('processors')):
-		logger.info(translator.get('processing'), processor_module.__name__)
+		logger.info(get_translation('processing'), processor_module.__name__)
 
 		temp_vision_frame, temp_vision_mask = processor_module.process_frame(
 		{
@@ -106,20 +113,21 @@ def process_image() -> ErrorCode:
 
 def finalize_image(start_time : float) -> ErrorCode:
 	update_job_progress_and_step(90, "Finalizando imagem")
-	output_image_resolution = scale_resolution(detect_image_resolution(state_manager.get_item('target_path')), state_manager.get_item('output_image_scale'))
+	target_resolution = detect_image_resolution(state_manager.get_item('target_path')) or (0, 0)
+	output_image_resolution = scale_resolution(target_resolution, state_manager.get_item('output_image_scale'))
 
-	logger.info(translator.get('finalizing_image').format(resolution = pack_resolution(output_image_resolution)), __name__)
+	logger.info(get_translation('finalizing_image').format(resolution = pack_resolution(output_image_resolution)), __name__)
 	if ffmpeg.finalize_image(state_manager.get_item('target_path'), state_manager.get_item('output_path'), output_image_resolution):
-		logger.debug(translator.get('finalizing_image_succeeded'), __name__)
+		logger.debug(get_translation('finalizing_image_succeeded'), __name__)
 	else:
-		logger.warn(translator.get('finalizing_image_skipped'), __name__)
+		logger.warn(get_translation('finalizing_image_skipped'), __name__)
 
-	logger.debug(translator.get('clearing_temp'), __name__)
+	logger.debug(get_translation('clearing_temp'), __name__)
 	clear_temp_directory(state_manager.get_item('target_path'))
 
 	if is_image(state_manager.get_item('output_path')):
-		logger.info(translator.get('processing_image_succeeded').format(seconds = calculate_end_time(start_time)), __name__)
+		logger.info(get_translation('processing_image_succeeded').format(seconds = calculate_end_time(start_time)), __name__)
 	else:
-		logger.error(translator.get('processing_image_failed'), __name__)
+		logger.error(get_translation('processing_image_failed'), __name__)
 		return 1
 	return 0

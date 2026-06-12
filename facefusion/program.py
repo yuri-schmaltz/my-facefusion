@@ -21,6 +21,10 @@ def create_help_formatter_large(prog : str) -> HelpFormatter:
 	return HelpFormatter(prog, max_help_position = 300)
 
 
+def get_translated_help(key : str, **kwargs : str) -> str:
+	return (translator.get(key) or '').format(**kwargs)
+
+
 def create_config_path_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_paths = program.add_argument_group('paths')
@@ -140,9 +144,9 @@ def create_face_masker_program() -> ArgumentParser:
 	group_face_masker = program.add_argument_group('face masker')
 	group_face_masker.add_argument('--face-occluder-model', help = translator.get('help.face_occluder_model'), default = config.get_str_value('face_masker', 'face_occluder_model', 'xseg_1'), choices = facefusion.choices.face_occluder_models)
 	group_face_masker.add_argument('--face-parser-model', help = translator.get('help.face_parser_model'), default = config.get_str_value('face_masker', 'face_parser_model', 'bisenet_resnet_34'), choices = facefusion.choices.face_parser_models)
-	group_face_masker.add_argument('--face-mask-types', help = translator.get('help.face_mask_types').format(choices = ', '.join(facefusion.choices.face_mask_types)), default = config.get_str_list('face_masker', 'face_mask_types', 'box'), choices = facefusion.choices.face_mask_types, nargs = '+', metavar = 'FACE_MASK_TYPES')
-	group_face_masker.add_argument('--face-mask-areas', help = translator.get('help.face_mask_areas').format(choices = ', '.join(facefusion.choices.face_mask_areas)), default = config.get_str_list('face_masker', 'face_mask_areas', ' '.join(facefusion.choices.face_mask_areas)), choices = facefusion.choices.face_mask_areas, nargs = '+', metavar = 'FACE_MASK_AREAS')
-	group_face_masker.add_argument('--face-mask-regions', help = translator.get('help.face_mask_regions').format(choices = ', '.join(facefusion.choices.face_mask_regions)), default = config.get_str_list('face_masker', 'face_mask_regions', ' '.join(facefusion.choices.face_mask_regions)), choices = facefusion.choices.face_mask_regions, nargs = '+', metavar = 'FACE_MASK_REGIONS')
+	group_face_masker.add_argument('--face-mask-types', help = get_translated_help('help.face_mask_types', choices = ', '.join(facefusion.choices.face_mask_types)), default = config.get_str_list('face_masker', 'face_mask_types', 'box'), choices = facefusion.choices.face_mask_types, nargs = '+', metavar = 'FACE_MASK_TYPES')
+	group_face_masker.add_argument('--face-mask-areas', help = get_translated_help('help.face_mask_areas', choices = ', '.join(facefusion.choices.face_mask_areas)), default = config.get_str_list('face_masker', 'face_mask_areas', ' '.join(facefusion.choices.face_mask_areas)), choices = facefusion.choices.face_mask_areas, nargs = '+', metavar = 'FACE_MASK_AREAS')
+	group_face_masker.add_argument('--face-mask-regions', help = get_translated_help('help.face_mask_regions', choices = ', '.join(facefusion.choices.face_mask_regions)), default = config.get_str_list('face_masker', 'face_mask_regions', ' '.join(facefusion.choices.face_mask_regions)), choices = facefusion.choices.face_mask_regions, nargs = '+', metavar = 'FACE_MASK_REGIONS')
 	group_face_masker.add_argument('--face-mask-blur', help = translator.get('help.face_mask_blur'), type = float, default = config.get_float_value('face_masker', 'face_mask_blur', '0.3'), choices = facefusion.choices.face_mask_blur_range, metavar = create_float_metavar(facefusion.choices.face_mask_blur_range))
 	group_face_masker.add_argument('--face-mask-padding', help = translator.get('help.face_mask_padding'), type = partial(sanitize_int_range, int_range = facefusion.choices.face_mask_padding_range), default = config.get_int_list('face_masker', 'face_mask_padding', '0 0 0 0'), nargs = '+')
 	job_store.register_step_keys([ 'face_occluder_model', 'face_parser_model', 'face_mask_types', 'face_mask_areas', 'face_mask_regions', 'face_mask_blur', 'face_mask_padding' ])
@@ -160,8 +164,8 @@ def create_voice_extractor_program() -> ArgumentParser:
 def create_frame_extraction_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_frame_extraction = program.add_argument_group('frame extraction')
-	group_frame_extraction.add_argument('--trim-frame-start', help = translator.get('help.trim_frame_start'), type = int, default = facefusion.config.get_int_value('frame_extraction', 'trim_frame_start'))
-	group_frame_extraction.add_argument('--trim-frame-end', help = translator.get('help.trim_frame_end'), type = int, default = facefusion.config.get_int_value('frame_extraction', 'trim_frame_end'))
+	group_frame_extraction.add_argument('--trim-frame-start', help = translator.get('help.trim_frame_start'), type = int, default = config.get_int_value('frame_extraction', 'trim_frame_start'))
+	group_frame_extraction.add_argument('--trim-frame-end', help = translator.get('help.trim_frame_end'), type = int, default = config.get_int_value('frame_extraction', 'trim_frame_end'))
 	group_frame_extraction.add_argument('--temp-frame-format', help = translator.get('help.temp_frame_format'), default = config.get_str_value('frame_extraction', 'temp_frame_format', 'png'), choices = facefusion.choices.temp_frame_formats)
 	group_frame_extraction.add_argument('--keep-temp', help = translator.get('help.keep_temp'), action = 'store_true', default = config.get_bool_value('frame_extraction', 'keep_temp'))
 	job_store.register_step_keys([ 'trim_frame_start', 'trim_frame_end', 'temp_frame_format', 'keep_temp' ])
@@ -189,8 +193,9 @@ def create_output_creation_program() -> ArgumentParser:
 def create_processors_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	available_processors = [ get_file_name(file_path) for file_path in resolve_file_paths('facefusion/processors/modules') ]
+	available_processors = [ p for p in available_processors if p is not None ]
 	group_processors = program.add_argument_group('processors')
-	group_processors.add_argument('--processors', help = translator.get('help.processors').format(choices = ', '.join(available_processors)), default = config.get_str_list('processors', 'processors', 'face_swapper'), choices = available_processors, nargs = '+', metavar = 'PROCESSORS')
+	group_processors.add_argument('--processors', help = get_translated_help('help.processors', choices = ', '.join(available_processors)), default = config.get_str_list('processors', 'processors', 'face_swapper'), choices = available_processors, nargs = '+', metavar = 'PROCESSORS')
 	job_store.register_step_keys([ 'processors' ])
 	for processor_module in get_processors_modules(available_processors):
 		processor_module.register_args(program)
@@ -200,9 +205,10 @@ def create_processors_program() -> ArgumentParser:
 def create_uis_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	available_ui_layouts = [ get_file_name(file_path) for file_path in resolve_file_paths('facefusion/uis/layouts') ]
+	available_ui_layouts = [ l for l in available_ui_layouts if l is not None ]
 	group_uis = program.add_argument_group('uis')
 	group_uis.add_argument('--open-browser', help = translator.get('help.open_browser'), action = 'store_true', default = config.get_bool_value('uis', 'open_browser'))
-	group_uis.add_argument('--ui-layouts', help = translator.get('help.ui_layouts').format(choices = ', '.join(available_ui_layouts)), default = config.get_str_list('uis', 'ui_layouts', 'default'), choices = available_ui_layouts, nargs = '+', metavar = 'UI_LAYOUTS')
+	group_uis.add_argument('--ui-layouts', help = get_translated_help('help.ui_layouts', choices = ', '.join(available_ui_layouts)), default = config.get_str_list('uis', 'ui_layouts', 'default'), choices = available_ui_layouts, nargs = '+', metavar = 'UI_LAYOUTS')
 	group_uis.add_argument('--ui-workflow', help = translator.get('help.ui_workflow'), default = config.get_str_value('uis', 'ui_workflow', 'instant_runner'), choices = facefusion.choices.ui_workflows)
 	return program
 
@@ -210,7 +216,7 @@ def create_uis_program() -> ArgumentParser:
 def create_download_providers_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_download = program.add_argument_group('download')
-	group_download.add_argument('--download-providers', help = translator.get('help.download_providers').format(choices = ', '.join(facefusion.choices.download_providers)), default = config.get_str_list('download', 'download_providers', ' '.join(facefusion.choices.download_providers)), choices = facefusion.choices.download_providers, nargs = '+', metavar = 'DOWNLOAD_PROVIDERS')
+	group_download.add_argument('--download-providers', help = get_translated_help('help.download_providers', choices = ', '.join(facefusion.choices.download_providers)), default = config.get_str_list('download', 'download_providers', ' '.join(facefusion.choices.download_providers)), choices = facefusion.choices.download_providers, nargs = '+', metavar = 'DOWNLOAD_PROVIDERS')
 	job_store.register_job_keys([ 'download_providers' ])
 	return program
 
@@ -237,7 +243,7 @@ def create_execution_program() -> ArgumentParser:
 	available_execution_providers = get_available_execution_providers()
 	group_execution = program.add_argument_group('execution')
 	group_execution.add_argument('--execution-device-ids', help = translator.get('help.execution_device_ids'), type = int, default = config.get_int_list('execution', 'execution_device_ids', '0'), nargs = '+', metavar = 'EXECUTION_DEVICE_IDS')
-	group_execution.add_argument('--execution-providers', help = translator.get('help.execution_providers').format(choices = ', '.join(available_execution_providers)), default = config.get_str_list('execution', 'execution_providers', get_first(available_execution_providers)), choices = available_execution_providers, nargs = '+', metavar = 'EXECUTION_PROVIDERS')
+	group_execution.add_argument('--execution-providers', help = get_translated_help('help.execution_providers', choices = ', '.join(available_execution_providers)), default = config.get_str_list('execution', 'execution_providers', get_first(available_execution_providers)), choices = available_execution_providers, nargs = '+', metavar = 'EXECUTION_PROVIDERS')
 	group_execution.add_argument('--execution-thread-count', help = translator.get('help.execution_thread_count'), type = int, default = config.get_int_value('execution', 'execution_thread_count', '8'), choices = facefusion.choices.execution_thread_count_range, metavar = create_int_metavar(facefusion.choices.execution_thread_count_range))
 	job_store.register_job_keys([ 'execution_device_ids', 'execution_providers', 'execution_thread_count' ])
 	return program
@@ -297,7 +303,9 @@ def collect_job_program() -> ArgumentParser:
 def create_program() -> ArgumentParser:
 	program = ArgumentParser(formatter_class = create_help_formatter_large, add_help = False)
 	program._positionals.title = 'commands'
-	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
+	version_name = metadata.get('name') or ''
+	version_val = metadata.get('version') or ''
+	program.add_argument('-v', '--version', version = f"{version_name} {version_val}", action = 'version')
 	sub_program = program.add_subparsers(dest = 'command')
 	sub_program.add_parser('run', help = translator.get('help.run'), parents = [ create_config_path_program(), create_temp_path_program(), create_jobs_path_program(), create_source_paths_program(), create_target_path_program(), create_output_path_program(), collect_step_program(), create_uis_program(), create_benchmark_program(), collect_job_program() ], formatter_class = create_help_formatter_large)
 	sub_program.add_parser('headless-run', help = translator.get('help.headless_run'), parents = [ create_config_path_program(), create_temp_path_program(), create_jobs_path_program(), create_source_paths_program(), create_target_path_program(), create_output_path_program(), collect_step_program(), collect_job_program() ], formatter_class = create_help_formatter_large)

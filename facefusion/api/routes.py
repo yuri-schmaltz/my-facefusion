@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from facefusion import state_manager
@@ -40,6 +41,11 @@ class JobCreateRequest(BaseModel):
     trim_frame_end: Optional[int] = None
     face_swapper_model: Optional[str] = "hyperswap_1a_256"
     face_swapper_pixel_boost: Optional[str] = None
+    face_enhancer_model: Optional[str] = "gfpgan_1.4"
+    face_enhancer_blend: Optional[int] = 80
+    face_enhancer_weight: Optional[float] = 1.0
+    frame_enhancer_model: Optional[str] = "span_kendata_x4"
+    frame_enhancer_blend: Optional[int] = 80
     mappings: Optional[List[FaceMapping]] = None
 
 
@@ -49,7 +55,8 @@ def get_hardware_providers() -> List[str]:
     Retorna todos os provedores de execução (hardware acceleration) disponíveis na máquina.
     """
     try:
-        return get_available_execution_providers()
+        providers = get_available_execution_providers()
+        return [str(p) for p in providers]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao ler provedores de hardware: {str(e)}")
 
@@ -73,7 +80,8 @@ def get_available_processors() -> List[str]:
     """
     try:
         processors_paths = resolve_file_paths("facefusion/processors/modules")
-        return [get_file_name(path) for path in processors_paths if get_file_name(path)]
+        names = [get_file_name(path) for path in processors_paths]
+        return [name for name in names if name is not None]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao varrer processadores: {str(e)}")
 
@@ -138,7 +146,8 @@ def upload_media(file: UploadFile = File(...)):
         uploads_dir = os.path.join(jobs_path, "uploads")
         create_directory(uploads_dir)
         
-        file_ext = os.path.splitext(file.filename)[1]
+        filename = file.filename or "file"
+        file_ext = os.path.splitext(filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_ext}"
         file_path = os.path.join(uploads_dir, unique_filename)
         
@@ -147,7 +156,7 @@ def upload_media(file: UploadFile = File(...)):
             
         return {
             "file_path": os.path.abspath(file_path),
-            "filename": file.filename,
+            "filename": filename,
             "unique_filename": unique_filename,
             "url": f"/api/media/upload/{unique_filename}"
         }
@@ -195,7 +204,7 @@ def list_jobs(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
     Retorna a lista de todas as tarefas (jobs) cadastradas no sistema, lidas a partir do banco de dados relacional.
     """
     try:
-        jobs = db.query(JobModel).order_by(JobModel.created_at.desc()).all()
+        jobs = db.query(JobModel).order_by(desc(JobModel.created_at)).all()
         jobs_list = []
         for job in jobs:
             source = ""
@@ -237,7 +246,7 @@ def get_job_status(job_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]
     """
     Retorna o status e os detalhes de uma tarefa específica.
     """
-    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+    job = db.query(JobModel).filter_by(id=job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Tarefa não encontrada")
     
@@ -298,6 +307,21 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
             filename = os.path.basename(request.target_path)
             resolved_target_path = os.path.join(uploads_dir, filename)
 
+        from facefusion.filesystem import is_image, is_video
+        
+        # Validar existências e tipos de mídias de origem
+        for p in resolved_source_paths:
+            if not os.path.exists(p):
+                raise HTTPException(status_code=400, detail=f"Arquivo de origem não encontrado no disco: {p}")
+            if not (is_image(p) or is_video(p)):
+                raise HTTPException(status_code=400, detail=f"Arquivo de origem com formato inválido ou corrompido: {p}")
+                
+        # Validar mídia de destino
+        if not os.path.exists(resolved_target_path):
+            raise HTTPException(status_code=400, detail=f"Arquivo de destino não encontrado no disco: {resolved_target_path}")
+        if not (is_image(resolved_target_path) or is_video(resolved_target_path)):
+            raise HTTPException(status_code=400, detail=f"Arquivo de destino com formato inválido ou corrompido: {resolved_target_path}")
+
         target_ext = os.path.splitext(resolved_target_path)[1] or ".mp4"
         job_id = f"job-{uuid.uuid4().hex[:8]}"
         output_filename = f"{job_id}_swapped{target_ext}"
@@ -313,6 +337,11 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
                 resolved_mapping_source = mapping.source_path
                 if mapping.source_path.startswith("/api/media/upload/"):
                     resolved_mapping_source = os.path.join(uploads_dir, os.path.basename(mapping.source_path))
+
+                if not os.path.exists(resolved_mapping_source):
+                    raise HTTPException(status_code=400, detail=f"Arquivo de origem mapeado não encontrado no disco: {resolved_mapping_source}")
+                if not (is_image(resolved_mapping_source) or is_video(resolved_mapping_source)):
+                    raise HTTPException(status_code=400, detail=f"Arquivo de origem mapeado com formato inválido ou corrompido: {resolved_mapping_source}")
 
                 step_args = collect_step_args()
                 step_args["source_paths"] = [resolved_mapping_source]
@@ -346,6 +375,18 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
                 if request.trim_frame_end is not None:
                     step_args["trim_frame_end"] = request.trim_frame_end
 
+                # Adicionar opções de Enhancers nos passos sequenciais
+                if request.face_enhancer_model is not None:
+                    step_args["face_enhancer_model"] = request.face_enhancer_model
+                if request.face_enhancer_blend is not None:
+                    step_args["face_enhancer_blend"] = request.face_enhancer_blend
+                if request.face_enhancer_weight is not None:
+                    step_args["face_enhancer_weight"] = request.face_enhancer_weight
+                if request.frame_enhancer_model is not None:
+                    step_args["frame_enhancer_model"] = request.frame_enhancer_model
+                if request.frame_enhancer_blend is not None:
+                    step_args["frame_enhancer_blend"] = request.frame_enhancer_blend
+
                 if not job_manager.add_step(job_id, step_args):
                     raise HTTPException(status_code=500, detail=f"Falha ao adicionar passo {idx} ao job.")
         else:
@@ -371,6 +412,18 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
                 step_args["trim_frame_start"] = request.trim_frame_start
             if request.trim_frame_end is not None:
                 step_args["trim_frame_end"] = request.trim_frame_end
+
+            # Adicionar opções de Enhancers no passo único
+            if request.face_enhancer_model is not None:
+                step_args["face_enhancer_model"] = request.face_enhancer_model
+            if request.face_enhancer_blend is not None:
+                step_args["face_enhancer_blend"] = request.face_enhancer_blend
+            if request.face_enhancer_weight is not None:
+                step_args["face_enhancer_weight"] = request.face_enhancer_weight
+            if request.frame_enhancer_model is not None:
+                step_args["frame_enhancer_model"] = request.frame_enhancer_model
+            if request.frame_enhancer_blend is not None:
+                step_args["frame_enhancer_blend"] = request.frame_enhancer_blend
 
             if not job_manager.add_step(job_id, step_args):
                 raise HTTPException(status_code=500, detail="Falha ao adicionar step ao job.")
@@ -412,7 +465,7 @@ def delete_job(job_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Exclui uma tarefa do banco de dados, seus arquivos de job no disco e a mídia de saída se gerada.
     """
-    job = db.query(JobModel).filter(JobModel.id == job_id).first()
+    job = db.query(JobModel).filter_by(id=job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Tarefa não encontrada")
     
@@ -523,6 +576,11 @@ class PreviewRequest(BaseModel):
     detection_threshold: Optional[float] = 0.5
     face_swapper_model: Optional[str] = "hyperswap_1a_256"
     face_swapper_pixel_boost: Optional[str] = None
+    face_enhancer_model: Optional[str] = "gfpgan_1.4"
+    face_enhancer_blend: Optional[int] = 80
+    face_enhancer_weight: Optional[float] = 1.0
+    frame_enhancer_model: Optional[str] = "span_kendata_x4"
+    frame_enhancer_blend: Optional[int] = 80
 
 
 @router.post("/preview")
@@ -560,12 +618,16 @@ def generate_preview(request: PreviewRequest):
             filename = os.path.basename(request.target_path)
             resolved_target_path = os.path.join(uploads_dir, filename)
 
-        # Validar que os arquivos existem
+        # Validar que os arquivos existem e são válidos
         for sp in resolved_source_paths:
             if not os.path.exists(sp):
                 raise HTTPException(status_code=400, detail=f"Arquivo source não encontrado: {sp}")
+            if not (is_image(sp) or is_video(sp)):
+                raise HTTPException(status_code=400, detail=f"Arquivo source com formato inválido ou corrompido: {sp}")
         if not os.path.exists(resolved_target_path):
             raise HTTPException(status_code=400, detail=f"Arquivo target não encontrado: {resolved_target_path}")
+        if not (is_image(resolved_target_path) or is_video(resolved_target_path)):
+            raise HTTPException(status_code=400, detail=f"Arquivo target com formato inválido ou corrompido: {resolved_target_path}")
 
         # Configurar state_manager temporariamente para o preview
         old_source = sm.get_item('source_paths')
@@ -573,6 +635,11 @@ def generate_preview(request: PreviewRequest):
         old_processors = sm.get_item('processors')
         old_face_swapper_model = sm.get_item('face_swapper_model')
         old_face_swapper_pixel_boost = sm.get_item('face_swapper_pixel_boost')
+        old_face_enhancer_model = sm.get_item('face_enhancer_model')
+        old_face_enhancer_blend = sm.get_item('face_enhancer_blend')
+        old_face_enhancer_weight = sm.get_item('face_enhancer_weight')
+        old_frame_enhancer_model = sm.get_item('frame_enhancer_model')
+        old_frame_enhancer_blend = sm.get_item('frame_enhancer_blend')
 
         sm.set_item('source_paths', resolved_source_paths)
         sm.set_item('target_path', resolved_target_path)
@@ -589,6 +656,16 @@ def generate_preview(request: PreviewRequest):
         if request.detection_threshold is not None:
             sm.set_item('face_detector_score', request.detection_threshold)
             sm.set_item('face_landmarker_score', request.detection_threshold)
+        if request.face_enhancer_model is not None:
+            sm.set_item('face_enhancer_model', request.face_enhancer_model)
+        if request.face_enhancer_blend is not None:
+            sm.set_item('face_enhancer_blend', request.face_enhancer_blend)
+        if request.face_enhancer_weight is not None:
+            sm.set_item('face_enhancer_weight', request.face_enhancer_weight)
+        if request.frame_enhancer_model is not None:
+            sm.set_item('frame_enhancer_model', request.frame_enhancer_model)
+        if request.frame_enhancer_blend is not None:
+            sm.set_item('frame_enhancer_blend', request.frame_enhancer_blend)
 
         try:
             # Ler frames de origem
@@ -626,7 +703,8 @@ def generate_preview(request: PreviewRequest):
             temp_vision_frame_copy = temp_vision_frame.copy()
             temp_vision_mask = extract_vision_mask(temp_vision_frame_copy)
 
-            for processor_module in get_processors_modules(request.processors):
+            processors = request.processors or []
+            for processor_module in get_processors_modules(processors):
                 ff_logger.disable()
                 if processor_module.pre_process('preview'):
                     ff_logger.enable()
@@ -674,6 +752,16 @@ def generate_preview(request: PreviewRequest):
                 sm.set_item('face_swapper_model', old_face_swapper_model)
             if old_face_swapper_pixel_boost is not None:
                 sm.set_item('face_swapper_pixel_boost', old_face_swapper_pixel_boost)
+            if old_face_enhancer_model is not None:
+                sm.set_item('face_enhancer_model', old_face_enhancer_model)
+            if old_face_enhancer_blend is not None:
+                sm.set_item('face_enhancer_blend', old_face_enhancer_blend)
+            if old_face_enhancer_weight is not None:
+                sm.set_item('face_enhancer_weight', old_face_enhancer_weight)
+            if old_frame_enhancer_model is not None:
+                sm.set_item('frame_enhancer_model', old_frame_enhancer_model)
+            if old_frame_enhancer_blend is not None:
+                sm.set_item('frame_enhancer_blend', old_frame_enhancer_blend)
 
     except HTTPException:
         raise

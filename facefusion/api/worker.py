@@ -1,5 +1,6 @@
 import time
 import threading
+from sqlalchemy import asc
 from facefusion.api.database import SessionLocal, JobModel
 from facefusion.jobs import job_runner
 from facefusion.core import process_step
@@ -46,7 +47,7 @@ def worker_loop():
     # Recuperação de jobs travados em 'processing' devido a desligamento ou reinício
     try:
         db = SessionLocal()
-        stuck_jobs = db.query(JobModel).filter(JobModel.status == "processing").all()
+        stuck_jobs = db.query(JobModel).filter_by(status="processing").all()
         for stuck_job in stuck_jobs:
             print(f"[Worker] Recuperando job travado {stuck_job.id} para status 'failed'.", flush=True)
             stuck_job.status = "failed"
@@ -62,7 +63,7 @@ def worker_loop():
         try:
             db = SessionLocal()
             # Buscar o job mais antigo na fila
-            job = db.query(JobModel).filter(JobModel.status == "queued").order_by(JobModel.created_at.asc()).first()
+            job = db.query(JobModel).filter_by(status="queued").order_by(asc(JobModel.created_at)).first()
             
             if job:
                 job_id = job.id
@@ -85,7 +86,7 @@ def worker_loop():
                     success = job_runner.run_job(job_id, process_step)
                     
                     db = SessionLocal()
-                    job_to_update = db.query(JobModel).filter(JobModel.id == job_id).first()
+                    job_to_update = db.query(JobModel).filter_by(id=job_id).first()
                     if job_to_update:
                         if success:
                             job_to_update.status = "completed"
@@ -105,7 +106,7 @@ def worker_loop():
                     print(f"[Worker] Falha ao rodar o job {job_id}: {str(e)}\n{error_trace}", flush=True)
                     
                     db = SessionLocal()
-                    job_to_update = db.query(JobModel).filter(JobModel.id == job_id).first()
+                    job_to_update = db.query(JobModel).filter_by(id=job_id).first()
                     if job_to_update:
                         job_to_update.status = "failed"
                         job_to_update.progress = 0

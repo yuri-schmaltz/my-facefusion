@@ -34,7 +34,8 @@ import {
   Check,
   Info,
   Eye,
-  Plus
+  Plus,
+  Save
 } from "lucide-react";
 
 /* ======================================== */
@@ -106,6 +107,69 @@ interface Job {
   error_message?: string;
   step?: string;
 }
+interface Preset {
+  name: string;
+  faceSwapperWeight: number;
+  faceMaskBlur: number;
+  detectionThreshold: number;
+  smoothing: number;
+  faceSwapperModel: string;
+  faceSwapperPixelBoost: string;
+  faceEnhancerModel?: string;
+  faceEnhancerBlend?: number;
+  faceEnhancerWeight?: number;
+  frameEnhancerModel?: string;
+  frameEnhancerBlend?: number;
+  isCustom?: boolean;
+}
+
+const BUILT_IN_PRESETS: Preset[] = [
+  {
+    name: "Qualidade Máxima (Padrão)",
+    faceSwapperWeight: 0.85,
+    faceMaskBlur: 12,
+    detectionThreshold: 0.70,
+    smoothing: 5,
+    faceSwapperModel: "inswapper_128_fp16",
+    faceSwapperPixelBoost: "512x512",
+    faceEnhancerModel: "gfpgan_1.4",
+    faceEnhancerBlend: 80,
+    faceEnhancerWeight: 1.0,
+    frameEnhancerModel: "span_kendata_x4",
+    frameEnhancerBlend: 80,
+    isCustom: false
+  },
+  {
+    name: "Draft Rápido",
+    faceSwapperWeight: 0.70,
+    faceMaskBlur: 8,
+    detectionThreshold: 0.50,
+    smoothing: 3,
+    faceSwapperModel: "inswapper_128",
+    faceSwapperPixelBoost: "",
+    faceEnhancerModel: "gfpgan_1.4",
+    faceEnhancerBlend: 50,
+    faceEnhancerWeight: 0.5,
+    frameEnhancerModel: "span_kendata_x4",
+    frameEnhancerBlend: 50,
+    isCustom: false
+  },
+  {
+    name: "Cinemático Ultra",
+    faceSwapperWeight: 0.90,
+    faceMaskBlur: 15,
+    detectionThreshold: 0.75,
+    smoothing: 8,
+    faceSwapperModel: "simswap_unofficial_512",
+    faceSwapperPixelBoost: "1024x1024",
+    faceEnhancerModel: "codeformer",
+    faceEnhancerBlend: 90,
+    faceEnhancerWeight: 1.0,
+    frameEnhancerModel: "real_esrgan_x4_fp16",
+    frameEnhancerBlend: 90,
+    isCustom: false
+  }
+];
 
 export default function Home() {
   // Navegação
@@ -153,6 +217,22 @@ export default function Home() {
   const [autoPreview, setAutoPreview] = useState(true);
   const [faceSwapperModel, setFaceSwapperModel] = useState<string>("inswapper_128_fp16");
   const [faceSwapperPixelBoost, setFaceSwapperPixelBoost] = useState<string>("512x512");
+
+  const [faceEnhancerModel, setFaceEnhancerModel] = useState<string>("gfpgan_1.4");
+  const [faceEnhancerBlend, setFaceEnhancerBlend] = useState<number>(80);
+  const [faceEnhancerWeight, setFaceEnhancerWeight] = useState<number>(1.0);
+  const [frameEnhancerModel, setFrameEnhancerModel] = useState<string>("span_kendata_x4");
+  const [frameEnhancerBlend, setFrameEnhancerBlend] = useState<number>(80);
+
+  const [presets, setPresets] = useState<Preset[]>(BUILT_IN_PRESETS);
+  const [selectedPresetName, setSelectedPresetName] = useState<string>("Qualidade Máxima (Padrão)");
+  const [newPresetName, setNewPresetName] = useState<string>("");
+
+  const [targetDimensions, setTargetDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [containerDimensions, setContainerDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [selectedFaceForModal, setSelectedFaceForModal] = useState<any | null>(null);
+
+  const targetContainerRef = useRef<HTMLDivElement>(null);
 
   const [outputFormat, setOutputFormat] = useState("MP4");
   const [outputQuality, setOutputQuality] = useState("High");
@@ -483,6 +563,127 @@ export default function Home() {
     };
   }, [isSliding]);
 
+  // Carregar presets customizados do localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("facefusion_presets");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const customs = parsed.filter(p => p.isCustom);
+          setPresets([...BUILT_IN_PRESETS, ...customs]);
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao carregar presets:", e);
+    }
+  }, []);
+
+  const handleApplyPreset = (presetName: string) => {
+    const selected = presets.find(p => p.name === presetName);
+    if (!selected) return;
+    setSelectedPresetName(presetName);
+    setFaceSwapperWeight(selected.faceSwapperWeight);
+    setFaceMaskBlur(selected.faceMaskBlur);
+    setDetectionThreshold(selected.detectionThreshold);
+    setSmoothing(selected.smoothing);
+    setFaceSwapperModel(selected.faceSwapperModel);
+    setFaceSwapperPixelBoost(selected.faceSwapperPixelBoost);
+
+    if (selected.faceEnhancerModel) setFaceEnhancerModel(selected.faceEnhancerModel);
+    if (selected.faceEnhancerBlend !== undefined) setFaceEnhancerBlend(selected.faceEnhancerBlend);
+    if (selected.faceEnhancerWeight !== undefined) setFaceEnhancerWeight(selected.faceEnhancerWeight);
+    if (selected.frameEnhancerModel) setFrameEnhancerModel(selected.frameEnhancerModel);
+    if (selected.frameEnhancerBlend !== undefined) setFrameEnhancerBlend(selected.frameEnhancerBlend);
+
+    showToast("success", "Preset Aplicado", `Configuração "${presetName}" carregada.`);
+  };
+
+  const handleSavePreset = () => {
+    if (!newPresetName.trim()) {
+      showToast("warning", "Nome Inválido", "Digite um nome para o preset.");
+      return;
+    }
+    if (presets.some(p => p.name.toLowerCase() === newPresetName.trim().toLowerCase())) {
+      showToast("warning", "Preset Já Existe", "Escolha outro nome para a configuração.");
+      return;
+    }
+
+    const newPreset: Preset = {
+      name: newPresetName.trim(),
+      faceSwapperWeight,
+      faceMaskBlur,
+      detectionThreshold,
+      smoothing,
+      faceSwapperModel,
+      faceSwapperPixelBoost,
+      faceEnhancerModel,
+      faceEnhancerBlend,
+      faceEnhancerWeight,
+      frameEnhancerModel,
+      frameEnhancerBlend,
+      isCustom: true
+    };
+
+    const updatedPresets = [...presets, newPreset];
+    setPresets(updatedPresets);
+    setSelectedPresetName(newPreset.name);
+    setNewPresetName("");
+
+    const customsOnly = updatedPresets.filter(p => p.isCustom);
+    localStorage.setItem("facefusion_presets", JSON.stringify(customsOnly));
+    showToast("success", "Preset Salvo", `A configuração "${newPreset.name}" foi salva com sucesso.`);
+  };
+
+  const updateContainerDimensions = () => {
+    if (targetContainerRef.current) {
+      setContainerDimensions({
+        width: targetContainerRef.current.clientWidth,
+        height: targetContainerRef.current.clientHeight
+      });
+    }
+  };
+
+  useEffect(() => {
+    updateContainerDimensions();
+    window.addEventListener("resize", updateContainerDimensions);
+    return () => window.removeEventListener("resize", updateContainerDimensions);
+  }, [detectedTargetFaces, targetVideo]);
+
+  const getScaledBox = (bbox: number[]) => {
+    if (!targetDimensions || !containerDimensions) return null;
+    const [x_min, y_min, x_max, y_max] = bbox;
+    const Mw = targetDimensions.width;
+    const Mh = targetDimensions.height;
+    const Cw = containerDimensions.width;
+    const Ch = containerDimensions.height;
+
+    if (!Mw || !Mh || !Cw || !Ch) return null;
+
+    const Rm = Mw / Mh;
+    const Rc = Cw / Ch;
+
+    let Rw = Cw;
+    let Rh = Ch;
+    let Ro = 0;
+    let To = 0;
+
+    if (Rc > Rm) {
+      Rw = Ch * Rm;
+      Ro = (Cw - Rw) / 2;
+    } else {
+      Rh = Cw / Rm;
+      To = (Ch - Rh) / 2;
+    }
+
+    const left = Ro + (x_min / Mw) * Rw;
+    const top = To + (y_min / Mh) * Rh;
+    const width = ((x_max - x_min) / Mw) * Rw;
+    const height = ((y_max - y_min) / Mh) * Rh;
+
+    return { left, top, width, height };
+  };
+
   // Enviar arquivo para a API
   const uploadFile = async (file: File) => {
     const formData = new FormData();
@@ -603,7 +804,12 @@ export default function Home() {
           face_mask_blur: faceMaskBlur / 50.0,
           detection_threshold: detectionThreshold,
           face_swapper_model: faceSwapperModel,
-          face_swapper_pixel_boost: faceSwapperPixelBoost
+          face_swapper_pixel_boost: faceSwapperPixelBoost,
+          face_enhancer_model: faceEnhancerModel,
+          face_enhancer_blend: faceEnhancerBlend,
+          face_enhancer_weight: faceEnhancerWeight,
+          frame_enhancer_model: frameEnhancerModel,
+          frame_enhancer_blend: frameEnhancerBlend
         })
       });
 
@@ -648,6 +854,11 @@ export default function Home() {
     detectionThreshold,
     faceSwapperModel,
     faceSwapperPixelBoost,
+    faceEnhancerModel,
+    faceEnhancerBlend,
+    faceEnhancerWeight,
+    frameEnhancerModel,
+    frameEnhancerBlend,
     currentTime,
     targetVideoTime,
     isPlaying,
@@ -734,6 +945,11 @@ export default function Home() {
           trim_frame_start: trimFrameStart,
           face_swapper_model: faceSwapperModel,
           face_swapper_pixel_boost: faceSwapperPixelBoost,
+          face_enhancer_model: faceEnhancerModel,
+          face_enhancer_blend: faceEnhancerBlend,
+          face_enhancer_weight: faceEnhancerWeight,
+          frame_enhancer_model: frameEnhancerModel,
+          frame_enhancer_blend: frameEnhancerBlend,
           mappings: mappings.length > 0 ? mappings : null
         })
       });
@@ -1093,12 +1309,48 @@ export default function Home() {
                         <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden group min-h-0">
                           {targetVideo.match(/\.(mp4|webm|mkv|avi|mov)$/i) ? (
                             <div className="absolute inset-0 w-full h-full flex flex-col justify-between min-h-0">
-                              <video 
-                                src={targetVideo} 
-                                className="object-contain w-full h-[75%] bg-black min-h-0" 
-                                controls 
-                                onTimeUpdate={(e) => setTargetVideoTime(e.currentTarget.currentTime)}
-                              />
+                              <div ref={targetContainerRef} className="relative w-full h-[75%] bg-black flex items-center justify-center min-h-0 overflow-hidden">
+                                <video 
+                                  src={targetVideo} 
+                                  className="object-contain w-full h-full min-h-0" 
+                                  controls 
+                                  onTimeUpdate={(e) => setTargetVideoTime(e.currentTarget.currentTime)}
+                                  onLoadedMetadata={(e) => {
+                                    setTargetDimensions({
+                                      width: e.currentTarget.videoWidth,
+                                      height: e.currentTarget.videoHeight
+                                    });
+                                  }}
+                                />
+                                {/* Overlays interativas no Player de Vídeo */}
+                                {detectedTargetFaces.map((face) => {
+                                  const box = getScaledBox(face.bounding_box);
+                                  if (!box) return null;
+                                  const hasMapping = !!faceMappings[face.index];
+                                  return (
+                                    <div
+                                      key={face.index}
+                                      onClick={() => setSelectedFaceForModal(face)}
+                                      className={`absolute border-2 cursor-pointer transition-all duration-200 hover:scale-105 flex items-center justify-center rounded ${
+                                        hasMapping 
+                                          ? "border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20" 
+                                          : "border-red-500 bg-red-500/10 hover:bg-red-500/20"
+                                      }`}
+                                      style={{
+                                        left: `${box.left}px`,
+                                        top: `${box.top}px`,
+                                        width: `${box.width}px`,
+                                        height: `${box.height}px`,
+                                      }}
+                                      title={`Rosto #${face.index + 1}`}
+                                    >
+                                      <span className="px-1 py-0.5 text-[7px] font-bold text-white rounded bg-black/80 absolute bottom-1 font-mono">
+                                        Rosto #{face.index + 1}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                               <div className="p-2 bg-zinc-950/80 flex items-center gap-2 border-t border-zinc-850 h-[25%] flex-shrink-0">
                                 <input
                                   type="checkbox"
@@ -1113,7 +1365,47 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <img src={targetVideo} alt="Target Media" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
+                            <div ref={targetContainerRef} className="absolute inset-0 w-full h-full bg-black flex items-center justify-center overflow-hidden">
+                              <img 
+                                src={targetVideo} 
+                                alt="Target Media" 
+                                className="object-contain w-full h-full pointer-events-none" 
+                                onLoad={(e) => {
+                                  setTargetDimensions({
+                                    width: e.currentTarget.naturalWidth,
+                                    height: e.currentTarget.naturalHeight
+                                  });
+                                }}
+                              />
+                              {/* Overlays interativas no Player de Imagem */}
+                              {detectedTargetFaces.map((face) => {
+                                const box = getScaledBox(face.bounding_box);
+                                if (!box) return null;
+                                const hasMapping = !!faceMappings[face.index];
+                                return (
+                                  <div
+                                    key={face.index}
+                                    onClick={() => setSelectedFaceForModal(face)}
+                                    className={`absolute border-2 cursor-pointer transition-all duration-200 hover:scale-105 flex items-center justify-center rounded ${
+                                      hasMapping 
+                                        ? "border-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20" 
+                                        : "border-red-500 bg-red-500/10 hover:bg-red-500/20"
+                                    }`}
+                                    style={{
+                                      left: `${box.left}px`,
+                                      top: `${box.top}px`,
+                                      width: `${box.width}px`,
+                                      height: `${box.height}px`,
+                                    }}
+                                    title={`Rosto #${face.index + 1}`}
+                                  >
+                                    <span className="px-1 py-0.5 text-[7px] font-bold text-white rounded bg-black/80 absolute bottom-1 font-mono">
+                                      Rosto #{face.index + 1}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           )}
                           <button
                             onClick={(e) => {
@@ -1311,97 +1603,225 @@ export default function Home() {
                       </label>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 flex-1 justify-center">
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Modelo do Swapper</span>
+                    {/* Presets Selection & Saving */}
+                    <div className="flex items-center gap-3 bg-zinc-900/30 border border-zinc-900 rounded-lg p-2.5 mb-3 justify-between flex-wrap flex-shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Preset:</span>
                         <select
-                          value={faceSwapperModel}
-                          onChange={(e) => setFaceSwapperModel(e.target.value)}
-                          className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                          value={selectedPresetName}
+                          onChange={(e) => handleApplyPreset(e.target.value)}
+                          className="bg-zinc-950 border border-zinc-850 text-zinc-300 text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-red-500 transition-colors"
                         >
-                          <option value="inswapper_128_fp16">InsightFace FP16 (Melhor Geral)</option>
-                          <option value="inswapper_128">InsightFace INT8 (Rápido)</option>
-                          <option value="simswap_unofficial_512">SimSwap 512 (Alta Qualidade)</option>
-                          <option value="simswap_256">SimSwap 256</option>
-                          <option value="hyperswap_1a_256">HyperSwap 1A</option>
-                          <option value="hyperswap_1b_256">HyperSwap 1B</option>
-                          <option value="hyperswap_1c_256">HyperSwap 1C</option>
-                          <option value="blendswap_256">BlendSwap 256</option>
-                          <option value="uniface_256">UniFace 256</option>
-                          <option value="ghost_1_256">Ghost 1</option>
-                          <option value="ghost_2_256">Ghost 2</option>
-                          <option value="ghost_3_256">Ghost 3</option>
-                          <option value="hififace_unofficial_256">HiFiFace 256</option>
+                          <option value="" disabled>Selecionar preset...</option>
+                          {presets.map((p, idx) => (
+                            <option key={idx} value={p.name}>
+                              {p.name} {p.isCustom ? "(Custom)" : ""}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Pixel Boost (Resolução)</span>
-                        <select
-                          value={faceSwapperPixelBoost || ""}
-                          onChange={(e) => setFaceSwapperPixelBoost(e.target.value || "")}
-                          className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Nome do preset..."
+                          value={newPresetName}
+                          onChange={(e) => setNewPresetName(e.target.value)}
+                          className="bg-zinc-950 border border-zinc-850 text-zinc-300 text-[10px] rounded-lg px-2 py-1 w-28 focus:outline-none focus:border-red-500 transition-colors placeholder:text-zinc-600"
+                        />
+                        <button
+                          onClick={handleSavePreset}
+                          className="bg-red-600 hover:bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 border border-red-500/20"
                         >
-                          <option value="">Sem Boost (Padrão)</option>
-                          <option value="256x256">256x256</option>
-                          <option value="384x384">384x384</option>
-                          <option value="512x512">512x512 (Recomendado)</option>
-                          <option value="768x768">768x768</option>
-                          <option value="1024x1024">1024x1024 (Qualidade Máxima)</option>
-                        </select>
+                          <Save size={10} />
+                          Salvar
+                        </button>
                       </div>
+                    </div>
 
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold">
-                          <span className="text-zinc-300">Face Swapper Weight</span>
-                          <span className="text-red-500 font-mono">{faceSwapperWeight.toFixed(2)}</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="1" step="0.05"
-                          value={faceSwapperWeight}
-                          onChange={e => setFaceSwapperWeight(parseFloat(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
+                    <div className="flex-1 overflow-y-auto pr-1 space-y-4 scrollbar-thin max-h-[300px]">
+                      {selectedProcessors.includes("face_swapper") && (
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-bold text-white uppercase tracking-wider border-b border-zinc-900 pb-1">
+                            Ajustes de Face Swapper (Substituição de Rosto)
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Modelo do Swapper</span>
+                              <select
+                                value={faceSwapperModel}
+                                onChange={(e) => setFaceSwapperModel(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                              >
+                                <option value="inswapper_128_fp16">InsightFace FP16 (Melhor Geral)</option>
+                                <option value="inswapper_128">InsightFace INT8 (Rápido)</option>
+                                <option value="simswap_unofficial_512">SimSwap 512 (Alta Qualidade)</option>
+                                <option value="simswap_256">SimSwap 256</option>
+                                <option value="hyperswap_1a_256">HyperSwap 1A</option>
+                                <option value="hyperswap_1b_256">HyperSwap 1B</option>
+                                <option value="hyperswap_1c_256">HyperSwap 1C</option>
+                                <option value="blendswap_256">BlendSwap 256</option>
+                                <option value="uniface_256">UniFace 256</option>
+                                <option value="ghost_1_256">Ghost 1</option>
+                                <option value="ghost_2_256">Ghost 2</option>
+                                <option value="ghost_3_256">Ghost 3</option>
+                                <option value="hififace_unofficial_256">HiFiFace 256</option>
+                              </select>
+                            </div>
 
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold">
-                          <span className="text-zinc-300">Face Mask Blur</span>
-                          <span className="text-red-500 font-mono">{faceMaskBlur}px</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="50" step="1"
-                          value={faceMaskBlur}
-                          onChange={e => setFaceMaskBlur(parseInt(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Pixel Boost (Resolução)</span>
+                              <select
+                                value={faceSwapperPixelBoost || ""}
+                                onChange={(e) => setFaceSwapperPixelBoost(e.target.value || "")}
+                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                              >
+                                <option value="">Sem Boost (Padrão)</option>
+                                <option value="256x256">256x256</option>
+                                <option value="384x384">384x384</option>
+                                <option value="512x512">512x512 (Recomendado)</option>
+                                <option value="768x768">768x768</option>
+                                <option value="1024x1024">1024x1024 (Qualidade Máxima)</option>
+                              </select>
+                            </div>
 
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold">
-                          <span className="text-zinc-300">Limiar de Detecção</span>
-                          <span className="text-red-500 font-mono">{detectionThreshold.toFixed(2)}</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="1" step="0.05"
-                          value={detectionThreshold}
-                          onChange={e => setDetectionThreshold(parseFloat(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Face Swapper Weight</span>
+                                <span className="text-red-500 font-mono">{faceSwapperWeight.toFixed(2)}</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="1" step="0.05"
+                                value={faceSwapperWeight}
+                                onChange={e => setFaceSwapperWeight(parseFloat(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
 
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold">
-                          <span className="text-zinc-300">Suavização (Smoothing)</span>
-                          <span className="text-red-500 font-mono">{smoothing}px</span>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Face Mask Blur</span>
+                                <span className="text-red-500 font-mono">{faceMaskBlur}px</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="50" step="1"
+                                value={faceMaskBlur}
+                                onChange={e => setFaceMaskBlur(parseInt(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Limiar de Detecção</span>
+                                <span className="text-red-500 font-mono">{detectionThreshold.toFixed(2)}</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="1" step="0.05"
+                                value={detectionThreshold}
+                                onChange={e => setDetectionThreshold(parseFloat(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Suavização (Smoothing)</span>
+                                <span className="text-red-500 font-mono">{smoothing}px</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="20" step="1"
+                                value={smoothing}
+                                onChange={e => setSmoothing(parseInt(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <input
-                          type="range" min="0" max="20" step="1"
-                          value={smoothing}
-                          onChange={e => setSmoothing(parseInt(e.target.value))}
-                          className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
+                      )}
+
+                      {/* Face Enhancer Settings */}
+                      {selectedProcessors.includes("face_enhancer") && (
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-bold text-white uppercase tracking-wider border-b border-zinc-900 pb-1 pt-1">
+                            Ajustes de Face Enhancer (Melhoria Facial)
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Modelo</span>
+                              <select
+                                value={faceEnhancerModel}
+                                onChange={(e) => setFaceEnhancerModel(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                              >
+                                <option value="gfpgan_1.4">GFPGAN 1.4 (Padrão)</option>
+                                <option value="codeformer">CodeFormer (Melhor Detalhe)</option>
+                                <option value="gpen_bfr_512">GPEN-BFR 512</option>
+                                <option value="restoreformer_plus_plus">RestoreFormer++</option>
+                              </select>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Blend (Mesclagem)</span>
+                                <span className="text-red-500 font-mono">{faceEnhancerBlend}%</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="100" step="5"
+                                value={faceEnhancerBlend}
+                                onChange={e => setFaceEnhancerBlend(parseInt(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Weight (Peso)</span>
+                                <span className="text-red-500 font-mono">{faceEnhancerWeight.toFixed(2)}</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="1" step="0.05"
+                                value={faceEnhancerWeight}
+                                onChange={e => setFaceEnhancerWeight(parseFloat(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Frame Enhancer Settings */}
+                      {selectedProcessors.includes("frame_enhancer") && (
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-bold text-white uppercase tracking-wider border-b border-zinc-900 pb-1 pt-1">
+                            Ajustes de Frame Enhancer (Super Resolução)
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Modelo</span>
+                              <select
+                                value={frameEnhancerModel}
+                                onChange={(e) => setFrameEnhancerModel(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                              >
+                                <option value="span_kendata_x4">Span Kendata x4 (Padrão)</option>
+                                <option value="real_esrgan_x4_fp16">RealESRGAN x4 (Alta Qualidade)</option>
+                                <option value="ultra_sharp_x4">UltraSharp x4 (Nítido)</option>
+                              </select>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-zinc-300">Blend (Mesclagem)</span>
+                                <span className="text-red-500 font-mono">{frameEnhancerBlend}%</span>
+                              </div>
+                              <input
+                                type="range" min="0" max="100" step="5"
+                                value={frameEnhancerBlend}
+                                onChange={e => setFrameEnhancerBlend(parseInt(e.target.value))}
+                                className="w-full accent-red-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1898,6 +2318,119 @@ export default function Home() {
                 className="px-4 py-2 rounded-lg text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20 transition-all cursor-pointer"
               >
                 Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Mapeamento de Rosto Focado */}
+      {selectedFaceForModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-zinc-950/95 border border-zinc-800 rounded-2xl w-full max-w-md p-6 relative backdrop-blur-xl shadow-2xl flex flex-col space-y-4">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Mapeamento do Rosto #{selectedFaceForModal.index + 1}
+              </h3>
+              <button 
+                onClick={() => setSelectedFaceForModal(null)}
+                className="text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Rosto Crop e Demografia */}
+            <div className="flex gap-4 items-center bg-zinc-900/40 p-4 rounded-xl border border-zinc-900">
+              <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 flex-shrink-0">
+                {selectedFaceForModal.crop_url ? (
+                  <img src={apiUrl + selectedFaceForModal.crop_url} alt="Recorte" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-600 text-xs">?</div>
+                )}
+              </div>
+              <div className="space-y-1.5 min-w-0">
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Atributos Estimados</span>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="bg-zinc-800/80 px-2 py-0.5 rounded text-[10px] font-bold text-zinc-300">
+                    Gênero: {selectedFaceForModal.gender === 'male' ? 'Masculino' : 'Feminino'}
+                  </span>
+                  <span className="bg-zinc-800/80 px-2 py-0.5 rounded text-[10px] font-bold text-zinc-300">
+                    Idade: {selectedFaceForModal.age} anos
+                  </span>
+                  <span className="bg-zinc-800/80 px-2 py-0.5 rounded text-[10px] font-bold text-zinc-300 capitalize">
+                    Raça: {selectedFaceForModal.race}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Grade de Origens para Seleção */}
+            <div className="space-y-2">
+              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Escolha a Imagem de Substituição</span>
+              
+              <div className="grid grid-cols-4 gap-2.5 max-h-[160px] overflow-y-auto pr-1">
+                {/* Opção: Manter Original */}
+                <div
+                  onClick={() => {
+                    setFaceMappings(prev => {
+                      const next = { ...prev };
+                      delete next[selectedFaceForModal.index];
+                      return next;
+                    });
+                    setSelectedFaceForModal(null);
+                    showToast("info", "Mapeamento Removido", `Rosto #${selectedFaceForModal.index + 1} mantido original.`);
+                  }}
+                  className={`aspect-square rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer transition-all hover:scale-105 ${
+                    !faceMappings[selectedFaceForModal.index]
+                      ? "border-red-500 bg-red-500/10 text-white"
+                      : "border-zinc-850 hover:border-zinc-750 text-zinc-400 bg-zinc-900/30"
+                  }`}
+                >
+                  <span className="text-[10px] font-bold">Original</span>
+                </div>
+
+                {/* Origens da Galeria */}
+                {sourceItems.map((item, sIdx) => {
+                  const isSelected = faceMappings[selectedFaceForModal.index] === item.file_path;
+                  return (
+                    <div
+                      key={sIdx}
+                      onClick={() => {
+                        setFaceMappings(prev => ({
+                          ...prev,
+                          [selectedFaceForModal.index]: item.file_path
+                        }));
+                        setSelectedFaceForModal(null);
+                        showToast("success", "Rosto Mapeado", `Substituindo rosto #${selectedFaceForModal.index + 1} com ${item.filename}`);
+                      }}
+                      className={`relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition-all hover:scale-105 ${
+                        isSelected
+                          ? "border-red-500 ring-2 ring-red-500/30"
+                          : "border-zinc-850 hover:border-zinc-750"
+                      }`}
+                      title={item.filename}
+                    >
+                      <img src={item.url} alt={item.filename} className="w-full h-full object-cover" />
+                      {isSelected && (
+                        <div className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 z-10">
+                          <Check size={8} className="stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setSelectedFaceForModal(null)}
+                className="bg-zinc-900 hover:bg-zinc-850 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors border border-zinc-850"
+              >
+                Fechar
               </button>
             </div>
           </div>
