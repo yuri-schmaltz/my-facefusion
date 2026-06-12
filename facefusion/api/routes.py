@@ -668,6 +668,12 @@ def generate_preview(request: PreviewRequest):
             sm.set_item('frame_enhancer_blend', request.frame_enhancer_blend)
 
         try:
+            # Garantir que os modelos dos processadores selecionados estejam baixados
+            processors = request.processors or []
+            for processor_module in get_processors_modules(processors):
+                if not processor_module.pre_check():
+                    raise HTTPException(status_code=400, detail=f"Falha ao carregar ou baixar o modelo do processador: {processor_module.__name__}")
+
             # Ler frames de origem
             source_vision_frames = read_static_images(resolved_source_paths)
             source_audio_frame = create_empty_audio_frame()

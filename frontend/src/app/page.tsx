@@ -505,10 +505,11 @@ export default function Home() {
   useEffect(() => {
     const completedJobs = jobs.filter(j => j.status === "completed" && j.outputUrl);
     if (completedJobs.length > 0) {
-      setPreviewOutputUrl(completedJobs[0].outputUrl || null);
-      // Notify when a new job completes
-      if (completedJobs.length > prevCompletedCount.current && prevCompletedCount.current > 0) {
-        showToast("success", "Processamento Concluído!", `${completedJobs[0].id} finalizado com sucesso.`);
+      if (completedJobs.length > prevCompletedCount.current) {
+        setPreviewOutputUrl(completedJobs[0].outputUrl || null);
+        if (prevCompletedCount.current > 0) {
+          showToast("success", "Processamento Concluído!", `${completedJobs[0].id} finalizado com sucesso.`);
+        }
       }
     }
     prevCompletedCount.current = completedJobs.length;
