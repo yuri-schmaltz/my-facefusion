@@ -71,7 +71,8 @@ def prepare_image() -> ErrorCode:
 def process_image() -> ErrorCode:
 	update_job_progress_and_step(60, "Processando imagem")
 	temp_image_path = get_temp_file_path(state_manager.get_item('target_path'))
-	reference_vision_frame = read_static_image(temp_image_path)
+	reference_target_path = state_manager.get_item('reference_target_path') or temp_image_path
+	reference_vision_frame = read_static_image(reference_target_path)
 	source_vision_frames = read_static_images(state_manager.get_item('source_paths'))
 	source_audio_frame = create_empty_audio_frame()
 	source_voice_frame = create_empty_audio_frame()

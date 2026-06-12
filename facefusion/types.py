@@ -290,6 +290,7 @@ StateKey = Literal\
 	'reference_face_position',
 	'reference_face_distance',
 	'reference_frame_number',
+	'reference_target_path',
 	'face_occluder_model',
 	'face_parser_model',
 	'face_mask_types',

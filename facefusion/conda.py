@@ -17,6 +17,14 @@ def setup() -> None:
 				os.path.join(env_prefix, 'lib'),
 				os.path.join(env_prefix, 'lib', python_id, 'site-packages', 'tensorrt_libs')
 			]
+			# Auto-detect python site-packages nvidia packages library paths (e.g. cudnn, cublas, nvrtc)
+			nvidia_dir = os.path.join(env_prefix, 'lib', python_id, 'site-packages', 'nvidia')
+			if os.path.isdir(nvidia_dir):
+				for name in os.listdir(nvidia_dir):
+					lib_path = os.path.join(nvidia_dir, name, 'lib')
+					if os.path.isdir(lib_path):
+						library_paths.append(lib_path)
+
 			library_paths = list(filter(os.path.exists, library_paths))
 
 			if library_paths:

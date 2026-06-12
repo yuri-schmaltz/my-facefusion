@@ -33,7 +33,8 @@ import {
   X,
   Check,
   Info,
-  Eye
+  Eye,
+  Plus
 } from "lucide-react";
 
 /* ======================================== */
@@ -135,6 +136,11 @@ export default function Home() {
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [sourceImageFullPath, setSourceImageFullPath] = useState<string | null>(null);
   const [sourceImageName, setSourceImageName] = useState<string>("");
+  const [sourceItems, setSourceItems] = useState<{ url: string; file_path: string; filename: string; }[]>([]);
+  const [detectedTargetFaces, setDetectedTargetFaces] = useState<{ index: number; bounding_box: number[]; gender: string; age: string; race: string; crop_url: string; }[]>([]);
+  const [isAnalyzingTargetFaces, setIsAnalyzingTargetFaces] = useState(false);
+  const [faceMappings, setFaceMappings] = useState<Record<number, string>>({});
+  const [referenceFrameNumber, setReferenceFrameNumber] = useState<number>(0);
 
   const [targetVideo, setTargetVideo] = useState<string | null>(null);
   const [targetVideoFullPath, setTargetVideoFullPath] = useState<string | null>(null);
@@ -145,6 +151,8 @@ export default function Home() {
   const [detectionThreshold, setDetectionThreshold] = useState(0.70);
   const [smoothing, setSmoothing] = useState(5);
   const [autoPreview, setAutoPreview] = useState(true);
+  const [faceSwapperModel, setFaceSwapperModel] = useState<string>("inswapper_128_fp16");
+  const [faceSwapperPixelBoost, setFaceSwapperPixelBoost] = useState<string>("512x512");
 
   const [outputFormat, setOutputFormat] = useState("MP4");
   const [outputQuality, setOutputQuality] = useState("High");
@@ -494,6 +502,8 @@ export default function Home() {
     if (!file) return;
     try {
       const data = await uploadFile(file);
+      const newSource = { url: apiUrl + data.url, file_path: data.file_path, filename: data.filename };
+      setSourceItems(prev => [...prev, newSource]);
       setSourceImage(apiUrl + data.url);
       setSourceImageFullPath(data.file_path);
       setSourceImageName(data.filename);
@@ -530,6 +540,8 @@ export default function Home() {
     try {
       const data = await uploadFile(file);
       if (type === "source") {
+        const newSource = { url: apiUrl + data.url, file_path: data.file_path, filename: data.filename };
+        setSourceItems(prev => [...prev, newSource]);
         setSourceImage(apiUrl + data.url);
         setSourceImageFullPath(data.file_path);
         setSourceImageName(data.filename);
@@ -589,7 +601,9 @@ export default function Home() {
           timestamp: timestamp,
           face_swapper_weight: faceSwapperWeight,
           face_mask_blur: faceMaskBlur / 50.0,
-          detection_threshold: detectionThreshold
+          detection_threshold: detectionThreshold,
+          face_swapper_model: faceSwapperModel,
+          face_swapper_pixel_boost: faceSwapperPixelBoost
         })
       });
 
@@ -632,11 +646,54 @@ export default function Home() {
     faceSwapperWeight,
     faceMaskBlur,
     detectionThreshold,
+    faceSwapperModel,
+    faceSwapperPixelBoost,
     currentTime,
     targetVideoTime,
     isPlaying,
     isGenerating
   ]);
+
+  // Analisar rostos no frame atual da mídia de destino
+  const analyzeTargetFaces = async () => {
+    if (!targetVideoFullPath) return;
+    setIsAnalyzingTargetFaces(true);
+    setDetectedTargetFaces([]);
+    setFaceMappings({});
+
+    const isVideoFile = !!targetVideoName.match(/\.(mp4|webm|mkv|avi|mov)$/i);
+    const timestamp = isVideoFile ? targetVideoTime : null;
+    const frameNumber = isVideoFile ? Math.round(targetVideoTime * 30) : 0;
+    setReferenceFrameNumber(frameNumber);
+
+    try {
+      const res = await fetch(`${apiUrl}/api/media/analyze-faces`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file_path: targetVideoFullPath,
+          timestamp: timestamp,
+          frame_number: frameNumber
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao analisar rostos");
+      }
+
+      const data = await res.json();
+      setDetectedTargetFaces(data.faces || []);
+      if ((data.faces || []).length === 0) {
+        showToast("info", "Nenhum Rosto Detectado", "Nenhum rosto foi encontrado neste frame.");
+      } else {
+        showToast("success", "Rostos Detectados", `${data.faces.length} rostos encontrados para mapeamento.`);
+      }
+    } catch (err) {
+      showToast("error", "Erro de Análise", "Não foi possível analisar os rostos na mídia de destino.");
+    } finally {
+      setIsAnalyzingTargetFaces(false);
+    }
+  };
 
   // Iniciar processamento
   const handleGenerateSwap = async () => {
@@ -650,12 +707,23 @@ export default function Home() {
     // Calcular frame de início (estimando 30 FPS se for vídeo)
     const trimFrameStart = processFromCurrentPoint ? Math.round(targetVideoTime * 30) : null;
 
+    // Estruturar mappings se existirem mapeamentos definidos
+    const mappings = Object.entries(faceMappings).map(([targetIdx, srcPath]) => ({
+      source_path: srcPath,
+      target_face_index: parseInt(targetIdx, 10),
+      reference_frame_number: referenceFrameNumber
+    }));
+
+    const sourcePaths = mappings.length > 0 
+      ? Array.from(new Set(mappings.map(m => m.source_path)))
+      : [sourceImageFullPath];
+
     try {
       const res = await fetch(`${apiUrl}/api/jobs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          source_paths: [sourceImageFullPath],
+          source_paths: sourcePaths,
           target_path: targetVideoFullPath,
           face_swapper_weight: faceSwapperWeight,
           face_mask_blur: faceMaskBlur / 50.0,
@@ -663,7 +731,10 @@ export default function Home() {
           smoothing: smoothing,
           processors: selectedProcessors,
           output_format: outputFormat.toLowerCase(),
-          trim_frame_start: trimFrameStart
+          trim_frame_start: trimFrameStart,
+          face_swapper_model: faceSwapperModel,
+          face_swapper_pixel_boost: faceSwapperPixelBoost,
+          mappings: mappings.length > 0 ? mappings : null
         })
       });
       if (!res.ok) {
@@ -914,7 +985,14 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-[1.1] min-h-[160px]">
                     {/* Source Image */}
                     <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-full min-h-0 overflow-hidden">
-                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">Imagem de Origem (Source)</span>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Imagens de Origem (Source)</span>
+                        {sourceItems.length > 0 && (
+                          <span className="text-[10px] text-zinc-500 font-medium">
+                            {sourceItems.length} carregada(s)
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="file"
                         ref={sourceInputRef}
@@ -922,20 +1000,62 @@ export default function Home() {
                         className="hidden"
                         onChange={handleSourceUpload}
                       />
-                      {sourceImage ? (
-                        <div className="relative flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden group min-h-0">
-                          <img src={sourceImage} alt="Source Face" className="absolute inset-0 object-contain w-full h-full pointer-events-none" />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center gap-2 transition-all duration-200 z-10">
-                            <p className="text-xs font-semibold text-white truncate max-w-[90%]">{sourceImageName}</p>
+                      {sourceItems.length > 0 ? (
+                        <div className="flex-1 w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 min-h-0 overflow-y-auto">
+                          <div className="grid grid-cols-3 gap-2">
+                            {sourceItems.map((item, index) => {
+                              const isSelected = item.file_path === sourceImageFullPath;
+                              return (
+                                <div
+                                  key={index}
+                                  onClick={() => {
+                                    setSourceImage(item.url);
+                                    setSourceImageFullPath(item.file_path);
+                                    setSourceImageName(item.filename);
+                                  }}
+                                  className={`relative aspect-square bg-zinc-950 border rounded-md overflow-hidden group cursor-pointer transition-all duration-200 ${
+                                    isSelected ? "border-red-500 ring-2 ring-red-500/20" : "border-zinc-800 hover:border-zinc-700"
+                                  }`}
+                                >
+                                  <img src={item.url} alt={item.filename} className="w-full h-full object-cover" />
+                                  {/* Indicador selecionado */}
+                                  {isSelected && (
+                                    <div className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 z-10">
+                                      <Check size={8} className="stroke-[3]" />
+                                    </div>
+                                  )}
+                                  {/* Botão de Excluir */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const newItems = sourceItems.filter((_, idx) => idx !== index);
+                                      setSourceItems(newItems);
+                                      if (item.file_path === sourceImageFullPath) {
+                                        if (newItems.length > 0) {
+                                          setSourceImage(newItems[0].url);
+                                          setSourceImageFullPath(newItems[0].file_path);
+                                          setSourceImageName(newItems[0].filename);
+                                        } else {
+                                          setSourceImage(null);
+                                          setSourceImageFullPath(null);
+                                          setSourceImageName("");
+                                        }
+                                      }
+                                    }}
+                                    className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-red-500 hover:text-red-400 transition-all duration-150 z-20"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                            {/* Adicionar mais */}
                             <button
-                              onClick={() => {
-                                setSourceImage(null);
-                                setSourceImageFullPath(null);
-                                setSourceImageName("");
-                              }}
-                              className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded font-bold transition-all cursor-pointer"
+                              onClick={() => sourceInputRef.current?.click()}
+                              className="aspect-square bg-zinc-950/40 border border-dashed border-zinc-800 hover:border-red-500/40 hover:bg-red-500/5 rounded-md flex flex-col items-center justify-center transition-all duration-150 group cursor-pointer"
                             >
-                              Substituir
+                              <Plus size={16} className="text-zinc-500 group-hover:text-red-500 transition-colors" />
+                              <span className="text-[8px] text-zinc-600 group-hover:text-red-500/80 font-bold uppercase tracking-wider mt-1">Add</span>
                             </button>
                           </div>
                         </div>
@@ -1029,6 +1149,125 @@ export default function Home() {
                     </div>
                   </div>
 
+                  {/* Visual Face Mapping Panel */}
+                  {targetVideoFullPath && sourceItems.length > 0 && (
+                    <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-5 backdrop-blur-md space-y-3 flex-shrink-0">
+                      <div className="flex justify-between items-center border-b border-zinc-900 pb-2.5">
+                        <div>
+                          <h3 className="text-xs font-bold text-white uppercase tracking-wider">Mapeamento Visual de Rostos</h3>
+                          <p className="text-[10px] text-zinc-500 mt-0.5">Associe rostos específicos detectados na mídia de destino a imagens de origem distintas.</p>
+                        </div>
+                        {detectedTargetFaces.length > 0 && (
+                          <button
+                            onClick={() => {
+                              setDetectedTargetFaces([]);
+                              setFaceMappings({});
+                            }}
+                            className="text-[10px] text-red-500 hover:text-red-400 font-bold transition-colors cursor-pointer"
+                          >
+                            Limpar Mapeamento
+                          </button>
+                        )}
+                      </div>
+
+                      {isAnalyzingTargetFaces ? (
+                        <div className="flex flex-col items-center justify-center py-6 space-y-2">
+                          <RefreshCw size={20} className="text-red-500 animate-spin" />
+                          <span className="text-[10px] text-zinc-400 font-medium">Buscando e classificando rostos na mídia...</span>
+                        </div>
+                      ) : detectedTargetFaces.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-4 text-center space-y-2">
+                          <p className="text-[10px] text-zinc-400">Nenhum rosto analisado ainda para este frame de destino.</p>
+                          <button
+                            onClick={analyzeTargetFaces}
+                            className="bg-red-600 hover:bg-red-500 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-lg transition-all shadow-md shadow-red-950/50 cursor-pointer"
+                          >
+                            Detectar Rostos no Frame Atual
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                          {detectedTargetFaces.map((face) => {
+                            const currentMapping = faceMappings[face.index];
+                            return (
+                              <div key={face.index} className="bg-zinc-900/40 border border-zinc-850 rounded-lg p-3 flex gap-3 items-center">
+                                {/* Face Crop Thumbnail */}
+                                <div className="relative w-12 h-12 rounded overflow-hidden border border-zinc-800 bg-zinc-950 flex-shrink-0">
+                                  {face.crop_url ? (
+                                    <img src={apiUrl + face.crop_url} alt={`Rosto ${face.index}`} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-zinc-600 text-xs">?</div>
+                                  )}
+                                  <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[7px] text-zinc-300 text-center py-0.5 font-bold uppercase">
+                                    Rosto #{face.index + 1}
+                                  </span>
+                                </div>
+
+                                {/* Attributes & Mapping Selection */}
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                  <div className="text-[9px] space-x-1.5 text-zinc-400 flex items-center">
+                                    <span className="bg-zinc-800/80 px-1 py-0.5 rounded text-[8px] uppercase font-bold text-zinc-300">
+                                      {face.gender === 'male' ? 'M' : 'F'}
+                                    </span>
+                                    <span className="bg-zinc-800/80 px-1 py-0.5 rounded text-[8px] font-bold text-zinc-300">
+                                      {face.age} anos
+                                    </span>
+                                    <span className="bg-zinc-800/80 px-1 py-0.5 rounded text-[8px] capitalize font-bold text-zinc-300">
+                                      {face.race}
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-0.5">
+                                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-wider block">Substituir com:</span>
+                                    <div className="flex gap-1.5 flex-wrap items-center">
+                                      {/* Option: Ignore (keep original) */}
+                                      <button
+                                        onClick={() => setFaceMappings(prev => {
+                                          const next = { ...prev };
+                                          delete next[face.index];
+                                          return next;
+                                        })}
+                                        className={`text-[8px] font-bold px-2 py-1 rounded transition-all cursor-pointer ${
+                                          !currentMapping
+                                            ? "bg-zinc-800 text-white border border-zinc-700"
+                                            : "bg-zinc-950 text-zinc-500 border border-zinc-900 hover:text-zinc-400"
+                                        }`}
+                                      >
+                                        Original
+                                      </button>
+
+                                      {/* Source thumbnails options */}
+                                      {sourceItems.map((item, sIdx) => {
+                                        const isSelected = currentMapping === item.file_path;
+                                        return (
+                                          <div
+                                            key={sIdx}
+                                            onClick={() => setFaceMappings(prev => ({
+                                              ...prev,
+                                              [face.index]: item.file_path
+                                            }))}
+                                            className={`relative w-6 h-6 rounded border overflow-hidden cursor-pointer transition-all hover:scale-105 ${
+                                              isSelected
+                                                ? "border-red-500 ring-2 ring-red-500/30"
+                                                : "border-zinc-850 hover:border-zinc-750"
+                                            }`}
+                                            title={item.filename}
+                                          >
+                                            <img src={item.url} alt={item.filename} className="w-full h-full object-cover" />
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Processadores de Frame */}
                   <div className="bg-zinc-950/30 border border-zinc-900 rounded-xl p-4 flex flex-col flex-[0.8] min-h-[100px] overflow-hidden">
                     <div className="flex items-center gap-2 text-white font-bold border-b border-zinc-900 pb-1.5 mb-2">
@@ -1073,6 +1312,45 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 flex-1 justify-center">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Modelo do Swapper</span>
+                        <select
+                          value={faceSwapperModel}
+                          onChange={(e) => setFaceSwapperModel(e.target.value)}
+                          className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                        >
+                          <option value="inswapper_128_fp16">InsightFace FP16 (Melhor Geral)</option>
+                          <option value="inswapper_128">InsightFace INT8 (Rápido)</option>
+                          <option value="simswap_unofficial_512">SimSwap 512 (Alta Qualidade)</option>
+                          <option value="simswap_256">SimSwap 256</option>
+                          <option value="hyperswap_1a_256">HyperSwap 1A</option>
+                          <option value="hyperswap_1b_256">HyperSwap 1B</option>
+                          <option value="hyperswap_1c_256">HyperSwap 1C</option>
+                          <option value="blendswap_256">BlendSwap 256</option>
+                          <option value="uniface_256">UniFace 256</option>
+                          <option value="ghost_1_256">Ghost 1</option>
+                          <option value="ghost_2_256">Ghost 2</option>
+                          <option value="ghost_3_256">Ghost 3</option>
+                          <option value="hififace_unofficial_256">HiFiFace 256</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Pixel Boost (Resolução)</span>
+                        <select
+                          value={faceSwapperPixelBoost || ""}
+                          onChange={(e) => setFaceSwapperPixelBoost(e.target.value || "")}
+                          className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition-colors"
+                        >
+                          <option value="">Sem Boost (Padrão)</option>
+                          <option value="256x256">256x256</option>
+                          <option value="384x384">384x384</option>
+                          <option value="512x512">512x512 (Recomendado)</option>
+                          <option value="768x768">768x768</option>
+                          <option value="1024x1024">1024x1024 (Qualidade Máxima)</option>
+                        </select>
+                      </div>
+
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs font-semibold">
                           <span className="text-zinc-300">Face Swapper Weight</span>

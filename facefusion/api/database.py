@@ -61,13 +61,22 @@ def get_db():
 def update_job_progress_and_step(progress_val: int, step_text: str) -> None:
     try:
         from facefusion import state_manager
+        from facefusion.jobs import job_manager
         job_id = state_manager.get_item('job_id')
         if job_id:
             db = SessionLocal()
             job = db.query(JobModel).filter(JobModel.id == job_id).first()
             if job:
-                job.progress = progress_val
-                job.step = step_text
+                # Obter o total de passos e o passo atual
+                step_index = state_manager.get_item('step_index') or 0
+                step_total = job_manager.count_step_total(job_id) or 1
+                
+                # Calcular o progresso geral proporcionalmente
+                scaled_progress = int((step_index * 100 + progress_val) / step_total)
+                scaled_progress = min(max(scaled_progress, 0), 99)
+                
+                job.progress = scaled_progress
+                job.step = f"Passo {step_index + 1}/{step_total}: {step_text}"
                 db.commit()
             db.close()
     except Exception:

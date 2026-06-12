@@ -21,6 +21,12 @@ router = APIRouter()
 
 
 
+class FaceMapping(BaseModel):
+    source_path: str
+    target_face_index: int
+    reference_frame_number: int
+
+
 class JobCreateRequest(BaseModel):
     source_paths: List[str]
     target_path: str
@@ -32,6 +38,9 @@ class JobCreateRequest(BaseModel):
     output_format: Optional[str] = "mp4"
     trim_frame_start: Optional[int] = None
     trim_frame_end: Optional[int] = None
+    face_swapper_model: Optional[str] = "hyperswap_1a_256"
+    face_swapper_pixel_boost: Optional[str] = None
+    mappings: Optional[List[FaceMapping]] = None
 
 
 @router.get("/hardware/providers")
@@ -267,15 +276,16 @@ def get_job_status(job_id: str, db: Session = Depends(get_db)) -> Dict[str, Any]
 def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Cria uma nova tarefa de Face Swap na fila persistente do banco de dados e no disco.
+    Suporta mapeamento de múltiplos rostos ou fluxo padrão de face única/tudo.
     """
     try:
-        step_args = collect_step_args()
-        
-        # Resolução automática de caminhos de mídia enviados como URLs da API ou caminhos absolutos
-        resolved_source_paths = []
         jobs_path = state_manager.get_item("jobs_path") or get_default_path('data')
         uploads_dir = os.path.abspath(os.path.join(jobs_path, "uploads"))
-        
+        outputs_dir = os.path.join(jobs_path, "outputs")
+        create_directory(outputs_dir)
+
+        # Resolução automática de caminhos de mídia
+        resolved_source_paths = []
         for path in request.source_paths:
             if path.startswith("/api/media/upload/"):
                 filename = os.path.basename(path)
@@ -287,49 +297,93 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
         if request.target_path.startswith("/api/media/upload/"):
             filename = os.path.basename(request.target_path)
             resolved_target_path = os.path.join(uploads_dir, filename)
-            
-        step_args["source_paths"] = resolved_source_paths
-        step_args["target_path"] = resolved_target_path
-        step_args["processors"] = request.processors
-        
-        if request.face_swapper_weight is not None:
-            step_args["face_swapper_weight"] = request.face_swapper_weight
-        if request.face_mask_blur is not None:
-            step_args["face_mask_blur"] = request.face_mask_blur
-        if request.detection_threshold is not None:
-            step_args["face_detector_score"] = request.detection_threshold
-            step_args["face_landmarker_score"] = request.detection_threshold
-        if request.trim_frame_start is not None:
-            step_args["trim_frame_start"] = request.trim_frame_start
-        if request.trim_frame_end is not None:
-            step_args["trim_frame_end"] = request.trim_frame_end
-            
-        outputs_dir = os.path.join(jobs_path, "outputs")
-        create_directory(outputs_dir)
-        
+
         target_ext = os.path.splitext(resolved_target_path)[1] or ".mp4"
         job_id = f"job-{uuid.uuid4().hex[:8]}"
-        
         output_filename = f"{job_id}_swapped{target_ext}"
         output_path = os.path.abspath(os.path.join(outputs_dir, output_filename))
-        step_args["output_path"] = output_path
-        
-        # 1. Criar os arquivos de job no disco (para o runner de steps do FaceFusion funcionar)
+
+        # 1. Criar os arquivos de job no disco
         if not job_manager.create_job(job_id):
             raise HTTPException(status_code=500, detail="Falha ao criar arquivo de job.")
-            
-        if not job_manager.add_step(job_id, step_args):
-            raise HTTPException(status_code=500, detail="Falha ao adicionar step ao job.")
-            
+
+        if request.mappings:
+            # Fluxo de Mapeamento de múltiplos rostos (passos sequenciais interligados)
+            for idx, mapping in enumerate(request.mappings):
+                resolved_mapping_source = mapping.source_path
+                if mapping.source_path.startswith("/api/media/upload/"):
+                    resolved_mapping_source = os.path.join(uploads_dir, os.path.basename(mapping.source_path))
+
+                step_args = collect_step_args()
+                step_args["source_paths"] = [resolved_mapping_source]
+                
+                # Interligar passos sequencialmente
+                if idx == 0:
+                    step_args["target_path"] = resolved_target_path
+                else:
+                    step_args["target_path"] = job_helper.get_step_output_path(job_id, idx - 1, output_path)
+
+                step_args["output_path"] = output_path
+                step_args["processors"] = request.processors
+                step_args["face_selector_mode"] = "reference"
+                step_args["reference_face_position"] = mapping.target_face_index
+                step_args["reference_frame_number"] = mapping.reference_frame_number
+                step_args["reference_target_path"] = resolved_target_path
+
+                if request.face_swapper_model is not None:
+                    step_args["face_swapper_model"] = request.face_swapper_model
+                if request.face_swapper_pixel_boost is not None:
+                    step_args["face_swapper_pixel_boost"] = request.face_swapper_pixel_boost
+                if request.face_swapper_weight is not None:
+                    step_args["face_swapper_weight"] = request.face_swapper_weight
+                if request.face_mask_blur is not None:
+                    step_args["face_mask_blur"] = request.face_mask_blur
+                if request.detection_threshold is not None:
+                    step_args["face_detector_score"] = request.detection_threshold
+                    step_args["face_landmarker_score"] = request.detection_threshold
+                if request.trim_frame_start is not None:
+                    step_args["trim_frame_start"] = request.trim_frame_start
+                if request.trim_frame_end is not None:
+                    step_args["trim_frame_end"] = request.trim_frame_end
+
+                if not job_manager.add_step(job_id, step_args):
+                    raise HTTPException(status_code=500, detail=f"Falha ao adicionar passo {idx} ao job.")
+        else:
+            # Fluxo padrão de face única/tudo
+            step_args = collect_step_args()
+            step_args["source_paths"] = resolved_source_paths
+            step_args["target_path"] = resolved_target_path
+            step_args["output_path"] = output_path
+            step_args["processors"] = request.processors
+
+            if request.face_swapper_model is not None:
+                step_args["face_swapper_model"] = request.face_swapper_model
+            if request.face_swapper_pixel_boost is not None:
+                step_args["face_swapper_pixel_boost"] = request.face_swapper_pixel_boost
+            if request.face_swapper_weight is not None:
+                step_args["face_swapper_weight"] = request.face_swapper_weight
+            if request.face_mask_blur is not None:
+                step_args["face_mask_blur"] = request.face_mask_blur
+            if request.detection_threshold is not None:
+                step_args["face_detector_score"] = request.detection_threshold
+                step_args["face_landmarker_score"] = request.detection_threshold
+            if request.trim_frame_start is not None:
+                step_args["trim_frame_start"] = request.trim_frame_start
+            if request.trim_frame_end is not None:
+                step_args["trim_frame_end"] = request.trim_frame_end
+
+            if not job_manager.add_step(job_id, step_args):
+                raise HTTPException(status_code=500, detail="Falha ao adicionar step ao job.")
+
         if not job_manager.submit_job(job_id):
             raise HTTPException(status_code=500, detail="Falha ao enviar job para fila.")
-            
+
         # 2. Registrar no banco de dados SQLite
         db_job = JobModel(
             id=job_id,
             status="queued",
             progress=0,
-            source_paths=json.dumps(resolved_source_paths),
+            source_paths=json.dumps(resolved_source_paths if not request.mappings else [m.source_path for m in request.mappings]),
             target_path=resolved_target_path,
             output_path=output_path,
             face_swapper_weight=request.face_swapper_weight,
@@ -340,7 +394,7 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
         )
         db.add(db_job)
         db.commit()
-        
+
         return {
             "job_id": job_id,
             "status": "queued",
@@ -348,6 +402,8 @@ def create_job(request: JobCreateRequest, db: Session = Depends(get_db)) -> Dict
             "output_url": f"/api/media/output/{output_filename}"
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro ao criar job: {str(e)}")
 
 
@@ -465,6 +521,8 @@ class PreviewRequest(BaseModel):
     face_swapper_weight: Optional[float] = 0.5
     face_mask_blur: Optional[float] = 0.3
     detection_threshold: Optional[float] = 0.5
+    face_swapper_model: Optional[str] = "hyperswap_1a_256"
+    face_swapper_pixel_boost: Optional[str] = None
 
 
 @router.post("/preview")
@@ -513,11 +571,17 @@ def generate_preview(request: PreviewRequest):
         old_source = sm.get_item('source_paths')
         old_target = sm.get_item('target_path')
         old_processors = sm.get_item('processors')
+        old_face_swapper_model = sm.get_item('face_swapper_model')
+        old_face_swapper_pixel_boost = sm.get_item('face_swapper_pixel_boost')
 
         sm.set_item('source_paths', resolved_source_paths)
         sm.set_item('target_path', resolved_target_path)
         sm.set_item('processors', request.processors)
 
+        if request.face_swapper_model is not None:
+            sm.set_item('face_swapper_model', request.face_swapper_model)
+        if request.face_swapper_pixel_boost is not None:
+            sm.set_item('face_swapper_pixel_boost', request.face_swapper_pixel_boost)
         if request.face_swapper_weight is not None:
             sm.set_item('face_swapper_weight', request.face_swapper_weight)
         if request.face_mask_blur is not None:
@@ -606,6 +670,10 @@ def generate_preview(request: PreviewRequest):
                 sm.set_item('target_path', old_target)
             if old_processors is not None:
                 sm.set_item('processors', old_processors)
+            if old_face_swapper_model is not None:
+                sm.set_item('face_swapper_model', old_face_swapper_model)
+            if old_face_swapper_pixel_boost is not None:
+                sm.set_item('face_swapper_pixel_boost', old_face_swapper_pixel_boost)
 
     except HTTPException:
         raise
@@ -613,3 +681,118 @@ def generate_preview(request: PreviewRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro ao gerar preview: {str(e)}")
+
+
+class FaceAnalyzeRequest(BaseModel):
+    file_path: str
+    frame_number: Optional[int] = 0
+    timestamp: Optional[float] = None
+
+
+@router.post("/media/analyze-faces")
+def analyze_faces(request: FaceAnalyzeRequest):
+    """
+    Detecta e classifica todos os rostos em um determinado frame/imagem.
+    Retorna coordenadas, gênero, idade, raça e uma miniatura recortada.
+    """
+    try:
+        from facefusion import state_manager as sm
+        from facefusion.filesystem import is_image, is_video, get_default_path
+        from facefusion.vision import read_static_image, read_video_frame, detect_video_fps
+        from facefusion.face_selector import sort_and_filter_faces
+        from facefusion.face_analyser import get_many_faces
+        from facefusion import face_detector, face_landmarker, face_recognizer, face_classifier
+        import cv2
+        import numpy as np
+
+        # 1. Resolver caminhos
+        jobs_path = sm.get_item("jobs_path") or get_default_path('data')
+        uploads_dir = os.path.abspath(os.path.join(jobs_path, "uploads"))
+        
+        resolved_path = request.file_path
+        if request.file_path.startswith("/api/media/upload/"):
+            filename = os.path.basename(request.file_path)
+            resolved_path = os.path.join(uploads_dir, filename)
+            
+        if not os.path.exists(resolved_path):
+            raise HTTPException(status_code=400, detail=f"Arquivo não encontrado: {resolved_path}")
+
+        # 2. Executar pre_checks para garantir modelos baixados
+        face_detector.pre_check()
+        face_landmarker.pre_check()
+        face_recognizer.pre_check()
+        face_classifier.pre_check()
+
+        # 3. Ler frame
+        if is_image(resolved_path):
+            frame = read_static_image(resolved_path)
+        elif is_video(resolved_path):
+            if request.timestamp is not None:
+                fps = detect_video_fps(resolved_path) or 30.0
+                frame_number = int(request.timestamp * fps)
+            else:
+                frame_number = request.frame_number or 0
+            frame = read_video_frame(resolved_path, frame_number)
+        else:
+            raise HTTPException(status_code=400, detail="Formato de mídia não suportado para análise.")
+
+        if frame is None:
+            raise HTTPException(status_code=400, detail="Não foi possível ler o frame da mídia.")
+
+        # 4. Detectar e classificar os rostos
+        # Configurar ordenação padrão temporariamente para o filtro retornar índices previsíveis
+        old_selector_order = sm.get_item('face_selector_order')
+        if not old_selector_order:
+            sm.set_item('face_selector_order', 'large-small')
+        
+        detected_faces = get_many_faces([frame])
+        sorted_faces = sort_and_filter_faces(detected_faces)
+        
+        if old_selector_order:
+            sm.set_item('face_selector_order', old_selector_order)
+
+        # 5. Salvar recortes e estruturar retorno
+        results = []
+        for idx, face in enumerate(sorted_faces):
+            h, w = frame.shape[:2]
+            # Coordenadas: left, top, right, bottom
+            x_min = max(0, int(face.bounding_box[0]))
+            y_min = max(0, int(face.bounding_box[1]))
+            x_max = min(w, int(face.bounding_box[2]))
+            y_max = min(h, int(face.bounding_box[3]))
+            
+            crop_url = None
+            if x_max > x_min and y_max > y_min:
+                crop = frame[y_min:y_max, x_min:x_max]
+                crop_filename = f"crop_{uuid.uuid4().hex[:12]}.jpg"
+                crop_path = os.path.join(uploads_dir, crop_filename)
+                
+                # Converter de RGBA/BGR para BGR caso necessário antes de gravar
+                if len(crop.shape) == 3 and crop.shape[2] == 4:
+                    crop_bgr = cv2.cvtColor(crop, cv2.COLOR_BGRA2BGR)
+                else:
+                    crop_bgr = crop
+                    
+                cv2.imwrite(crop_path, crop_bgr, [cv2.IMWRITE_JPEG_QUALITY, 90])
+                crop_url = f"/api/media/upload/{crop_filename}"
+
+            # Formatar a idade como string legível
+            age_str = f"{face.age.start}-{face.age.stop - 1}" if hasattr(face.age, "start") else str(face.age)
+
+            results.append({
+                "index": idx,
+                "bounding_box": [x_min, y_min, x_max, y_max],
+                "gender": face.gender,
+                "age": age_str,
+                "race": face.race,
+                "crop_url": crop_url
+            })
+
+        return {"faces": results}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro ao analisar rostos: {str(e)}")

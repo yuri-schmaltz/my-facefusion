@@ -1,7 +1,20 @@
+from typing import List
+
 from facefusion.ffmpeg import concat_video
-from facefusion.filesystem import are_images, are_videos, move_file, remove_file
+from facefusion.filesystem import are_images, are_videos, move_file, remove_file, is_file
 from facefusion.jobs import job_helper, job_manager
 from facefusion.types import JobOutputSet, JobStep, ProcessStep
+
+
+def is_sequential_job(steps: List[JobStep], job_id: str) -> bool:
+	if len(steps) <= 1:
+		return False
+	for i in range(1, len(steps)):
+		prev_output_path = steps[i - 1].get('args', {}).get('output_path')
+		prev_step_output_path = job_helper.get_step_output_path(job_id, i - 1, prev_output_path)
+		if steps[i].get('args', {}).get('target_path') != prev_step_output_path:
+			return False
+	return True
 
 
 def run_job(job_id : str, process_step : ProcessStep) -> bool:
@@ -76,6 +89,15 @@ def run_steps(job_id : str, process_step : ProcessStep) -> bool:
 
 
 def finalize_steps(job_id : str) -> bool:
+	steps = job_manager.get_steps(job_id)
+	if is_sequential_job(steps, job_id):
+		last_step = steps[-1]
+		last_output_path = last_step.get('args', {}).get('output_path')
+		last_step_output_path = job_helper.get_step_output_path(job_id, len(steps) - 1, last_output_path)
+		if last_step_output_path and is_file(last_step_output_path):
+			return move_file(last_step_output_path, last_output_path)
+		return False
+
 	output_set = collect_output_set(job_id)
 
 	for output_path, temp_output_paths in output_set.items():
@@ -94,8 +116,9 @@ def clean_steps(job_id: str) -> bool:
 
 	for temp_output_paths in output_set.values():
 		for temp_output_path in temp_output_paths:
-			if not remove_file(temp_output_path):
-				return False
+			if is_file(temp_output_path):
+				if not remove_file(temp_output_path):
+					return False
 	return True
 
 
