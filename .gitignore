@@ -15,3 +15,30 @@ build/
 dist/
 release/facefusion-app
 *.zip
+
+# Local development scratch / transient test artefacts
+# (prevent leaked test scaffolding from being committed again)
+.new_jobs_path_test/
+.new_jobs_path_test/**
+out/
+tmp/
+*.tmp
+
+# Frontend (Next.js) build outputs
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.turbo/
+frontend/coverage/
+
+# Python packaging / virtualenvs
+*.egg-info/
+.eggs/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Local config overrides (avoid leaking personal paths)
+facefusion.ini.local
+*.local.ini
